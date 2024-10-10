@@ -1,38 +1,59 @@
-// create users crud routes in next js 
-import { NextRequest, NextResponse } from "next/server"; 
-import {dbconfig } from "../../dbconfig";
-import { error } from "console";
+import { NextApiRequest, NextApiResponse } from 'next';
+import dbconfig from '../../dbconfig'; 
+import User from '../../models/User'; 
+import { withFilterSortPagination } from '../../middlewares/FilterSort';
 
-export async function GET(req: NextRequest, res: NextResponse) {
-    const user = await User.find();
-    const data = await res.getModelListDetails(User)
-    return req.status(200).send({
-        error: false,
-        data: user,
-        message: "User list",
-        details: await res.getModelListDetails(User)
-    })
-  
-},
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  await dbconfig(); // Ensure DB is connected
 
-export async function POST(req: NextRequest, res: NextResponse) {
-    const user = await User.create(req.body);
-    return req.status(200).send({
-        error: false,
-        data: user,
-        message: "User created",
-        details: await res.getModelListDetails(User)
-    })
-},
+  switch (req.method) {
+    case 'GET':
+      await withFilterSortPagination(req, res, async () => {
+        const users = await res.getModelList(User);
+        const details = await res.getModelListDetails(User);
+        return res.status(200).json({
+          error: false,
+          data: users,
+          message: 'User list',
+          details,
+        });
+      });
+      break;
 
-export async function DELETE (req: NextRequest, res: NextResponse) {
-    const id = req.nextUrl.searchParams.get("id");
-    const user = await User.findByIdAndDelete(id);
-    return req.status(200).send({
-        error: false,
-        data: user,
-        message: "User deleted",
-        details: await res.getModelListDetails(User)
-    })
-}
+    case 'POST':
+      try {
+        const user = await User.create(req.body);
+        const details = await res.getModelListDetails(User);
+        return res.status(201).json({
+          error: false,
+          data: user,
+          message: 'User created',
+          details,
+        });
+      } catch (error) {
+        return res.status(400).json({ error: true, message: error.message });
+      }
 
+    case 'DELETE':
+      try {
+        const id = req.query.id;
+        if (!id) throw new Error('ID is required');
+        const user = await User.findByIdAndDelete(id);
+        if (!user) return res.status(404).json({ error: true, message: 'User not found' });
+        const details = await res.getModelListDetails(User);
+        return res.status(200).json({
+          error: false,
+          data: user,
+          message: 'User deleted',
+          details,
+        });
+      } catch (error) {
+        return res.status(400).json({ error: true, message: error.message });
+      }
+
+    default:
+      return res.status(405).json({ error: true, message: 'Method not allowed' });
+  }
+};
+
+export default handler;

@@ -3,6 +3,11 @@ import dbconfig from '../../dbconfig';
 import User from '../../models/User'; 
 import { withFilterSortPagination } from '../../middlewares/FilterSort';
 
+
+interface CustomError extends Error {
+    message: string;
+  }
+  
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   await dbconfig(); // Ensure DB is connected
 
@@ -31,7 +36,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           details,
         });
       } catch (error) {
-        return res.status(400).json({ error: true, message: error.message });
+        const err = error as CustomError;
+
+        return res.status(400).json({ error: true, message: err.message });
       }
 
     case 'DELETE':
@@ -48,7 +55,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           details,
         });
       } catch (error) {
-        return res.status(400).json({ error: true, message: error.message });
+        const err = error as CustomError;
+
+        return res.status(400).json({ error: true, message: err.message });
       }
 
     default:

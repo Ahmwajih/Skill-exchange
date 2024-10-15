@@ -3,50 +3,51 @@ import dbconfig from '../../dbconfig';
 import SkillExchange from '../../models/SkillExchange'; 
 import { withFilterSortPagination } from '../../middlewares/FilterSort';
 
-
-import { NextApiRequest, NextApiResponse } from 'next';
-import dbconfig from '../../dbconfig'; 
-import SkillExchange from '../../models/SkillExchange'; 
-import { withFilterSortPagination } from '../../middlewares/FilterSort';
-
 interface CustomError extends Error {
   message: string;
 }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  // Ensure DB is connected
   await dbconfig();
 
   switch (req.method) {
     case 'GET':
       await withFilterSortPagination(req, res, async () => {
-        try {
-          const { id } = req.query;  
-          const skill = await SkillExchange.findById(id);
+        const skills = await res.getModelList(SkillExchange);
+        const details = await res.getModelListDetails(SkillExchange);
 
-          if (!skill) return res.status(404).json({ error: true, message: 'SkillExchange not found' });
-
-          const details = await res.getModelListDetails(SkillExchange);
-
-          return res.status(200).json({
-            error: false,
-            data: skill,
-            message: 'SkillExchange details',
-            details, 
-          });
-        } catch (error) {
-          const err = error as CustomError;
-          return res.status(400).json({ error: true, message: err.message });
-        }
+        return res.status(200).json({
+          error: false,
+          data: skills,
+          message: 'SkillExchange list',
+          details,
+        });
       });
       break;
 
-    case 'PUT':
+    case 'POST':
       try {
-        const { id } = req.query;  
+        const skill = await SkillExchange.create(req.body);
+        const details = await res.getModelListDetails(SkillExchange);
+
+        return res.status(201).json({
+          error: false,
+          data: skill,
+          message: 'SkillExchange created',
+          details,
+        });
+      } catch (error) {
+        const err = error as CustomError;
+        return res.status(400).json({ error: true, message: err.message });
+      }
+
+    case 'DELETE':
+      try {
+        const id = req.query.id;
 
         if (!id) throw new Error('ID is required');
-        const skill = await SkillExchange.findByIdAndUpdate(id, req.body, { new: true });
+
+        const skill = await SkillExchange.findByIdAndDelete(id);
 
         if (!skill) return res.status(404).json({ error: true, message: 'SkillExchange not found' });
 
@@ -55,8 +56,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(200).json({
           error: false,
           data: skill,
-          message: 'SkillExchange updated',
-          details, 
+          message: 'SkillExchange deleted',
+          details,
         });
       } catch (error) {
         const err = error as CustomError;

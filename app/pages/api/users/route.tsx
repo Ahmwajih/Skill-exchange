@@ -1,26 +1,27 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import dbconfig from '../../dbconfig'; 
-import SkillExchange from '../../models/SkillExchange'; 
+import User from '../../models/User'; 
 import { withFilterSortPagination } from '../../middlewares/FilterSort';
+import authMiddleware from '@/app/middlewares/authMiddleware'; 
+
+
 
 interface CustomError extends Error {
-  message: string;
-}
-
+    message: string;
+  }
+  
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  // Ensure DB is connected
-  await dbconfig();
+  await dbconfig(); 
 
   switch (req.method) {
     case 'GET':
       await withFilterSortPagination(req, res, async () => {
-        const skills = await res.getModelList(SkillExchange);
-        const details = await res.getModelListDetails(SkillExchange);
-
+        const users = await res.getModelList(User);
+        const details = await res.getModelListDetails(User);
         return res.status(200).json({
           error: false,
-          data: skills,
-          message: 'SkillExchange list',
+          data: users,
+          message: 'User list',
           details,
         });
       });
@@ -28,40 +29,36 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     case 'POST':
       try {
-        const skill = await SkillExchange.create(req.body);
-        const details = await res.getModelListDetails(SkillExchange);
-
+        const user = await User.create(req.body);
+        const details = await res.getModelListDetails(User);
         return res.status(201).json({
           error: false,
-          data: skill,
-          message: 'SkillExchange created',
+          data: user,
+          message: 'User created',
           details,
         });
       } catch (error) {
         const err = error as CustomError;
+
         return res.status(400).json({ error: true, message: err.message });
       }
 
     case 'DELETE':
       try {
         const id = req.query.id;
-
         if (!id) throw new Error('ID is required');
-
-        const skill = await SkillExchange.findByIdAndDelete(id);
-
-        if (!skill) return res.status(404).json({ error: true, message: 'SkillExchange not found' });
-
-        const details = await res.getModelListDetails(SkillExchange);
-
+        const user = await User.findByIdAndDelete(id);
+        if (!user) return res.status(404).json({ error: true, message: 'User not found' });
+        const details = await res.getModelListDetails(User);
         return res.status(200).json({
           error: false,
-          data: skill,
-          message: 'SkillExchange deleted',
+          data: user,
+          message: 'User deleted',
           details,
         });
       } catch (error) {
         const err = error as CustomError;
+
         return res.status(400).json({ error: true, message: err.message });
       }
 
@@ -70,4 +67,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export default handler;
+export default authMiddleware(handler);

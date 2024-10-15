@@ -4,7 +4,6 @@ import User from '../../models/User';
 import { withFilterSortPagination } from '../../../middlewares/FilterSort';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    // Ensure DB is connected
     await dbconfig();
 
     switch (req.method) {

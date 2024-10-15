@@ -1,25 +1,25 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import dbconfig from '../../dbconfig'; 
-import User from '../../models/User'; 
+import dbconfig from '../../dbconfig';
+import Token from '../../models/Token';
 import { withFilterSortPagination } from '../../middlewares/FilterSort';
 
-
 interface CustomError extends Error {
-    message: string;
-  }
-  
+  message: string;
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  await dbconfig(); // Ensure DB is connected
+  await dbconfig();
 
   switch (req.method) {
     case 'GET':
       await withFilterSortPagination(req, res, async () => {
-        const users = await res.getModelList(User);
-        const details = await res.getModelListDetails(User);
+        const tokens = await res.getModelList(Token);
+        const details = await res.getModelListDetails(Token);
+
         return res.status(200).json({
           error: false,
-          data: users,
-          message: 'User list',
+          data: tokens,
+          message: 'Token list',
           details,
         });
       });
@@ -27,42 +27,44 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     case 'POST':
       try {
-        const user = await User.create(req.body);
-        const details = await res.getModelListDetails(User);
+        const token = await Token.create(req.body);
+        const details = await res.getModelListDetails(Token);
+
         return res.status(201).json({
           error: false,
-          data: user,
-          message: 'User created',
+          data: token,
+          message: 'Token created',
           details,
         });
       } catch (error) {
         const err = error as CustomError;
-
         return res.status(400).json({ error: true, message: err.message });
       }
 
     case 'DELETE':
       try {
         const id = req.query.id;
+
         if (!id) throw new Error('ID is required');
-        const user = await User.findByIdAndDelete(id);
-        if (!user) return res.status(404).json({ error: true, message: 'User not found' });
-        const details = await res.getModelListDetails(User);
+
+        const token = await Token.findByIdAndDelete(id);
+
+        if (!token) return res.status(404).json({ error: true, message: 'Token not found' });
+
+        const details = await res.getModelListDetails(Token);
+
         return res.status(200).json({
           error: false,
-          data: user,
-          message: 'User deleted',
+          data: token,
+          message: 'Token deleted',
           details,
         });
       } catch (error) {
         const err = error as CustomError;
-
         return res.status(400).json({ error: true, message: err.message });
       }
-
-    default:
-      return res.status(405).json({ error: true, message: 'Method not allowed' });
   }
-};
+};  
+
 
 export default handler;

@@ -1,4 +1,4 @@
-import connectDB from '../../lib/db'; // Correctly import from lib/db
+import connectDB from '../../lib/db'; 
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

@@ -1,15 +1,11 @@
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import db from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcrypt';
-// import GithubProvider from "next-auth/providers/github"
-// import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions = {
-  session: {
-    strategy: 'jwt',
-  },
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -19,31 +15,17 @@ export const authOptions = {
       },
       async authorize(credentials) {
         await db();
-
-       
+        
         const user = await User.findOne({ email: credentials.email });
         if (user && bcrypt.compareSync(credentials.password, user.password)) {
-          return { id: user._id, email: user.email, role: user.role };
+          return { id: user._id.toString(), email: user.email, role: user.role };
         }
-        return null; 
+        return null;
       },
     }),
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_ID,
-    //   clientSecret: process.env.GOOGLE_SECRET,
-    // }),
-
-
-    // GithubProvider({
-    //   clientId: process.env.GITHUB_ID,
-    //   clientSecret: process.env.GITHUB_SECRET,
-    // }),
   ],
   pages: {
     signIn: '/auth/signin',
-  },
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET, 
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -54,7 +36,6 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      // Send token data to the session
       session.user.id = token.id;
       session.user.role = token.role;
       return session;
@@ -62,6 +43,7 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
 
 const handler = NextAuth(authOptions);
 

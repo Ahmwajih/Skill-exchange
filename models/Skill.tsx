@@ -5,8 +5,7 @@ export interface ISkill extends Document {
   description: string;
   category: string;
   user: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+
 }
 
 const skillSchema: Schema<ISkill> = new mongoose.Schema(

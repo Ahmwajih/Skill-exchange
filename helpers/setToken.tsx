@@ -1,19 +1,13 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 
-const SECRET_KEY = process.env.JWT_SECRET as string;
-const REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET as string;
+export const setToken = (request: NextRequest) => {
+    try {
+        const token = request.cookies.get("token")?.value || '';
+        const decodedToken:any = jwt.verify(token, process.env.TOKEN_SECRET!);
+        return decodedToken.id;
+    } catch (error: any) {
+        throw new Error(error.message);
+    }
 
-export const generateToken = (payload: JwtPayload) => {
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
-  const refreshToken = jwt.sign(payload, REFRESH_SECRET_KEY, { expiresIn: '7d' });
-  return { token, refreshToken };
-};
-
-export const verifyToken = (token: string) => {
-  return jwt.verify(token, SECRET_KEY);
-};
-
-export const verifyRefreshToken = (token: string) => {
-  return jwt.verify(token, REFRESH_SECRET_KEY);
-};
-
+}

@@ -1,11 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 
-// Define the interface for TypeScript
 export interface IUser extends Document {
   name: string;
   email: string;
-  password: string; // Add password to the interface
+  password: string;
   country: string;
   role: 'seeker' | 'provider' | 'admin';
   skills: mongoose.Types.ObjectId[];
@@ -15,7 +14,6 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
-// Define the Mongoose schema
 const userSchema: Schema<IUser> = new mongoose.Schema(
   {
     name: {
@@ -32,7 +30,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true, // Password field (will be hashed)
+      required: true, 
       minlength: 6,
     },
     country: {

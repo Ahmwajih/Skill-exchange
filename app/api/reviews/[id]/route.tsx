@@ -1,65 +1,68 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import db from '@/lib/db';
 import Review from '@/models/Review';
+import mongoose from 'mongoose';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
 
+  const { id } = params;
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ success: false, error: 'Valid ID is required' }, { status: 400 });
+  }
+
   try {
-    const { id } = req.query;
-    const review = await Review.findById(id);
-
+    const review = await Review.findById(id).populate('user', 'name email');
     if (!review) {
-      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Review not found' }, { status: 404 });
     }
-
     return NextResponse.json({ success: true, data: review });
   } catch (error) {
-    return NextResponse.json({ success: false, error }, { status: 400 });
+    console.error('Error fetching review:', error);
+    return NextResponse.json({ success: false, error: 'Error fetching review' }, { status: 500 });
   }
 }
 
-export async function PUT(req: Request) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
 
+  const { id } = params;
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ success: false, error: 'Valid ID is required' }, { status: 400 });
+  }
+
   try {
-    const { id } = req.query;
     const body = await req.json();
-
-    if (!id) {
-      throw new Error('ID is required');
-    }
-
-    const review = await Review.findByIdAndUpdate(id, body, { new: true });
-
+    const review = await Review.findByIdAndUpdate(id, body, { new: true, runValidators: true }).populate('user', 'name email');
     if (!review) {
-      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Review not found' }, { status: 404 });
     }
-
     return NextResponse.json({ success: true, data: review });
   } catch (error) {
-    return NextResponse.json({ success: false, error }, { status: 400 });
+    console.error('Error updating review:', error);
+    return NextResponse.json({ success: false, error: 'Error updating review' }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request) {
-  await connectDB();
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  await db();
+
+  const { id } = params;
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ success: false, error: 'Valid ID is required' }, { status: 400 });
+  }
 
   try {
-    const { id } = req.query;
-
-    if (!id) {
-      throw new Error('ID is required');
+    const review = await Review.findByIdAndDelete(id);
+    if (!review) {
+      return NextResponse.json({ success: false, error: 'Review not found' }, { status: 404 });
     }
-
-    const user = await User.findByIdAndDelete(id);
-
-    if (!user) {
-      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true, data: user });
+    return NextResponse.json({ success: true, data: review });
   } catch (error) {
-    return NextResponse.json({ success: false, error }, { status: 400 });
+    console.error('Error deleting review:', error);
+    return NextResponse.json({ success: false, error: 'Error deleting review' }, { status: 500 });
   }
 }

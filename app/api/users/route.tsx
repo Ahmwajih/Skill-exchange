@@ -6,7 +6,7 @@ export async function GET() {
   await db();
 
   try {
-    const users = await User.find({});
+    const users = await User.find({}).populate('skills', );
     return NextResponse.json({ success: true, data: users });
   } catch (error) {
     return NextResponse.json({ success: false, error }, { status: 400 });

@@ -42,4 +42,6 @@ const skillSchema: Schema<ISkill> = new mongoose.Schema(
   }
 );
 
-export default mongoose.models.Skill || mongoose.model<ISkill>('Skill', skillSchema);
+const Skill = mongoose.model<ISkill>('Skill', skillSchema);
+
+export default Skill;

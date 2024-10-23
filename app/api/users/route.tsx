@@ -1,19 +1,44 @@
-import { NextResponse, NextRequest } from 'next/server';
-import db from '@/lib/db';
-import User from '@/models/User';
+// app/api/users/route.ts
+import { NextResponse, NextRequest } from "next/server";
+import db from "@/lib/db";
+import User from "@/models/User";
+import jwt from "jsonwebtoken";
+import { paginationMiddleware } from "@/middleware/pagination";
 
-export async function GET() {
+const JWT_SECRET = process.env.JWT_SECRET;
+
+export async function GET(req: NextRequest) {
   await db();
 
   try {
-    const query = {};
-    const users = await User.find(query)
+    const paginationData = await paginationMiddleware(req);
+
+    const users = await User.find({})
+      .skip(paginationData.skip)
+      .limit(paginationData.limit)
+      .select('-password')
       .populate('skills', 'title description category')
-      // .populate('reviews', 'rating comments skill');
-    return NextResponse.json({ success: true, data: users });
+      .lean();
+
+
+    const totalUsers = await User.countDocuments();
+
+    return NextResponse.json({
+      success: true,
+      data: users,
+      Details: {
+        total: totalUsers,
+        page: paginationData.page,
+        limit: paginationData.limit,
+        pages: Math.ceil(totalUsers / paginationData.limit),
+      },
+    });
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+    console.error("Error fetching users:", error);
+    return NextResponse.json(
+      { success: false, error: "Error fetching users" },
+      { status: 500 }
+    );
   }
 }
 
@@ -22,11 +47,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const {name, email, password, country, role, isActive, isAdmin} = body;
-    const user =  await User.findOne({email});
-    if(user) {
-      return NextResponse.json({ success: false, error: 'User already exists' }, { status: 400 });
+    const { name, email, password, country, role, isActive, isAdmin } = body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, error: "User already exists" },
+        { status: 400 }
+      );
     }
+
     const newUser = new User({
       name,
       email,
@@ -34,12 +64,41 @@ export async function POST(req: NextRequest) {
       country,
       role,
       isActive,
-      isAdmin
+      isAdmin,
     });
-    const registerUser = await newUser.save();
-    //  send email to user to after confirmation OF HIS IDENTITY 
-    return NextResponse.json({ success: true, data: registerUser, message: "User created successfully" }, { status: 201 });
+    const savedUser = await newUser.save();
+
+    const token = jwt.sign(
+      { id: savedUser._id, email: savedUser.email },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const userWithoutPassword = savedUser.toObject();
+    delete userWithoutPassword.password;
+
+    const response = NextResponse.json(
+      {
+        success: true,
+        data: userWithoutPassword,
+        message: "User created successfully",
+      },
+      { status: 201 }
+    );
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 3600, // 1 hour
+    });
+
+    return response;
   } catch (error) {
-    return NextResponse.json({ success: false, error }, { status: 400 });
+    console.error("Error creating user:", error);
+    return NextResponse.json(
+      { success: false, error: "Error creating user" },
+      { status: 500 }
+    );
   }
 }

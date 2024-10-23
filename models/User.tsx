@@ -7,11 +7,11 @@ export interface IUser extends Document {
   password: string;
   country: string;
   role: 'seeker' | 'provider' | 'admin';
+  isAdmin: boolean;
+  isActive: boolean;
   skills: mongoose.Types.ObjectId[];
   skill_exchanges: mongoose.Types.ObjectId[];
   reviews: mongoose.Types.ObjectId[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema(
@@ -43,6 +43,14 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       enum: ['seeker', 'provider', 'admin'],
       default: 'seeker',
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: false,
+    },
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
     skill_exchanges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SkillExchange' }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
@@ -53,14 +61,12 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
   }
 );
 
-// Pre-save hook to hash the password before saving the user
 userSchema.pre('save', async function (next) {
   const user = this as IUser;
 
-  // Only hash the password if it's been modified (or is new)
   if (!user.isModified('password')) return next();
 
-  // Hash the password with a salt
+  
   try {
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
@@ -70,5 +76,4 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Export the model
 export default mongoose.models.User || mongoose.model<IUser>('User', userSchema);

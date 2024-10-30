@@ -12,12 +12,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const paginationData = await paginationMiddleware(req);
-
     const users = await User.find({})
       .skip(paginationData.skip)
       .limit(paginationData.limit)
       .select('-password')
-      .populate('skills', 'title description category')
+      // .populate('skills', 'title description category')
       .lean();
 
 

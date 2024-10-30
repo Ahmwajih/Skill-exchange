@@ -20,7 +20,7 @@ export default function SignIn() {
     if (result?.error) {
       console.error(result.error);
     } else {
-      router.push("/dashboard");
+      router.push("/");
     }
   };
 

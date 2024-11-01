@@ -1,4 +1,5 @@
 import Login from "@/app/pages/Login";
+import './globals.css';
 
 export default function Home() {
   return (

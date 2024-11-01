@@ -2,6 +2,7 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     "./app/**/*.{js,ts,jsx,tsx}", // Adjust as needed for your project structure
     "./pages/**/*.{js,ts,jsx,tsx}",

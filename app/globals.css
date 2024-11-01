@@ -3,3 +3,13 @@
 @tailwind utilities;
 
 
+.btnSignin {
+    background-color: #618ECA;
+    color: white;
+    
+}
+
+.btnSignin:hover {
+    background-color: #618ECA;
+    color: white;
+}

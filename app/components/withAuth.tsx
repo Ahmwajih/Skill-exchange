@@ -1,26 +1,25 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from "@/hooks/useAuth";
+import SignIn from "../components/SignIn";
+import SignOut from "../components/SignOut";
 
-export function withAuth(Component: React.ComponentType<any>) {
-  return function AuthenticatedComponent(props: any) {
-    const { user, loading } = useAuth();
-    const router = useRouter();
+export default function Home() {
+  const { user, loading, error } = useAuth();
 
-    useEffect(() => {
-      if (!loading && !user) {
-        router.push('/login');
-      }
-    }, [loading, user, router]);
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
-    if (loading) return <div>Loading...</div>;
-
-    if (!user) {
-      return null;
-    }
-
-    return <Component {...props} />;
-  };
+  return (
+    <div>
+      {user ? (
+        <>
+          <p>Welcome, {user.displayName || user.email}!</p>
+          <SignOut />
+        </>
+      ) : (
+        <SignIn />
+      )}
+    </div>
+  );
 }

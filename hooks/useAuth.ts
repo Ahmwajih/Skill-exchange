@@ -1,19 +1,25 @@
+// hooks/useAuth.js
 'use client';
-
-import { useEffect, useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '@/lib/firebase';
+import { useEffect, useState } from "react";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export function useAuth() {
-  const [user, loading, error] = useAuthState(auth);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      // Check if user is admin - you might want to check this against your database
-      setIsAdmin(user.email === 'wajih212@hotmail.fr');
-    }
-  }, [user]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    }, (error) => {
+      setError(error);
+      setLoading(false);
+    });
 
-  return { user, loading, error, isAdmin };
+    return () => unsubscribe();
+  }, []);
+
+  return { user, loading, error };
 }

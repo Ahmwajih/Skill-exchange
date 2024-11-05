@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import SignIn from "../components/SignIn";
 import SignOut from "../components/SignOut";
 
-export default function Home() {
+export default function Login() {
   const { user, loading, error } = useAuth();
 
   if (loading) return <div>Loading...</div>;
@@ -14,7 +14,7 @@ export default function Home() {
     <div>
       {user ? (
         <>
-          <p>Welcome, {user.displayName}!</p>
+          <p>Welcome, {user.displayName} ||  {user.email}</p>
           <SignOut />
         </>
       ) : (

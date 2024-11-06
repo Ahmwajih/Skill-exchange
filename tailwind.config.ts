@@ -4,12 +4,24 @@ import type { Config } from 'tailwindcss';
 const config: Config = {
   darkMode: 'class',
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}", // Adjust as needed for your project structure
+    "./app/**/*.{js,ts,jsx,tsx}", 
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'light-blue': '#9cded9',
+        'beige': '#b6a99c',
+        'brown': '#3c1e06',
+        'light-green': '#66aaa3', 
+        'blue': '#618eca',
+        'orange': '#fe972f',
+        'white': '#ffffff',
+        'black': '#1D1309',
+        'gray': '#666666'
+      }
+    },
   },
   plugins: [require('daisyui')],
 };

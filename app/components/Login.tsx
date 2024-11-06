@@ -1,8 +1,8 @@
 'use client';
 
 import { useAuth } from "@/hooks/useAuth";
-import SignIn from "../components/SignIn";
-import SignOut from "../components/SignOut";
+import SignIn from "./SignIn";
+import SignOut from "./SignOut";
 
 export default function Login() {
   const { user, loading, error } = useAuth();

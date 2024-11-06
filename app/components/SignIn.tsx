@@ -36,7 +36,7 @@ export default function SignIn() {
   
       if (data.success) {
         console.log('User logged in successfully:', data);
-        router.push('/');
+        router.push('/home');
       } else {
         alert(data.message || 'Sign-in failed.');
       }

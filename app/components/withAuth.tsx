@@ -14,7 +14,7 @@ export default function Home() {
     <div>
       {user ? (
         <>
-          <p>Welcome, {user.displayName || user.email}!</p>
+          <p>Welcome, {user.displayName}!</p>
           <SignOut />
         </>
       ) : (

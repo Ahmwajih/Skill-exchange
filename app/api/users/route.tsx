@@ -2,7 +2,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import db from "@/lib/db";
 import User from "@/models/User";
-import { auth } from '@/lib/firebaseAdmin';
 import jwt from "jsonwebtoken";
 import { paginationMiddleware } from "@/middleware/pagination";
 

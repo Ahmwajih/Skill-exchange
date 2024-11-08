@@ -20,7 +20,12 @@ const config: Config = {
         'white': '#ffffff',
         'black': '#1D1309',
         'gray': '#666666'
-      }
+      },
+      fontFamily: {
+        'poppins': ['Poppins', 'sans-serif'],
+        'roboto': ['Roboto', 'sans-serif'],
+        'lora': ['Lora', 'serif'],
+      },
     },
   },
   plugins: [require('daisyui')],

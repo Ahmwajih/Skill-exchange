@@ -27,3 +27,10 @@ body {
     width: 100vw;
 }
 
+@media screen and (max-width: 768px) {
+    .cardContainer {
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+  
+    }
+    
+}

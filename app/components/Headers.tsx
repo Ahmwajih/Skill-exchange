@@ -11,13 +11,7 @@ export default function Headers() {
       <header className="bg-light-blue dark:bg-gray-800 text-brown dark:text-white">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 lg:p-0 md:p-0">
           <Link href="/home">
-            <Image
-              className="logo hidden md:block"
-              src={Logo}
-              alt="logo"
-              width={120}
-              height={100}
-            />
+            <Image className="logo hidden md:block" src={Logo} alt="logo" />
           </Link>
           <div className="flex justify-center items-center col-span-1 md:col-span-4">
             <h1 className="text-center font-roboto font-medium text-xl md:text-2xl lg:text-5xl">
@@ -44,17 +38,19 @@ export default function Headers() {
             alt="Background pattern"
             className="object-cover absolute inset-0 size-full"
           />
-          <div className="relative w-full max-w-[1290px] max-md:max-w-full">
+          <div className="relative w-full max-w-7xl max-md:max-w-full">
             <div className="flex gap-5 max-md:flex-col">
-              <div className="flex flex-col w-2/5 max-md:ml-0 max-md:w-full">
-                <div className="flex relative flex-col items-start self-stretch my-auto w-full font-medium max-md:mt-10 max-md:max-w-full">
-                  <div className="overflow-hidden gap-0.5 self-stretch px-2 py-0.5 text-xs text-white whitespace-nowrap bg-orange-400 min-h-[22px] rounded-[36px] shadow-[0px_1px_2px_rgba(105,81,255,0.05)]">
-                    FEATURES
+              <div className="flex flex-col w-2/5 max-md:ml-0 max-md:w-10">
+                <div className="flex relative flex-col align-items: left  text-align: justify my-auto  font-medium max-md:mt-10 max-md:max-w-full">
+                  <div className="overflow-hidden gap-0.5 max-w-20 px-2 py-0.5 text-xs text-white whitespace-nowrap bg-orange min-height: 1.5rem; rounded-lg shadow-[0px_1px_2px_rgba(105,81,255,0.05)]">
+                    <div className="" >
+                      FEATURES
+                    </div>
                   </div>
-                  <h2 className="mt-4 text-5xl font-bold tracking-tighter leading-none text-slate-800 max-md:text-4xl">
+                  <h2 className="mt-4 text-5xl font-bold tracking-tighter leading-none text-gray max-md:text-4xl">
                     Learn New Skills
                   </h2>
-                  <p className="self-stretch mt-3.5 text-xl leading-8 text-center text-slate-500 max-md:max-w-full">
+                  <p className="self-stretch mt-3.5 text-xl leading-8 text-justify  text-gray max-md:max-w-full">
                     "Our series of resources and guides is here to support you
                     in expanding your skills. New to the community? Start with
                     our Foundational Skills section to build core knowledge.
@@ -63,9 +59,11 @@ export default function Headers() {
                     page to learn how to join the conversation and start trading
                     skills today."
                   </p>
-                  <button className="overflow-hidden gap-2 self-stretch px-5 py-3 mt-3.5 text-base text-green-50 bg-orange-400 rounded-md min-h-[46px] shadow-[0px_1px_2px_rgba(105,81,255,0.05)]">
+                  <div className=" gap-2 self-stretch max-w-36 px-5 py-3 mt-3.5 text-center text-white bg-orange rounded-md min-height: 1.5rem shadow-[0px_1px_2px_rgba(105,81,255,0.05)]">
+                  <button  >
                     Get Started
                   </button>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col ml-5 w-3/5 max-md:ml-0 max-md:w-full">

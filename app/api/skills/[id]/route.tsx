@@ -1,7 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server';
 import db from '@/lib/db';
 import Skill from '@/models/Skill';
+import User from '@/models/User';
 import mongoose from 'mongoose';
+
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   await db();

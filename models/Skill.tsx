@@ -1,11 +1,12 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
+import User from './User'; // Ensure the User model is imported
 
-export interface ISkill extends Document {
+interface ISkill extends Document {
   title: string;
   description: string;
   category: string;
+  photo?: string;
   user: mongoose.Types.ObjectId;
-
 }
 
 const skillSchema: Schema<ISkill> = new mongoose.Schema(
@@ -24,16 +25,20 @@ const skillSchema: Schema<ISkill> = new mongoose.Schema(
       required: true,
       maxlength: 50,
     },
+    photo: {
+      type: String,
+      required: false,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           return mongoose.Types.ObjectId.isValid(v);
         },
-        message: props => `${props.value} is not a valid user ID!`
-      }
+        message: (props) => `${props.value} is not a valid user ID!`,
+      },
     },
   },
   {
@@ -42,6 +47,6 @@ const skillSchema: Schema<ISkill> = new mongoose.Schema(
   }
 );
 
-const Skill = mongoose.model<ISkill>('Skill', skillSchema);
+const Skill = mongoose.models.Skill || mongoose.model<ISkill>('Skill', skillSchema);
 
 export default Skill;

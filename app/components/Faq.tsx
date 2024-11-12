@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 interface FAQItemProps {
   question: string;
@@ -15,14 +16,14 @@ const Faq: React.FC<FAQItemProps> = ({ question, answer }) => {
 
   return (
     <div className="flex flex-col p-10 mt-4 ml-6 max-w-full bg-white rounded-md shadow-sm w-[750px] max-md:px-5">
-      <div className="flex flex-wrap gap-5 justify-between text-xl font-bold text-slate-800 max-md:max-w-full cursor-pointer" onClick={toggleAccordion}>
+      <div className="flex flex-wrap gap-5 justify-between text-xl font-bold text-gray max-md:max-w-full cursor-pointer" onClick={toggleAccordion}>
         <div className="max-md:max-w-full">{question}</div>
         
       
         <img
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/b8c9dcd100b527918a5c8b042fd2ca2e78e8000347118126fb6bbe5896b7b5ed?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
           alt=""
-          className={`object-contain shrink-0 my-auto w-6 aspect-square max-md:hidden transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
+          className={`object-contain shrink-0 my-auto h-auto w-6 aspect-square max-md:hidden transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
         />
       </div>
       
@@ -56,7 +57,7 @@ const FAQSection: React.FC = () => {
     },
     { 
       question: "What Should I Do if I Encounter Issues During an Exchange?", 
-      answer: "If you encounter issues, contact support through the platform's messaging system or help center." 
+      answer: "If you encounter issues, contact us through our platform's in contact page." 
     }
   ];
 

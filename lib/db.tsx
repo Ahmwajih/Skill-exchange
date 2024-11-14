@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
+import User from '@/models/User'; // Ensure the User model is imported
+import Skill from '@/models/Skill'; // Ensure the Skill model is imported
 
-const connectDB = async () => {
+const db = async () => {
   if (mongoose.connection.readyState >= 1) {
     return;
   }
@@ -16,4 +18,4 @@ const connectDB = async () => {
   }
 };
  
-export default connectDB;
+export default db;

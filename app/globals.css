@@ -27,12 +27,10 @@ body {
     width: 100vw;
 }
 
-.logoHome {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
+@media screen and (max-width: 768px) {
+    .cardContainer {
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+  
     }
     
-.logo { grid-area: 1 / 1 / 2 / 2; }
+}

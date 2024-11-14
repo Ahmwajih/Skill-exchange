@@ -4,13 +4,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
+import {login} from "@/lib/features/auth/authSlice";
+import { useDispatch } from "react-redux";
+
 
 export default function SignIn() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
 
-  const handleSignIn = async (e) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -19,33 +23,14 @@ export default function SignIn() {
     }
 
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      console.log("Response:", response);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "An error occurred.");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        console.log("User logged in successfully:", data);
-        router.push("/home");
-      } else {
-        alert(data.message || "Sign-in failed.");
-      }
+      await dispatch(login({ email, password }, router));
+      console.log("User logged in successfully");
+      router.push("/");
     } catch (error) {
-      console.error("Error signing in:", error);
-      alert("An error occurred. Please try again.");
+      console.error("Error logging in:", error);
+      alert("Login failed. Please try again.");
     }
+
   };
 
   const handleProviderSignIn = async (provider) => {

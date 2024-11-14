@@ -1,9 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import  { toast } from 'react-toastify';
 import { useRouter } from "next/navigation";
-import { routeModule } from "next/dist/build/templates/app-page";
-import { AppDispatch } from '@/lib/store'; // Adjust the import path as needed
-import { userInfo } from "os";
+import { AppDispatch } from '@/lib/store'; 
 
 
 const url = process.env.baseUrl || "http://localhost:3000/";
@@ -118,7 +116,7 @@ export const logout = (router: ReturnType<typeof useRouter>) => async (dispatch:
     toast.success("User logged out successfully");
 }
 
-export const changePassword = (userInfo: UserInfo) => async (dispatch: AppDispatch) => {
+export const changePassword = () => async (dispatch: AppDispatch) => {
     try {
       const res = await fetch(`${url}api/users/change-password`, {
         method: "PUT",
@@ -140,3 +138,35 @@ export const changePassword = (userInfo: UserInfo) => async (dispatch: AppDispat
       toast.error("An error occurred. Please try again.");
     }
   };
+
+  export const UserProfile = (userInfo: UserInfo) => async (dispatch: AppDispatch) => {
+    try {
+      const res = await fetch(`${url}api/users/${userInfo.id}`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+        });
+
+        const data = await res.json();
+        console.log("Data:", data);
+
+        if (!data.success) throw new Error('User profile fetch failed');
+
+        const playload = {
+            id: data.data.id,
+            email: data.data.email,
+            role: data.data.role,
+        };
+
+        dispatch(authSlice.actions.auth(playload));
+        sessionStorage.setItem("email", data.data.email);
+        sessionStorage.setItem("role", data.data.role);
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        toast.error("An error occurred. Please try again.");
+    }
+    }
+
+
+export default authSlice.reducer;

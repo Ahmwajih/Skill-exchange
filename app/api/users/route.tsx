@@ -1,4 +1,3 @@
-// app/api/users/route.ts
 import { NextResponse, NextRequest } from "next/server";
 import db from "@/lib/db";
 import User from "@/models/User";
@@ -89,7 +88,7 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 3600, // 1 hour
+      maxAge: 3600, 
     });
 
     return response;

@@ -4,39 +4,74 @@ import User from '@/models/User';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-export async function PUT(req: NextRequest) {
+
+const JWT_SECRET = process.env.JWT_SECRET
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
 
-  const token = req.headers.get('Authorization')?.split(' ')[1];
+  const token = req.cookies.get("token")?.value;
+
   if (!token) {
-    return NextResponse.json({ success: false, error: 'Authorization token is required' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, error: 'Authorization token is required' },
+      { status: 401 }
+    );
+  }
+
+  if (!JWT_SECRET) {
+    return NextResponse.json(
+      { success: false, error: 'Server configuration error' },
+      { status: 500 }
+    );
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    const { id } = decoded as { id: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+    const { id: userId } = decoded;
+
+    if (userId !== params.id) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 403 }
+      );
+    }
 
     const body = await req.json();
-    const { password } = body;
+    const { currentPassword, newPassword } = body;
 
-    if (!password) {
-      return NextResponse.json({ success: false, error: 'Password is required' }, { status: 400 });
-    }
-   
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.findByIdAndUpdate(id, { password: hashedPassword }, { new: true });
-    if (!password == hashedPassword) {
-        return NextResponse.json({ success: false, error: 'You need to put the right password' }, { status: 400 });
+    if (!currentPassword || !newPassword) {
+      return NextResponse.json(
+        { success: false, error: 'Current password and new password are required' },
+        { status: 400 }
+      );
     }
 
+    const user = await User.findById(userId);
     if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ success: true, data: user });
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return NextResponse.json(
+        { success: false, error: 'Current password is incorrect' },
+        { status: 400 }
+      );
+    }
+
+    // const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = newPassword;
+    await user.save();
+
+    return NextResponse.json({ success: true, message: 'Password updated successfully' });
   } catch (error) {
     console.error('Error changing password:', error);
-    return NextResponse.json({ success: false, error: 'Error changing password' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Error changing password' },
+      { status: 500 }
+    );
   }
 }

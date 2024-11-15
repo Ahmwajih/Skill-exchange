@@ -1,12 +1,11 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IReview extends Document {
   rating: number;
   comments: string;
   user: mongoose.Types.ObjectId;
   skill: mongoose.Types.ObjectId;
-  exchange: mongoose.Types.ObjectId;
-  review_date: Date;
+  reviewedBy: mongoose.Types.String;
 }
 
 const reviewSchema: Schema<IReview> = new mongoose.Schema(
@@ -23,22 +22,18 @@ const reviewSchema: Schema<IReview> = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     skill: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Skill',
+      ref: "Skill",
       required: true,
     },
-    exchange: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'SkillExchange',
-      required: true,
-    },
-    review_date: {
-      type: Date,
-      default: Date.now,
+    reviewedBy: {
+      type: mongoose.Schema.Types.String,
+      ref: "User",
+      required: false,
     },
   },
   {
@@ -47,4 +42,5 @@ const reviewSchema: Schema<IReview> = new mongoose.Schema(
   }
 );
 
-export default mongoose.models.Review || mongoose.model<IReview>('Review', reviewSchema);
+export default mongoose.models.Review ||
+  mongoose.model<IReview>("Review", reviewSchema);

@@ -24,6 +24,7 @@ const skillSchema: Schema<ISkill> = new mongoose.Schema(
       type: String,
       required: true,
       maxlength: 50,
+      // add enum values
     },
     photo: {
       type: String,

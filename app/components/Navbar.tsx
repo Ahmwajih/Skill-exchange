@@ -35,12 +35,15 @@ const Navbar: React.FC<NavbarProps> = () => {
     <header className="w-full bg-neutral-50 px-6 py-4 border-b shadow-md max-md:px-4">
       <div className="flex justify-between items-center max-w-screen-xl mx-auto">
         <div className="hidden md:block">
+        <Link href="/">
+
           <Image
             loading="lazy"
             src={Logo}
             alt="Logo"
             className="object-contain w-36"
           />
+          </Link>
         </div>
 
         <div className="hidden md:block flex-1 mx-4">
@@ -63,7 +66,7 @@ const Navbar: React.FC<NavbarProps> = () => {
           </button>
         </div>
 
-        <div className="block md:hidden">
+        <div className="block sm:mx-4 md:hidden">
           <FaSearch
             onClick={toggleSearch}
             className="text-gray-600 w-6 h-6 cursor-pointer"

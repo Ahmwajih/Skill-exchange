@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ISkillExchange extends Document {
   skill: mongoose.Types.ObjectId;
-  seeker: mongoose.Types.ObjectId;
+  // seeker: mongoose.Types.ObjectId;
   provider: mongoose.Types.ObjectId;
   status: 'pending' | 'accepted' | 'completed' | 'rejected';
   exchange_date: Date;
@@ -15,11 +15,11 @@ const skillExchangeSchema: Schema<ISkillExchange> = new mongoose.Schema(
       ref: 'Skill',
       required: true,
     },
-    seeker: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
+    // seeker: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'User',
+    //   required: true,
+    // },
     provider: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

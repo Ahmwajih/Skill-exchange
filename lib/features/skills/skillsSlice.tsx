@@ -30,6 +30,9 @@ const skillSlice = createSlice({
     getSkills: (state, action: PayloadAction<Skill[]>) => {
       state.data = action.payload;
     },
+    // filtredSkills: (state, action: PayloadAction<Skill[]>) => {
+    //   state.data = action.payload;
+    // }
     createSkill: (state, action: PayloadAction<Skill>) => {
       state.data.push(action.payload);
     },
@@ -62,6 +65,8 @@ export const getSkills = () => async (dispatch: AppDispatch) => {
     toast.error(error.message);
   }
 };
+
+
 
 export const createSkill = (skill: Skill) => async (dispatch: AppDispatch) => {
   try {

@@ -30,17 +30,19 @@ export async function POST(req: NextRequest) {
   await db();
 
   try {
-    const { title, description, rating, userId } = await req.json();
+    const { rating, comments, userId, skillId, reviewedBy } = await req.json();
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json({ success: false, error: 'Valid user ID is required' }, { status: 400 });
     }
+    
 
     const newReview = new Review({
-      title,
-      description,
       rating,
+      comments,
       user: userId,
+      skill: skillId,
+      reviewedBy,
     });
 
     await newReview.save();
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     const populatedReview = await Review.findById(newReview._id).populate('user', 'name email');
 
-    return NextResponse.json({ success: true, data: populatedReview }, { status: 201 });
+    return NextResponse.json({ success: true, data: populatedReview  }, { status: 201 });
   } catch (error) {
     console.error('Error creating review:', error);
     return NextResponse.json({ success: false, error: 'Error creating review' }, { status: 500 });

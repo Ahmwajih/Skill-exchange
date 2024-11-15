@@ -6,9 +6,10 @@ export interface IUser extends Document {
   email: string;
   password: string;
   country: string;
-  role: 'seeker' | 'provider' | 'admin';
+  role: 'provider' | 'admin';
   isAdmin: boolean;
   isActive: boolean;
+  reviewedBy : mongoose.Types.String[];
   skills: mongoose.Types.ObjectId[];
   skill_exchanges: mongoose.Types.ObjectId[];
   reviews: mongoose.Types.ObjectId[];
@@ -40,8 +41,8 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['seeker', 'provider', 'admin'],
-      default: 'seeker',
+      enum: ['provider', 'admin'],
+      default: 'provider',
     },
     isAdmin: {
       type: Boolean,
@@ -51,8 +52,16 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    reviewedBy: {
+      type: mongoose.Schema.Types.String,
+      ref: 'User',
+    },
+    photo: {
+      type: String,
+      required: false,
+    },
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
-    skill_exchanges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'SkillExchange' }],
+    reviewedBy: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
   },
   {

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function paginationMiddleware(req: NextRequest) {
   const url = new URL(req.url);
   const page = url.searchParams.get('page') || '1';
-  const limit = url.searchParams.get('limit') || '5';
+  const limit = url.searchParams.get('limit') || '50';
   
   const pageNumber = parseInt(page, 10);
   const limitNumber = parseInt(limit, 10);

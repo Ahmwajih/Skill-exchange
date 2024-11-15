@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       .skip(paginationData.skip)
       .limit(paginationData.limit)
       .select('-password')
-      // .populate('skills', 'title description category')
+      .populate('skills', 'title description category')
       .lean();
 
 

@@ -6,6 +6,8 @@ import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
 import {login} from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 export default function SignIn() {
@@ -25,7 +27,7 @@ export default function SignIn() {
     try {
       await dispatch(login({ email, password }, router));
       console.log("User logged in successfully");
-      router.push("/");
+      router.push("/home");
     } catch (error) {
       console.error("Error logging in:", error);
       alert("Login failed. Please try again.");

@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/User";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const JWT_SECRET = process.env.JWT_SECRET;
 

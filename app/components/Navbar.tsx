@@ -1,21 +1,20 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import Logo from "@/app/public/Logo.svg";
 import Image from "next/image";
-import { FaSearch } from "react-icons/fa"; 
+import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/features/auth/authSlice";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
-
-interface NavbarProps {}
-
-const Navbar: React.FC<NavbarProps> = () => {
+const Navbar: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const router = useRouter();
-    const dispatch = useDispatch();
+  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const router = useRouter();
+  const dispatch = useDispatch();
 
   const navItems = [
     { label: "Home", isActive: true, href: "/" },
@@ -31,93 +30,157 @@ const Navbar: React.FC<NavbarProps> = () => {
     setIsSearchOpen((prev) => !prev);
   };
 
-  return (
-    <header className="w-full bg-neutral-50 px-6 py-4 border-b shadow-md max-md:px-4">
-      <div className="flex justify-between items-center max-w-screen-xl mx-auto">
-        <div className="hidden md:block">
-        <Link href="/">
+  const toggleAvatarMenu = () => {
+    setIsAvatarMenuOpen((prev) => !prev);
+  };
 
-          <Image
-            loading="lazy"
-            src={Logo}
-            alt="Logo"
-            className="object-contain w-36"
-          />
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev); 
+  };
+
+  return (
+    <header className="w-full bg-neutral-50 px-1 py-4 border-b shadow-md">
+      <div className="flex justify-between items-center max-w-screen-xl mx-auto px-4">
+        <div className="flex items-center hidden md:block flex-shrink-0">
+          <Link href="/">
+            <Image
+              loading="lazy"
+              src={Logo}
+              alt="Logo"
+              className="object-contain w-16 md:w-32"
+              style={{ cursor: "pointer", display: "block" }}
+            />
           </Link>
         </div>
 
-        <div className="hidden md:block flex-1 mx-4">
-          <SearchBar />
-        </div>
-
-        <nav className="flex flex-wrap gap-10 self-stretch my-auto text-black whitespace-nowrap max-md:max-w-full">
+        <nav className="hidden md:flex flex-1 justify-center gap-6 text-black hover:text-brown">
           {navItems.map((item, index) => (
-            <NavItem key={index} label={item.label} isActive={item.isActive} href={item.href} />
+            <NavItem
+              key={index}
+              label={item.label}
+              isActive={item.isActive}
+              href={item.href}
+            />
           ))}
         </nav>
 
-        <div className="flex mx-1 items-center gap-4">
-          <Avatar />
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-white bg-orange rounded-md hover:bg-orange transition-colors"
-          >
-            Logout
-          </button>
+        <div className="hidden md:flex items-center gap-4">
+          <SearchBar />
+          <div className="relative">
+            <FaUserCircle
+              className="text-gray w-8 h-8 cursor-pointer"
+              onClick={toggleAvatarMenu}
+            />
+            {isAvatarMenuOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10">
+                <ul className="py-2">
+                  <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="block sm:mx-4 md:hidden">
+        <div className="flex items-center gap-4 ml-auto md:hidden">
           <FaSearch
             onClick={toggleSearch}
             className="text-gray-600 w-6 h-6 cursor-pointer"
           />
+          <div className="relative">
+            <FaUserCircle
+              className="text-gray w-8 h-8 cursor-pointer"
+              onClick={toggleAvatarMenu}
+            />
+            {isAvatarMenuOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10">
+                <ul className="py-2">
+                  <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <button onClick={toggleMenu} className="text-gray-600">
+            <FaBars className="w-6 h-6" />
+          </button>
         </div>
       </div>
 
+     
       {isSearchOpen && (
         <div className="block md:hidden mt-4">
           <SearchBar />
         </div>
       )}
+
+     
+      {isMenuOpen && (
+        <nav className="block md:hidden text-black hover:text-brown mt-4 space-y-2">
+          {navItems.map((item, index) => (
+            <NavItem
+              key={index}
+              label={item.label}
+              isActive={item.isActive}
+              href={item.href}
+            />
+          ))}
+        </nav>
+      )}
     </header>
   );
 };
 
-
-interface NavItemProps {
-    label: string;
-    isActive: boolean;
-    href: string;
-  }
-  
-  const NavItem: React.FC<NavItemProps> = ({ label, isActive, href }) => {
-    return (
-
-        <Link href= {href} className={`${isActive ? 'font-bold text-stone-500' : ''}`}>
-          {label}
-        </Link>
-    );
-  };
-
-const SearchBar: React.FC = () => {
+const NavItem: React.FC<{ label: string; isActive: boolean; href: string }> = ({
+  label,
+  isActive,
+  href,
+}) => {
   return (
-    <input
-      type="text"
-      placeholder="Search for Skills"
-      className="w-full px-4 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-    />
+    <Link
+      href={href}
+      className={`block text-center py-2 ${
+        isActive ? "font-bold text-orange-500" : "text-gray-700"
+      }`}
+    >
+      {label}
+    </Link>
   );
 };
 
-const Avatar: React.FC = () => {
+const SearchBar: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = () => {
+    alert(`Search for: ${searchTerm}`);
+  };
+
   return (
-    <img
-      src="https://via.placeholder.com/40"
-      alt="User Avatar"
-      className="w-10 h-10 rounded-full"
-    />
+    <div className="flex items-center border border-gray bg-white rounded-md">
+      <input
+        type="text"
+        placeholder="Search for Skills"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full bg-white px-4 py-2 focus:outline-none"
+      />
+      <button
+        onClick={handleSearch}
+        className="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange"
+      >
+        Search
+      </button>
+    </div>
   );
 };
 
 export default Navbar;
-

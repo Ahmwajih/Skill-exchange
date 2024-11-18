@@ -24,7 +24,17 @@ const skillSchema: Schema<ISkill> = new mongoose.Schema(
       type: String,
       required: true,
       maxlength: 50,
-      // add enum values
+      enum: [
+        "Machine Learning",
+        "Web Development",
+        "Mobile Development",
+        "Data Science",
+        "Cybersecurity",
+        "DevOps",
+        "AI Development",
+        "Graphic Design",
+      ]
+      
     },
     photo: {
       type: String,

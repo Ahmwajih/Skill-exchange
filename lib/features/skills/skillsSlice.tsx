@@ -4,8 +4,7 @@ import { AppDispatch } from "@/lib/store";
 
 const baseUrl = process.env.baseUrl || "http://localhost:3000/";
 
-const token = sessionStorage.getItem("token") || null;
-// Define a type for a Skill
+// const token = sessionStorage.getItem("token") || null;
 interface Skill {
   _id: string;
   title: string;

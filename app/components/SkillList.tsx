@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import SkillCard from "./SkillCard";
-import { setSelectedCategory } from "@/redux/categorySlice";
+import { setSelectedCategory } from "@/lib/features/skills/categorySlice"; 
 import { RootState } from "@/lib/store";  // Adjust path if needed
 
 interface Skill {
@@ -45,15 +45,13 @@ const SkillsList: React.FC = () => {
     fetchSkills();
   }, []);
 
-  // Filter skills based on the selected category
   const filteredSkills = selectedCategory
     ? skills.filter((skill) => skill.category === selectedCategory)
     : skills;
-
+    const displayedSkills = filteredSkills.slice(0, 4);
   return (
-    <div className="container bg-white mx-auto lg:px-2">
-      {/* Category Buttons */}
-      <div className="flex space-x-4 mb-6">
+    <div className="container bg-white mx-auto lg:px-2 py-6">
+      <div className="flex justify-center space-x-4 mb-6">
         {categories.map((category) => (
           <button
             key={category}
@@ -79,10 +77,9 @@ const SkillsList: React.FC = () => {
         </button>
       </div>
 
-      {/* Skill Cards Slider */}
-      <div className="overflow-x-auto whitespace-nowrap">
+      <div className="overflow-x-auto flex justify-center whitespace-nowrap">
         <div className="flex gap-6">
-          {filteredSkills.map((skill) => (
+          {displayedSkills.map((skill) => (
             <SkillCard
               key={skill._id}
               imageSrc={skill.photo || "no photo"}

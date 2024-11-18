@@ -27,6 +27,7 @@ const config: Config = {
         'poppins': ['Poppins', 'sans-serif'],
         'roboto': ['Roboto', 'sans-serif'],
         'lora': ['Lora', 'serif'],
+        'dancing': ['Dancing Script', 'cursive'],
       },
     },
   },

@@ -1,17 +1,17 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import bcrypt from 'bcrypt';
+import mongoose, { Document, Schema } from "mongoose";
+import bcrypt from "bcrypt";
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
   country: string;
-  role: 'provider' | 'admin';
+  role: "provider" | "admin";
   isAdmin: boolean;
   isActive: boolean;
-  reviewedBy : mongoose.Types.String[];
+  reviewedBy: mongoose.Types.String[];
+  skillsLookingFor: [];
   skills: mongoose.Types.ObjectId[];
-  skill_exchanges: mongoose.Types.ObjectId[];
   reviews: mongoose.Types.ObjectId[];
 }
 
@@ -27,11 +27,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       required: true,
       unique: true,
       maxlength: 150,
-      match: [/.+\@.+\..+/, 'Please enter a valid email'],
+      match: [/.+\@.+\..+/, "Please enter a valid email"],
     },
     password: {
       type: String,
-      required: true, 
+      required: true,
       minlength: 6,
     },
     country: {
@@ -41,8 +41,8 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['provider', 'admin'],
-      default: 'provider',
+      enum: ["provider", "admin"],
+      default: "provider",
     },
     isAdmin: {
       type: Boolean,
@@ -54,15 +54,19 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     reviewedBy: {
       type: mongoose.Schema.Types.String,
-      ref: 'User',
+      ref: "User",
     },
     photo: {
       type: String,
       required: false,
     },
-    skills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
-    reviewedBy: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
+    skillsLookingFor: {
+      type: [],
+      required: false,
+    },
+    skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }],
+    reviewedBy: [{ type: mongoose.Schema.Types.String, ref: "User" }],
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   },
   {
     timestamps: true,
@@ -70,12 +74,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
   }
 );
 
-userSchema.pre('save', async function (next) {
+userSchema.pre("save", async function (next) {
   const user = this as IUser;
 
-  if (!user.isModified('password')) return next();
+  if (!user.isModified("password")) return next();
 
-  
   try {
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
@@ -85,4 +88,5 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-export default mongoose.models.User || mongoose.model<IUser>('User', userSchema);
+export default mongoose.models.User ||
+  mongoose.model<IUser>("User", userSchema);

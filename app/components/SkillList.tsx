@@ -25,7 +25,6 @@ const SkillsList: React.FC = () => {
   const categories = useSelector((state: RootState) => state.category.categories);
   const dispatch = useDispatch();
 
-  // Fetch skills from the API
   useEffect(() => {
     const fetchSkills = async () => {
       try {

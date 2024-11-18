@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, password, country, role, isActive, isAdmin } = body;
+    const { name, email, password, country, role, isActive, isAdmin, skillsLookingFor } = body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
       role,
       isActive,
       isAdmin,
+      skillsLookingFor,
     });
     const savedUser = await newUser.save();
 

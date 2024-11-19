@@ -1,15 +1,13 @@
-'use client';
-import React from 'react'
-import 'react-toastify/dist/ReactToastify.css';
-import Navbar from '@/app/components/Navbar'
-import FiltredCountry from '@/app/components/FiltredCountry'
+"use client";
+import React from "react";
+import "react-toastify/dist/ReactToastify.css";
+
 function pages() {
   return (
     <div>
-      <Navbar/>
-      <FiltredCountry/>
+<h1>hello from home page</h1>
     </div>
-  )
+  );
 }
 
-export default pages
+export default pages;

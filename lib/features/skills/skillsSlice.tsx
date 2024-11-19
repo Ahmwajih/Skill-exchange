@@ -4,7 +4,6 @@ import { AppDispatch } from "@/lib/store";
 
 const baseUrl = process.env.baseUrl || "http://localhost:3000/";
 
-// const token = sessionStorage.getItem("token") || null;
 interface Skill {
   _id: string;
   title: string;
@@ -29,9 +28,6 @@ const skillSlice = createSlice({
     getSkills: (state, action: PayloadAction<Skill[]>) => {
       state.data = action.payload;
     },
-    // filtredSkills: (state, action: PayloadAction<Skill[]>) => {
-    //   state.data = action.payload;
-    // }
     createSkill: (state, action: PayloadAction<Skill>) => {
       state.data.push(action.payload);
     },
@@ -52,99 +48,21 @@ const skillSlice = createSlice({
   },
 });
 
-export const getSkills = () => async (dispatch: AppDispatch) => {
+export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill } = skillSlice.actions;
+
+export const fetchSkills = () => async (dispatch: AppDispatch) => {
   try {
     const res = await fetch(`${baseUrl}api/skills`);
     const data = await res.json();
 
-    if (res.status == 200) {
-      dispatch(skillSlice.actions.getSkills(data.data));
+    if (res.status === 200) {
+      dispatch(getSkills(data.data));
+    } else {
+      toast.error("Failed to fetch skills");
     }
   } catch (error) {
-    toast.error(error.message);
-  }
-};
-
-
-
-export const createSkill = (skill: Skill) => async (dispatch: AppDispatch) => {
-  try {
-    const token = sessionStorage.getItem("token"); 
-    const res = await fetch(`${baseUrl}api/skills`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `token ${token}`,
-      },
-      body: JSON.stringify(skill),
-    });
-
-    const data = await res.json();
-    if (res.status == 200) {
-      dispatch(skillSlice.actions.createSkill(data.data));
-      toast.success("Skill created successfully");
-    }
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
-
-
-export const updateSkill = (skill: Skill) => async (dispatch: AppDispatch) => {
-  try {
-    const token = sessionStorage.getItem("token");
-    const res = await fetch(`${baseUrl}api/skills/${skill._id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `token ${token}`,
-      },
-      body: JSON.stringify(skill),
-    });
-
-    const data = await res.json();
-    if (res.status == 200) {
-      dispatch(skillSlice.actions.updateSkill(data.data));
-      toast.success("Skill updated successfully");
-    }
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
-
-export const deleteSkill = (id: string) => async (dispatch: AppDispatch) => {
-  try {
-    const token = sessionStorage.getItem("token");
-    const res = await fetch(`${baseUrl}api/skills/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `token ${token}`,
-      },
-    });
-
-    if (res.status == 200) {
-      dispatch(skillSlice.actions.deleteSkill(id));
-      toast.success("Skill deleted successfully");
-    }
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
-
-export const readSkill = (id: string) => async (dispatch: AppDispatch) => {
-  try {
-    const res = await fetch(`${baseUrl}api/skills/${id}`);
-    const data = await res.json();
-
-    if (res.status == 200) {
-      dispatch(skillSlice.actions.readSkill(data.data));
-    }
-  } catch (error) {
-    toast.error(error.message);
+    toast.error("Error fetching skills");
   }
 };
 
 export default skillSlice.reducer;
-
-
-

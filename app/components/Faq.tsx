@@ -69,19 +69,23 @@ const FAQSection: React.FC = () => {
           alt="FAQ background"
           className="object-cover absolute inset-0 size-full"
         />
-        <div className="flex relative flex-col items-center max-w-full w-[897px]">
-          <div className="overflow-hidden gap-0.5 self-stretch px-2 py-0.5 ml-11 text-xs font-medium text-center whitespace-nowrap bg-orange-400 min-h-[22px] rounded-[36px] shadow-[0px_1px_2px_rgba(105,81,255,0.05)] text-yellow-950 w-[75px]">
+        <div className="flex relative flex-col justify-center max-w-full sm:mx-3 w-[897px]">
+          <button className="bg-orange text-white overflow-hidden gap-0.5 self-stretch px-2 py-0.5 ml-11 text-xs font-medium text-center whitespace-nowrap  min-h-[22px] rounded-[36px] shadow-[0px_1px_2px_rgba(105,81,255,0.05)] w-[75px]">
             FAQ
-          </div>
+          </button>
           <h2 className="mt-4 text-5xl font-bold tracking-tighter leading-none text-center text-gray-800 max-md:max-w-full max-md:text-4xl">
             Frequently Asked Questions
           </h2>
           <p className="self-stretch mt-4 text-xl font-medium leading-8 text-center text-slate-500 max-md:max-w-full">
             Skill Trade is the only community skills exchange platform that allows you to connect and collaborate on one platform
           </p>
+          <div className="w-full mt-8 pr-8">
           {faqs.map((faq, index) => (
-            <Faq key={index} {...faq} />
+            <div key={index} className="mb-4">
+              <Faq {...faq} />
+            </div>
           ))}
+        </div>
         </div>
       </div>
     </section>

@@ -4,6 +4,7 @@ import Logo from "../public/Logo.svg";
 import Image from "next/image";
 import headerimage from "../public/headerimage.jpg";
 import Link from "next/link";
+import SH from "../public/SH.jpg";
 
 export default function Headers() {
   return (
@@ -40,17 +41,15 @@ export default function Headers() {
           />
           <div className="relative w-full max-w-7xl max-md:max-w-full">
             <div className="flex gap-5 max-md:flex-col">
-              <div className="flex flex-col w-2/5 max-md:ml-0 max-md:w-10">
-                <div className="flex relative flex-col align-items: left  text-align: justify my-auto  font-medium max-md:mt-10 max-md:max-w-full">
-                  <div className="overflow-hidden gap-0.5 max-w-20 px-2 py-0.5 text-xs text-white whitespace-nowrap bg-orange min-height: 1.5rem; rounded-lg shadow-[0px_1px_2px_rgba(105,81,255,0.05)]">
-                    <div className="" >
-                      FEATURES
-                    </div>
+              <div className="flex flex-col w-2/5 max-md:w-full">
+                <div className="flex relative flex-col text-left justify-center my-auto font-medium max-md:mt-10 mx-3">
+                  <div className="overflow-hidden gap-0.5 max-w-fit px-2 py-0.5 text-xs text-white whitespace-nowrap bg-orange rounded-lg shadow-[0px_1px_2px_rgba(105,81,255,0.05)]">
+                    FEATURES
                   </div>
                   <h2 className="mt-4 text-5xl font-bold tracking-tighter leading-none text-gray max-md:text-4xl">
                     Learn New Skills
                   </h2>
-                  <p className="self-stretch mt-3.5 text-xl leading-8 text-justify  text-gray max-md:max-w-full">
+                  <p className="self-stretch mt-3.5 text-xl leading-8 text-justify text-gray max-md:max-w-full">
                     "Our series of resources and guides is here to support you
                     in expanding your skills. New to the community? Start with
                     our Foundational Skills section to build core knowledge.
@@ -59,24 +58,34 @@ export default function Headers() {
                     page to learn how to join the conversation and start trading
                     skills today."
                   </p>
-                  <div className=" gap-2 self-stretch max-w-36 px-5 py-3 mt-3.5 text-center text-white bg-orange rounded-md min-height: 1.5rem shadow-[0px_1px_2px_rgba(105,81,255,0.05)]">
-                  <button  >
-                    Get Started
-                  </button>
+                  <div className="gap-2 self-stretch mt-3.5 text-center">
+                    <button className="px-5 py-3 bg-orange text-white rounded-md shadow-[0px_1px_2px_rgba(105,81,255,0.05)] min-h-[1.5rem]">
+                      Get Started
+                    </button>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col ml-5 w-3/5 max-md:ml-0 max-md:w-full">
-                <div className="flex relative flex-col grow max-md:mt-10 max-md:max-w-full">
+                <div className="relative w-fit mx-auto bg-white p-4 shadow-lg">
+                  {/* First Decorative Image - Top Left */}
                   <img
                     src="https://cdn.builder.io/api/v1/image/assets/TEMP/e249fb477c5c0cb23f7fe15f97cb847ea3b586a835041d73bdc1d59d84b74d03?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
                     alt="Decorative element"
-                    className="object-contain max-w-full aspect-square w-[129px]"
+                    className="absolute top-[-20px] left-[-20px] max-w-[50px] md:max-w-[80px] lg:max-w-[100px]"
                   />
+
+                  {/* Header Image */}
+                  <Image
+                    src={SH}
+                    alt="Header Image"
+                    className="relative max-w-[300px] sm:max-w-[400px] lg:max-w-[600px] rounded-lg"
+                  />
+
+                  {/* Second Decorative Image - Bottom Right */}
                   <img
                     src="https://cdn.builder.io/api/v1/image/assets/TEMP/ac09f2fb5ad59e6341f74b127d5d3924fb94360f70e9c34362f8044b403234d3?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
                     alt="Decorative element"
-                    className="object-contain self-end mt-96 max-w-full aspect-[1.64] w-[149px] max-md:mt-10"
+                    className="absolute bottom-[-20px] right-[-20px] max-w-[50px] md:max-w-[80px] lg:max-w-[100px]"
                   />
                 </div>
               </div>

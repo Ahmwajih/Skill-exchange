@@ -7,8 +7,7 @@ import { signInWithPopup } from "firebase/auth";
 import {login} from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import { AppDispatch } from "@/lib/store";
 
 export default function SignIn() {
   const router = useRouter();
@@ -27,7 +26,7 @@ export default function SignIn() {
     try {
       await dispatch(login({ email, password }, router));
       console.log("User logged in successfully");
-      router.push("/home");
+      router.push("/main");
     } catch (error) {
       console.error("Error logging in:", error);
       alert("Login failed. Please try again.");
@@ -47,20 +46,20 @@ export default function SignIn() {
   };
 
   return (
-    <section className="flex flex-col items-center bg-white py-4">
+    <section className="flex flex-col items-center bg-white py-4 px-4 sm:px-8">
       <img
         src="https://cdn.builder.io/api/v1/image/assets/TEMP/d53f44d0b4930bc2c267dce9c30b2f4116e32dc1b203ed76d08054d5180281f8?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
         alt=""
-        className="object-contain mt-3 ml-7 aspect-square w-[63px]"
+        className="object-contain mt-3 aspect-square w-[63px]"
       />
-      <h2 className="mt-6 ml-7 text-3xl font-bold leading-none text-center text-slate-800">
+      <h2 className="mt-6 text-3xl font-bold leading-none text-center text-slate-800">
         Join our community
       </h2>
       <form
-        className="flex flex-col mt-12 ml-8 max-w-full w-[358px] max-md:mt-10"
+        className="flex flex-col mt-12 w-full max-w-[358px] max-md:mt-10"
         onSubmit={handleSignIn}
       >
-        <div className="flex flex-col w-full max-w-[358px]">
+        <div className="flex flex-col w-full">
           <label htmlFor="name" className="font-medium text-slate-700">
             Name*
           </label>
@@ -71,7 +70,7 @@ export default function SignIn() {
             placeholder="Please enter your name"
           />
         </div>
-        <div className="flex flex-col mt-6 w-full max-w-[358px]">
+        <div className="flex flex-col mt-6 w-full">
           <label htmlFor="email" className="font-medium text-slate-700">
             Email*
           </label>
@@ -85,7 +84,7 @@ export default function SignIn() {
             required
           />
         </div>
-        <div className="flex flex-col mt-6 w-full max-w-[358px]">
+        <div className="flex flex-col mt-6 w-full">
           <label htmlFor="password" className="font-medium text-slate-700">
             Password*
           </label>
@@ -99,10 +98,9 @@ export default function SignIn() {
             required
           />
         </div>
-        <div className="flex gap-5 justify-between mt-4 max-w-full text-xs font-medium w-auto">
-          <div className=" text-gray-700">
-            <label className="label cursor-pointer ">
-              {" "}
+        <div className="flex gap-5 justify-between mt-4 w-full text-xs font-medium">
+          <div className="text-gray-700">
+            <label className="label cursor-pointer">
               <input
                 type="checkbox"
                 id="remember"
@@ -111,21 +109,21 @@ export default function SignIn() {
               <span className="mx-2">Remember me</span>
             </label>
           </div>
-         <div>
-         <a href="#" className="text-right text-gray-700">
-            Forgot your password?
-          </a>
-         </div>
+          <div>
+            <a href="#" className="text-right text-gray-700">
+              Forgot your password?
+            </a>
+          </div>
         </div>
         <button
           type="submit"
-          className="overflow-hidden gap-2 self-stretch px-5 py-3 mt-6 max-w-full text-base font-medium text-white bg-blue rounded-md min-h-[46px] shadow-[0px_1px_2px_rgba(105,81,255,0.05)] w-[358px]"
+          className="self-stretch px-5 py-3 mt-6 text-base font-medium text-white bg-blue rounded-md shadow-md w-full"
         >
           Sign Up
         </button>
         <button
           type="button"
-          className="flex overflow-hidden gap-2 justify-center items-center px-5 py-3 mt-4 max-w-full text-base font-medium bg-white rounded-md border border-gray-100 border-solid shadow-sm min-h-[46px] text-slate-500 w-[358px]"
+          className="flex gap-2 justify-center items-center px-5 py-3 mt-4 text-base font-medium bg-white rounded-md border border-gray-100 shadow-sm w-full"
           onClick={() => handleProviderSignIn(googleProvider)}
         >
           <img
@@ -137,7 +135,7 @@ export default function SignIn() {
         </button>
         <button
           type="button"
-          className="flex overflow-hidden gap-2 justify-center items-center px-5 py-2.5 mt-4 max-w-full text-base font-medium bg-white rounded-md border border-gray-100 border-solid shadow-sm min-h-[46px] text-slate-500 w-[358px]"
+          className="flex gap-2 justify-center items-center px-5 py-2.5 mt-4 text-base font-medium bg-white rounded-md border border-gray-100 shadow-sm w-full"
           onClick={() => handleProviderSignIn(githubProvider)}
         >
           <img
@@ -148,7 +146,7 @@ export default function SignIn() {
           <span>Sign in with Github</span>
         </button>
       </form>
-      <p className="mt-4 ml-7 text-xs font-medium leading-5 text-center text-blue-400">
+      <p className="mt-4 text-xs font-medium leading-5 text-center text-blue-400">
         Already have an account?{" "}
         <a href="#" className="text-blue-400">
           Sign In

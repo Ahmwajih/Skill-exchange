@@ -123,7 +123,7 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
       sessionStorage.setItem("email", data.data.email);
       sessionStorage.setItem("role", data.data.role);
     }
-    router.push("/home");
+    router.push("/main");
 
     toast.success("User registered successfully");
   } catch (error) {
@@ -137,7 +137,7 @@ export const logoutUser = (router: ReturnType<typeof useRouter>) => async (dispa
     const res = await fetch(`${url}api/logout`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
+        Authorization: `token ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
       },
     });
 
@@ -161,7 +161,7 @@ export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInf
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
+        Authorization: `token ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
       },
       body: JSON.stringify(passwordChangeInfo),
     });
@@ -183,7 +183,7 @@ export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: 
     const res = await fetch(`${url}api/users/${userInfo.id}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
+        Authorization: `token ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
       },
     });
 

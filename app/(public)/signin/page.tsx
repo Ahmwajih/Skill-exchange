@@ -2,7 +2,7 @@ import React from 'react'
 
 function page() {
   return (
-    <div>hello from contact page</div>
+    <div>hello from signin page</div>
   )
 }
 

@@ -38,7 +38,7 @@ export default function SignIn() {
     try {
       const result = await signInWithPopup(auth, provider);
       console.log("User logged in successfully:", result.user);
-      router.push("/");
+      router.push("/main");
     } catch (error) {
       console.error(`Error signing in with provider:`, error);
       alert(error.message);

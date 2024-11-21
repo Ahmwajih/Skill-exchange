@@ -1,20 +1,26 @@
-"use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "@/app/public/Logo.svg";
 import Image from "next/image";
 import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/lib/features/auth/authSlice";
 import "react-toastify/dist/ReactToastify.css";
+import { AppDispatch, RootState } from "@/lib/store";
+import { searchSkills } from "@/lib/features/skills/skillsSlice";
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSearchResults }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
+  const searchResults = useSelector((state: RootState) => state.skills.filteredSkills);
+
+  useEffect(() => {
+    onSearchResults(searchResults);
+  }, [searchResults, onSearchResults]);
 
   const navItems = [
     { label: "Home", isActive: true, href: "/" },
@@ -36,6 +42,10 @@ const Navbar: React.FC = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev); 
+  };
+
+  const handleSearch = (searchTerm: string) => {
+    dispatch(searchSkills({ searchSkill: searchTerm }));
   };
 
   return (
@@ -65,7 +75,7 @@ const Navbar: React.FC = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} />
           <div className="relative">
             <FaUserCircle
               className="text-gray w-8 h-8 cursor-pointer"
@@ -116,14 +126,12 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-     
       {isSearchOpen && (
         <div className="block md:hidden mt-4">
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} />
         </div>
       )}
 
-     
       {isMenuOpen && (
         <nav className="block md:hidden text-black hover:text-brown mt-4 space-y-2">
           {navItems.map((item, index) => (
@@ -157,11 +165,11 @@ const NavItem: React.FC<{ label: string; isActive: boolean; href: string }> = ({
   );
 };
 
-const SearchBar: React.FC = () => {
+const SearchBar: React.FC<{ onSearch: (searchTerm: string) => void }> = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = () => {
-    alert(`Search for: ${searchTerm}`);
+    onSearch(searchTerm);
   };
 
   return (
@@ -171,6 +179,7 @@ const SearchBar: React.FC = () => {
         placeholder="Search for Skills"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         className="w-full bg-white px-4 py-2 focus:outline-none"
       />
       <button

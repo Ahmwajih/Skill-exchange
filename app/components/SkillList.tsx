@@ -9,7 +9,7 @@ import { fetchSkills } from "@/lib/features/skills/skillsSlice";
 
 const SkillsList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const skills = useSelector((state: RootState) => state.skill.data); 
+  const skills = useSelector((state: RootState) => state.skills.data); 
   const selectedCategory = useSelector((state: RootState) => state.category.selectedCategory);
   const categories = useSelector((state: RootState) => state.category.categories);
 

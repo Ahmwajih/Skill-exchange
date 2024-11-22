@@ -18,7 +18,7 @@ interface Skill {
   description: string;
   category: string;
   photo?: string;
-  userId: User;
+  user: User;
   createdAt: string;
   updatedAt: string;
 }

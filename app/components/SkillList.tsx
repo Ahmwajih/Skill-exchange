@@ -91,7 +91,7 @@ const SkillsList: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mx-6">
+      <div className="grid cursor-pointer grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mx-6">
         {paginatedSkills.map((skill) => (
           <div key={skill._id} className="flex justify-center">
             <SkillCard

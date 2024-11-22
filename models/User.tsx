@@ -9,6 +9,7 @@ export interface IUser extends Document {
   role: "provider" | "admin";
   isAdmin: boolean;
   isActive: boolean;
+  bio : string;
   reviewedBy: mongoose.Types.String[];
   skillsLookingFor: [];
   skills: mongoose.Types.ObjectId[];
@@ -51,6 +52,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: false,
+    },
+    bio: {
+      type: String,
+      required: false,
     },
     reviewedBy: {
       type: mongoose.Schema.Types.String,

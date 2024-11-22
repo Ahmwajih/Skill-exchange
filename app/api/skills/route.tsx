@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       query = { user: userId };
     }
 
-    const skills = await Skill.find(query).populate('user', 'name email');
+    const skills = await Skill.find(query).populate('user', 'name email country bio photo');
     return NextResponse.json({ success: true, data: skills });
   } catch (error) {
     console.error('Error fetching skills:', error);

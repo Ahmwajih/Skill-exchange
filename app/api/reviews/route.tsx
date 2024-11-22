@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       query = { user: userId };
     }
 
-    const reviews = await Review.find(query).populate('user', 'name email');
+    const reviews = await Review.find(query).populate('user', 'name email reviewedBy');
     return NextResponse.json({ success: true, data: reviews });
   } catch (error) {
     console.error('Error fetching reviews:', error);

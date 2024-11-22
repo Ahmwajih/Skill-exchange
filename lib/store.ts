@@ -3,6 +3,7 @@ import authReducer from "@/lib/features/auth/authSlice";
 import userReducer from "@/lib/features/dashboard/userSlice";
 import skillsReducer from "@/lib/features/skills/skillsSlice";
 import categoryReducer from "@/lib/features/skills/categorySlice";
+import reviewsReducer from "@/lib/features/reviews/reviewSlice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     users: userReducer,
     skills: skillsReducer,
     category: categoryReducer,
+    Reviews: reviewsReducer,
   },
 });
 

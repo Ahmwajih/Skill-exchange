@@ -51,7 +51,7 @@ const FiltredCountry: React.FC<{ searchResults: any[] }> = ({
       </div>
 
       <div className="container sm:mx-2 bg-white mx-auto lg:px-2 mt-6">
-        <div className="grid cardContainer sm:mx-2 md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 gap-6 justify-items-center">
+        <div className="grid cursor-pointer cardContainer sm:mx-2 md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 gap-6 justify-items-center">
           {filteredSkills.length > 0 ? (
             filteredSkills.map((skill: any) => (
               <SkillCard

@@ -1,20 +1,25 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AppDispatch } from "@/lib/store";
 import { toast } from "react-toastify";
 
 
 const url = process.env.baseUrl || "http://localhost:3000/";
 
-const token = sessionStorage.getItem("token") || null;
+// const token = sessionStorage.getItem("token") || null;
 
-
+interface User {
+    _id: string;
+    name: string;
+    email: string;
+    country: string;
+  }
 interface Review {
     _id: string;
     skillId: string;
-    userId: string;
+    user: User;
     rating: number;
     comments: string;
-    exchangeId: string;
+    
 }
 
 interface ReviewState {
@@ -61,7 +66,24 @@ export const getReviews = () => async (dispatch: AppDispatch) => {
     } catch (error) {
         toast.error("Failed to get reviews");
     }
-};  
+}; 
+
+
+export const getReviewsBySkillId = createAsyncThunk(
+    'reviews/getReviewsBySkillId',
+    async (skillId: string, { rejectWithValue }) => {
+        try {
+            const response = await fetch(`${url}api/reviews?skillId=${skillId}`);
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch reviews');
+            }
+            return data.data; 
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
 
 
 export const createReview = (reviewInfo: Review) => async (dispatch: AppDispatch) => {

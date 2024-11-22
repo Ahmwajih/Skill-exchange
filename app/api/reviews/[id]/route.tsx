@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   try {
-    const review = await Review.findById(id).populate('user', 'name email');
+    const review = await Review.findById(id).populate('user', 'name email reviewedBy');
     if (!review) {
       return NextResponse.json({ success: false, error: 'Review not found' }, { status: 404 });
     }

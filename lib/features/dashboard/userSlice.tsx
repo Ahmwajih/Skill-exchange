@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
 
@@ -71,5 +71,25 @@ export const fetchUsers = () => async (dispatch: AppDispatch) => {
     toast.error("Error fetching users");
   }
 };
+
+export const selectedUserById = createAsyncThunk(
+  'users/selectedUserById',
+  async (id: string, { dispatch }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/users/${id}`);
+      const data = await res.json();
+
+      if (res.status === 200) {
+        return data;
+      } else {
+        toast.error('Failed to fetch user');
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      toast.error('Error fetching user');
+      throw error;
+    }
+  }
+);
 
 export default userSlice.reducer;

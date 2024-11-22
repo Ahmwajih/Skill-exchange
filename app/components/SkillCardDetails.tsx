@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { fetchSkillById } from "@/lib/features/skills/skillsSlice";
 import {
@@ -47,7 +47,7 @@ const SkillCardDetails: React.FC = () => {
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showAllReviews, setShowAllReviews] = useState(false); 
-
+  const router = useRouter();
 
   useEffect(() => {
     if (id) {
@@ -120,6 +120,9 @@ const SkillCardDetails: React.FC = () => {
         alert("An error occurred while creating the review.");
       });
   };
+  const handleProviderClick = () => {
+    router.push(`/skill_provider_details/${skill.user._id}`);
+  };
 
   return (
     <div className="bg-neutral-50 shadow-lg rounded-lg p-6 mx-auto w-full h-full lg:flex lg:gap-6">
@@ -143,9 +146,9 @@ const SkillCardDetails: React.FC = () => {
         </div>
         {/* Skill Provider Information */}
         <div className="mt-6 border-t pt-4">
-          <div className="flex items-center gap-4">
+          <div onClick={handleProviderClick} className="flex items-center gap-4">
             <img
-              src={skill.user.photo || avatar}
+              src={skill.user.photo || "avatar"}
               alt={skill.user.name || "User Avatar"}
               className="w-12 h-12 cursor-pointer rounded-full"
             />

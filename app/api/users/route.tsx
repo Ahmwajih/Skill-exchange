@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
       .skip(paginationData.skip)
       .limit(paginationData.limit)
       .select('-password')
-      .populate('skills', 'title description category')
+      // .populate('skills', 'title description category')
+      // .populate('reviews', 'rating comments')
       .lean();
 
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, password, country, role, isActive, isAdmin, skillsLookingFor } = body;
+    const { name, email, password, country, role, isActive, isAdmin, skillsLookingFor, bio, languages, Github, LinkedIn } = body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {

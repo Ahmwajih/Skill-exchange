@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import User from './User'; // Ensure the User model is imported
+import User from './User';
 
 interface ISkill extends Document {
   title: string;

@@ -9,7 +9,12 @@ export interface IUser extends Document {
   role: "provider" | "admin";
   isAdmin: boolean;
   isActive: boolean;
-  bio : string;
+  bio: string;
+  languages: string[];
+  Github: string;
+  LinkedIn: string;
+  photo: string;
+  skillsLookingFor: [];  
   reviewedBy: mongoose.Types.String[];
   skillsLookingFor: [];
   skills: mongoose.Types.ObjectId[];
@@ -65,10 +70,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: String,
       required: false,
     },
-    skillsLookingFor: {
-      type: [],
-      required: false,
-    },
+    skillsLookingFor: { type: [], required: false },
+    languages: { type: [], required: false },
+    Github: { type: String, required: false },
+    LinkedIn: { type: String, required: false },
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }],
     reviewedBy: [{ type: mongoose.Schema.Types.String, ref: "User" }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],

@@ -1,4 +1,6 @@
 import React from 'react';
+import { useRouter } from "next/navigation";
+
 
 interface SkillCardProps {
   imageSrc: string;
@@ -6,9 +8,14 @@ interface SkillCardProps {
   category: string;
 }
 
-const SkillCard: React.FC<SkillCardProps> = ({ imageSrc, title, category }) => {
+const SkillCard: React.FC<SkillCardProps> = ({ imageSrc, title, category, id }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/skill_card_detail/${id}`);
+  };
   return ( 
-<div className="flex flex-col shadow-lg lg:rounded-lg md:rounded-lg overflow-hidden transition-transform hover:scale-105 hover:shadow-xl w-full sm:w-72 ">
+<div onClick={handleClick} className="flex flex-col shadow-lg lg:rounded-lg md:rounded-lg overflow-hidden transition-transform hover:scale-105 hover:shadow-xl w-full sm:w-72 ">
   <div className="relative w-full h-48 bg-gray">
     <img
       src={imageSrc}

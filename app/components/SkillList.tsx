@@ -4,19 +4,23 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import SkillCard from "./SkillCard";
 import { setSelectedCategory } from "@/lib/features/skills/categorySlice";
-import { RootState, AppDispatch } from "@/lib/store"; 
+import { RootState, AppDispatch } from "@/lib/store";
 import { fetchSkills } from "@/lib/features/skills/skillsSlice";
 
 const SkillsList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const skills = useSelector((state: RootState) => state.skills.data); 
-  const selectedCategory = useSelector((state: RootState) => state.category.selectedCategory);
-  const categories = useSelector((state: RootState) => state.category.categories);
+  const skills = useSelector((state: RootState) => state.skills.data);
+  const selectedCategory = useSelector(
+    (state: RootState) => state.category.selectedCategory
+  );
+  const categories = useSelector(
+    (state: RootState) => state.category.categories
+  );
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   useEffect(() => {
-    dispatch(fetchSkills()); 
+    dispatch(fetchSkills());
   }, [dispatch]);
 
   const filteredSkills = selectedCategory
@@ -91,6 +95,7 @@ const SkillsList: React.FC = () => {
         {paginatedSkills.map((skill) => (
           <div key={skill._id} className="flex justify-center">
             <SkillCard
+              id={skill._id}
               imageSrc={skill.photo || "no photo"}
               title={skill.title}
               category={skill.category}

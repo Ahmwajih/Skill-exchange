@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
 import Fuse from 'fuse.js';
@@ -26,6 +26,7 @@ interface Skill {
 interface SkillState {
   data: Skill[];
   filteredSkills: Skill[];
+  selectedSkill?: Skill;
 }
 
 const initialState: SkillState = {
@@ -54,12 +55,15 @@ const skillSlice = createSlice({
     deleteSkill: (state, action: PayloadAction<string>) => {
       state.data = state.data.filter((skill) => skill._id !== action.payload);
     },
+    readSkill: (state, action: PayloadAction<Skill>) => {
+      state.selectedSkill = action.payload;
+    },
     filterSkillsByCountry: (state, action: PayloadAction<string>) => {
       const country = action.payload;
       if (country === "All") {
         state.filteredSkills = state.data;
       } else {
-        state.filteredSkills = state.data.filter(skill => skill.user.country.toLowerCase() === country.toLowerCase());
+        state.filteredSkills = state.data.filter(skill => skill.userId.country.toLowerCase() === country.toLowerCase());
       }
     },
     setFilteredSkills: (state, action: PayloadAction<Skill[]>) => {
@@ -68,7 +72,7 @@ const skillSlice = createSlice({
   },
 });
 
-export const { getSkills, createSkill, updateSkill, deleteSkill, filterSkillsByCountry, setFilteredSkills } = skillSlice.actions;
+export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill, filterSkillsByCountry, setFilteredSkills } = skillSlice.actions;
 
 export const fetchSkills = () => async (dispatch: AppDispatch) => {
   try {
@@ -85,6 +89,25 @@ export const fetchSkills = () => async (dispatch: AppDispatch) => {
   }
 };
 
+export const fetchSkillById = createAsyncThunk(
+  'skills/fetchSkillById',
+  async (id: string, { dispatch }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/skills/${id}`);
+      const data = await res.json();
+
+      if (res.status === 200) {
+        dispatch(readSkill(data));
+        return data;
+      } else {
+        toast.error("Failed to fetch skill");
+      }
+    } catch (error) {
+      toast.error("Error fetching skill");
+    }
+  }
+);
+
 export const searchSkills =
   ({ searchSkill }: { searchSkill: string }) =>
   async (dispatch: AppDispatch) => {
@@ -96,8 +119,7 @@ export const searchSkills =
           keys: ["title", "description", "category"],
           threshold: 0.3,
         });
-        const results = fuse.search(searchSkill).map((result) => result.item);
-        dispatch(setFilteredSkills(results));
+        dispatch(setFilteredSkills(fuse.search(searchSkill).map((result) => result.item)));
       } else {
         dispatch(setFilteredSkills(data.data));
       }

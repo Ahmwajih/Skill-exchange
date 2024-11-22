@@ -8,6 +8,8 @@ import {
   createReview,
 } from "@/lib/features/reviews/reviewSlice";
 import avatar from "@/app/public/avatar.jpg";
+import Image from "next/image";
+import loading2 from '@/app/public/loading2.gif';
 
 interface Skill {
   _id: string;
@@ -82,7 +84,11 @@ const SkillCardDetails: React.FC = () => {
   }, [dispatch, id]);
 
   if (loading) {
-    return <p className="text-center">Loading...</p>;
+    return (
+      <div className="flex justify-center bg-white items-center h-screen">
+        <Image src={loading2} alt="Loading..." width={250} height={250} />
+      </div>
+    );
   }
 
   if (!skill) {
@@ -141,17 +147,17 @@ const SkillCardDetails: React.FC = () => {
             <img
               src={skill.user.photo || avatar}
               alt={skill.user.name || "User Avatar"}
-              className="w-12 h-12 rounded-full"
+              className="w-12 h-12 cursor-pointer rounded-full"
             />
             <div>
-              <p className="text-sm font-medium text-gray">
+              <p className="text-sm cursor-pointer font-medium text-gray">
                 {skill.user.name || "Anonymous"}
               </p>
               <p className="text-xs text-gray">{skill.user.country}</p>
               <p className="text-xs text-gray">{skill.user.email}</p>
             </div>
           </div>
-          <p className="mt-2 text-sm text-black">{skill.user.bio}</p>
+         
         </div>
         {/* Review Section */}
         <div className="mt-6 border-t pt-4">
@@ -191,14 +197,14 @@ const SkillCardDetails: React.FC = () => {
 
                     {/* See More Button */}
                     {reviews.length > 5 && !showAllReviews && (
-                        <button onClick={() => setShowAllReviews(true)} className="mt-2 text-blue-600 hover:underline">
+                        <button onClick={() => setShowAllReviews(true)} className="mt-2 text-orange hover:underline">
                             See More
                         </button>
                     )}
                     
                     {/* See Less Button */}
                     {showAllReviews && (
-                        <button onClick={() => setShowAllReviews(false)} className="mt-2 text-blue-600 hover:underline">
+                        <button onClick={() => setShowAllReviews(false)} className="mt-2 text-orange hover:underline">
                             See Less
                         </button>
                     )}
@@ -223,6 +229,7 @@ const SkillCardDetails: React.FC = () => {
           <div>
             <p className="text-sm font-medium text-gray-800">Your Name</p>
             <p className="text-xs text-gray-500">Your Location</p>
+            {/* <p className="mt-2 text-sm text-black">Bio </p> */}
           </div>
         </div>
       </div>

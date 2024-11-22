@@ -6,6 +6,7 @@ interface SkillCardProps {
   imageSrc: string;
   title: string;
   category: string;
+  id: string;
 }
 
 const SkillCard: React.FC<SkillCardProps> = ({ imageSrc, title, category, id }) => {

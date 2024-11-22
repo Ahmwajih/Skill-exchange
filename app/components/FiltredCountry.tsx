@@ -33,7 +33,7 @@ const FiltredCountry: React.FC<{ searchResults: any[] }> = ({
   };
 
   return (
-    <div className="bg-white">
+    <div className="bg-white py-6">
       <div className="p-6 bg-white rounded-md shadow-md max-w-md mx-auto">
         <h2 className="text-xl font-bold mb-4 text-gray">Filter by Country</h2>
         <select

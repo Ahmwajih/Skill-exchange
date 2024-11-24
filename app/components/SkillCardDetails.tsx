@@ -164,7 +164,7 @@ const SkillCardDetails: React.FC = () => {
         </div>
         {/* Review Section */}
         <div className="mt-6 border-t pt-4">
-          <h3 className="text-sm font-semibold text-brown">Give a Review</h3>
+          <h3 className="text-sm font-semibold text-brown">Leave a Review</h3>
           <div className="flex items-center mt-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <span
@@ -227,13 +227,17 @@ const SkillCardDetails: React.FC = () => {
         </div>
 
         {/* User Info */}
-        <div className="flex items-center mx-4 mt-6 gap-4">
+        <div className=" flex flex-col  mx-4 mt-6 gap-4">
+          <div className=" flex flex-col  items-start ">
           <img src={avatar} alt="App User" className="w-12 h-12 rounded-full" />
-          <div>
-            <p className="text-sm font-medium text-gray-800">Your Name</p>
-            <p className="text-xs text-gray-500">Your Location</p>
-            {/* <p className="mt-2 text-sm text-black">Bio </p> */}
+          <div >
+            <p className="text-sm pt-2 font-medium text-gray"> {skill.user.name}</p>
+            <p className="text-xs text-gray">{skill.user.country}</p>
+            
           </div>
+          </div>
+
+          <div>  <p className="mt-2 text-sm  text-justify text-black">{skill.user.bio} </p> </div>
         </div>
       </div>
     </div>

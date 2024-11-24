@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import RadioButton from "@/app/components/RadioButton";
+// import RadioButton from "@/app/components/RadioButton";
 import SkillCard from "@/app/components/SkillCard";
 import avatar from "@/app/public/avatar.jpg";
+import SkillList from "@/app/components/SkillList";
 
 const FiltredCountry: React.FC<{ searchResults: any[] }> = ({
   searchResults,
@@ -50,10 +51,10 @@ const FiltredCountry: React.FC<{ searchResults: any[] }> = ({
         </p>
       </div>
 
-      <div className="container sm:mx-2 bg-white mx-auto lg:px-2 mt-6">
-        <div className="grid cursor-pointer cardContainer sm:mx-2 md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 gap-6 justify-items-center">
-          {filteredSkills.length > 0 ? (
-            filteredSkills.map((skill: any) => (
+      <div className="container sm:mx-2 bg-white flex flex-row justify-around mx-auto lg:px-2 mt-6">
+        {filteredSkills.length > 0 ? (
+          filteredSkills.map((skill: any) => (
+            <div className=" cursor-pointer   my-4  ">
               <SkillCard
                 key={skill._id}
                 id={skill._id}
@@ -61,14 +62,20 @@ const FiltredCountry: React.FC<{ searchResults: any[] }> = ({
                 title={skill.title}
                 category={skill.category}
               />
-            ))
-          ) : (
-            <p className="text-gray">
-              No skills found for the selected country.
-            </p>
-          )}
-        </div>
-      </div>
+            </div>
+            
+          ))
+        )
+        
+       
+        : (
+          // <p className="text-gray">
+          //   No skills found for the selected country.
+          // </p>
+
+          <SkillList />
+        )}
+         </div>
     </div>
   );
 };

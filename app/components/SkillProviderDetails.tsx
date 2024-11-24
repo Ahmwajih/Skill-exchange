@@ -100,7 +100,7 @@ const SkillProviderDetails: React.FC = () => {
   return (
     <div className="container mx-auto max-w-full max-h-full p-6 bg-white rounded-lg shadow-lg">
       {/* Header Section */}
-      <div className="flex items-center gap-6 mb-8">
+      <div className="flex items-center gap-6 mt-3 mb-8 max-w-6xl">
         <Image
           src={provider.photo || avatar}
           alt={provider.name}
@@ -109,8 +109,8 @@ const SkillProviderDetails: React.FC = () => {
           className="rounded-full border border-gray object-cover"
         />
         <div>
-          <h1 className="text-3xl font-bold text-brown">{provider.name}</h1>
-          <p className="text-gray">{provider.bio || 'No bio available'}</p>
+          <h1 className="text-3xl  font-bold text-brown">{provider.name}</h1>
+          <p className="text-gray pt-3 text-justify text-wrap ">{provider.bio || 'No bio available'}</p>
         </div>
       </div>
 
@@ -137,7 +137,7 @@ const SkillProviderDetails: React.FC = () => {
             href={provider.LinkedIn}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition"
+            className="flex items-center gap-2 text-blue hover:text-blue transition"
           >
             <FaLinkedin size={24} />
             <span>LinkedIn</span>
@@ -148,7 +148,7 @@ const SkillProviderDetails: React.FC = () => {
             href={provider.Github}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-gray-800 hover:text-gray-600 transition"
+            className="flex items-center gap-2 text-black hover:text-gray-600 transition"
           >
             <FaGithub size={24} />
             <span>GitHub</span>
@@ -159,7 +159,7 @@ const SkillProviderDetails: React.FC = () => {
       {/* Skills Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
-          <h2 className="text-xl font-semibold text-gray mb-4">Skills Offered</h2>
+          <h2 className="text-xl font-semibold text-brown mb-4">Skills Offered</h2>
           {provider.skills.length > 0 ? (
             <ul className="list-disc list-inside text-gray">
               {provider.skills.map((skill, index) => (
@@ -173,7 +173,7 @@ const SkillProviderDetails: React.FC = () => {
         <div>
           <h2 className="text-xl font-semibold text-brown mb-4">Skills Needed</h2>
           {provider.skillsLookingFor.length > 0 ? (
-            <ul className="list-disc list-inside text-gray-600">
+            <ul className="list-disc list-inside text-gray">
               {provider.skillsLookingFor.map((skill, index) => (
                 <li key={index}>{skill}</li>
               ))}

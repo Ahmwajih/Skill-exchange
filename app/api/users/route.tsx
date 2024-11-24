@@ -65,6 +65,10 @@ export async function POST(req: NextRequest) {
       isActive,
       isAdmin,
       skillsLookingFor,
+      bio,
+      languages,
+      Github,
+      LinkedIn,
     });
     const savedUser = await newUser.save();
 

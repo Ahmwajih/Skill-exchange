@@ -10,13 +10,12 @@ export interface IUser extends Document {
   isAdmin: boolean;
   isActive: boolean;
   bio: string;
-  languages: string[];
+  languages: [];
   Github: string;
   LinkedIn: string;
   photo: string;
   skillsLookingFor: [];  
   reviewedBy: mongoose.Types.String[];
-  skillsLookingFor: [];
   skills: mongoose.Types.ObjectId[];
   reviews: mongoose.Types.ObjectId[];
 }

@@ -11,7 +11,7 @@ const store = configureStore({
     users: userReducer,
     skills: skillsReducer,
     category: categoryReducer,
-    Reviews: reviewsReducer,
+    reviews: reviewsReducer,
   },
 });
 

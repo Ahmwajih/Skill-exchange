@@ -98,9 +98,9 @@ export default function SignIn() {
             required
           />
         </div>
-        <div className="flex gap-5 justify-between mt-4 w-full text-xs font-medium">
-          <div className="text-gray-700">
-            <label className="label cursor-pointer">
+        <div className="flex flex-col gap-2 mt-4 w-full text-xs font-medium">
+          <div className="flex justify-between items-center text-gray-700">
+            <label className="label cursor-pointer flex items-center">
               <input
                 type="checkbox"
                 id="remember"
@@ -108,8 +108,6 @@ export default function SignIn() {
               />
               <span className="mx-2">Remember me</span>
             </label>
-          </div>
-          <div>
             <a href="#" className="text-right text-gray-700">
               Forgot your password?
             </a>

@@ -1,5 +1,6 @@
+"use client";
 import React from 'react'
-import SkillCardDetails from '@/app/components/SkillCardDetails'
+import SkillCardDetails from '@/app/components/SkillCardDetails';
 function page() {
   return (
     <div>

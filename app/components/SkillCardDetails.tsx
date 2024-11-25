@@ -9,7 +9,8 @@ import {
 } from "@/lib/features/reviews/reviewSlice";
 import avatar from "@/app/public/avatar.jpg";
 import Image from "next/image";
-import loading2 from '@/app/public/loading2.gif';
+import loading2 from "@/app/public/loading2.gif";
+import ModalConversation from "@/app/components/ModalConversation";
 
 interface Skill {
   _id: string;
@@ -46,7 +47,9 @@ const SkillCardDetails: React.FC = () => {
   const [newReview, setNewReview] = useState("");
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [showAllReviews, setShowAllReviews] = useState(false); 
+  const [showAllReviews, setShowAllReviews] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -74,7 +77,7 @@ const SkillCardDetails: React.FC = () => {
       dispatch(getReviewsBySkillId(id))
         .unwrap()
         .then((reviews) => {
-          setReviews(reviews); 
+          setReviews(reviews);
         })
         .catch((error) => {
           console.error("Failed to fetch reviews:", error);
@@ -94,15 +97,23 @@ const SkillCardDetails: React.FC = () => {
   if (!skill) {
     return <p className="text-center">Skill not found.</p>;
   }
-
+  const handleStartConversation = () => {
+    setShowModal(true);
+    console.log('Start a conversation');
+  };
+  const handleCancelConversation = () => {
+    setShowModal(false);
+    console.log('Cancel conversation'); 
+  }
   const handleReviewSubmit = () => {
     const review = {
       skillId: skill._id,
-      userId: id, 
+      userId: id,
       rating,
       comment: newReview,
       reviewedBy: "6717e35a47d471bd744d4cf0",
     };
+
 
     dispatch(createReview(review))
       .unwrap()
@@ -146,7 +157,10 @@ const SkillCardDetails: React.FC = () => {
         </div>
         {/* Skill Provider Information */}
         <div className="mt-6 border-t pt-4">
-          <div onClick={handleProviderClick} className="flex items-center gap-4">
+          <div
+            onClick={handleProviderClick}
+            className="flex items-center gap-4"
+          >
             <img
               src={skill.user.photo || "avatar"}
               alt={skill.user.name || "User Avatar"}
@@ -160,7 +174,6 @@ const SkillCardDetails: React.FC = () => {
               <p className="text-xs text-gray">{skill.user.email}</p>
             </div>
           </div>
-         
         </div>
         {/* Review Section */}
         <div className="mt-6 border-t pt-4">
@@ -189,30 +202,44 @@ const SkillCardDetails: React.FC = () => {
             Submit
           </button>
 
-        {/* Display Reviews */}
-        {reviews.slice(0, showAllReviews ? reviews.length : 5).map((review, index) => (
-                        <div key={index} className="border-b py-2">
-                            <p><strong className="text-brown">User:</strong> {review.user.name || "Anonymous"}</p>
-                            <p className="text-yellow-500"><strong className="text-brown">Rating:</strong> {"★".repeat(review.rating)} {"☆".repeat(5 - review.rating)}</p>
-                            <p className="text-black">{review.comments}</p>
-                        </div>
-                    ))}
+          {/* Display Reviews */}
+          {reviews
+            .slice(0, showAllReviews ? reviews.length : 5)
+            .map((review, index) => (
+              <div key={index} className="border-b py-2">
+                <p>
+                  <strong className="text-brown">User:</strong>{" "}
+                  {review.user.name || "Anonymous"}
+                </p>
+                <p className="text-yellow-500">
+                  <strong className="text-brown">Rating:</strong>{" "}
+                  {"★".repeat(review.rating)} {"☆".repeat(5 - review.rating)}
+                </p>
+                <p className="text-black">{review.comments}</p>
+              </div>
+            ))}
 
-                    {/* See More Button */}
-                    {reviews.length > 5 && !showAllReviews && (
-                        <button onClick={() => setShowAllReviews(true)} className="mt-2 text-orange hover:underline">
-                            See More
-                        </button>
-                    )}
-                    
-                    {/* See Less Button */}
-                    {showAllReviews && (
-                        <button onClick={() => setShowAllReviews(false)} className="mt-2 text-orange hover:underline">
-                            See Less
-                        </button>
-                    )}
-                </div>
-            </div>
+          {/* See More Button */}
+          {reviews.length > 5 && !showAllReviews && (
+            <button
+              onClick={() => setShowAllReviews(true)}
+              className="mt-2 text-orange hover:underline"
+            >
+              See More
+            </button>
+          )}
+
+          {/* See Less Button */}
+          {showAllReviews && (
+            <button
+              onClick={() => setShowAllReviews(false)}
+              className="mt-2 text-orange hover:underline"
+            >
+              See Less
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Right Side: User & Call to Action */}
       <div className="lg:w-1/3 bg-gray-100 rounded-lg p-6">
@@ -221,23 +248,41 @@ const SkillCardDetails: React.FC = () => {
           <h3 className="text-lg font-semibold text-brown">
             Interested in this skill?
           </h3>
-          <button className="mt-4 w-full bg-blue text-white py-2 px-4 rounded-lg hover:bg-blue-600 lg:px-6">
+          <button
+            onClick={handleStartConversation}
+            className="mt-4 w-full bg-blue text-white py-2 px-4 rounded-lg hover:bg-blue-600 lg:px-6"
+          >
             Start a Conversation
           </button>
+          {showModal && (<ModalConversation providerName={skill.user.name} closeModal={handleCancelConversation} />)}
+          <div>
+
+          </div>
         </div>
 
         {/* User Info */}
         <div className=" flex flex-col  mx-4 mt-6 gap-4">
           <div className=" flex flex-col  items-start ">
-          <img src={avatar} alt="App User" className="w-12 h-12 rounded-full" />
-          <div >
-            <p className="text-sm pt-2 font-medium text-gray"> {skill.user.name}</p>
-            <p className="text-xs text-gray">{skill.user.country}</p>
-            
-          </div>
+            <img
+              src={avatar}
+              alt="App User"
+              className="w-12 h-12 rounded-full"
+            />
+            <div>
+              <p className="text-sm pt-2 font-medium text-gray">
+                {" "}
+                {skill.user.name}
+              </p>
+              <p className="text-xs text-gray">{skill.user.country}</p>
+            </div>
           </div>
 
-          <div>  <p className="mt-2 text-sm  text-justify text-black">{skill.user.bio} </p> </div>
+          <div>
+            {" "}
+            <p className="mt-2 text-sm  text-justify text-black">
+              {skill.user.bio}{" "}
+            </p>{" "}
+          </div>
         </div>
       </div>
     </div>

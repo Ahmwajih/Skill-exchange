@@ -59,17 +59,6 @@ export default function SignIn() {
         className="flex flex-col mt-12 w-full max-w-[358px] max-md:mt-10"
         onSubmit={handleSignIn}
       >
-        <div className="flex flex-col w-full">
-          <label htmlFor="name" className="font-medium text-slate-700">
-            Name*
-          </label>
-          <input
-            type="text"
-            id="name"
-            className="flex overflow-hidden gap-2 items-center px-3.5 py-2.5 mt-1.5 w-full bg-white rounded-lg border border-gray-300 border-solid shadow-sm min-h-[46px] text-slate-800"
-            placeholder="Please enter your name"
-          />
-        </div>
         <div className="flex flex-col mt-6 w-full">
           <label htmlFor="email" className="font-medium text-slate-700">
             Email*
@@ -117,7 +106,7 @@ export default function SignIn() {
           type="submit"
           className="self-stretch px-5 py-3 mt-6 text-base font-medium text-white bg-blue rounded-md shadow-md w-full"
         >
-          Sign Up
+          Sign In
         </button>
         <button
           type="button"
@@ -145,9 +134,9 @@ export default function SignIn() {
         </button>
       </form>
       <p className="mt-4 text-xs font-medium leading-5 text-center text-blue-400">
-        Already have an account?{" "}
-        <a href="#" className="text-blue-400">
-          Sign In
+      Don't have an account? {" "}
+        <a href="/signup" className="text-blue-400">
+          Sign up
         </a>
       </p>
     </section>

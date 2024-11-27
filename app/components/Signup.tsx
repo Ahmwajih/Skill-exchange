@@ -4,15 +4,19 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
-import {login} from "@/lib/features/auth/authSlice";
+import {register} from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import 'react-toastify/dist/ReactToastify.css';
 import { AppDispatch } from "@/lib/store";
 
 export default function SignIn() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [retypePassword, setRetypePassword] = useState("");
+
+  
   const dispatch = useDispatch();
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -23,13 +27,18 @@ export default function SignIn() {
       return;
     }
 
+    if (password !== retypePassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
     try {
-      await dispatch(login({ email, password }, router));
-      console.log("User logged in successfully");
-      router.push("/main");
+      await dispatch(register({name, email, password }, router));
+      console.log("user registered successfully");
+      router.push("/signin");
     } catch (error) {
       console.error("Error logging in:", error);
-      alert("Login failed. Please try again.");
+      alert("register failed. Please try again.");
     }
 
   };
@@ -66,6 +75,8 @@ export default function SignIn() {
           <input
             type="text"
             id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="flex overflow-hidden gap-2 items-center px-3.5 py-2.5 mt-1.5 w-full bg-white rounded-lg border border-gray-300 border-solid shadow-sm min-h-[46px] text-slate-800"
             placeholder="Please enter your name"
           />
@@ -95,6 +106,20 @@ export default function SignIn() {
             placeholder="************"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div className="flex flex-col mt-6 w-full">
+          <label htmlFor="retype-password" className="font-medium text-slate-700">
+            Retype Password*
+          </label>
+          <input
+            type="password"
+            id="retype-password"
+            className="flex overflow-hidden gap-2 items-center px-3.5 py-2.5 mt-1.5 w-full bg-white rounded-lg border border-gray-300 border-solid shadow-sm min-h-[46px] text-slate-800"
+            placeholder="************"
+            value={retypePassword}
+            onChange={(e) => setRetypePassword(e.target.value)}
             required
           />
         </div>
@@ -146,7 +171,7 @@ export default function SignIn() {
       </form>
       <p className="mt-4 text-xs font-medium leading-5 text-center text-blue-400">
         Already have an account?{" "}
-        <a href="#" className="text-blue-400">
+        <a href="/signin" className="text-blue-400">
           Sign In
         </a>
       </p>

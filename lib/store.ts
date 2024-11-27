@@ -4,6 +4,7 @@ import userReducer from "@/lib/features/dashboard/userSlice";
 import skillsReducer from "@/lib/features/skills/skillsSlice";
 import categoryReducer from "@/lib/features/skills/categorySlice";
 import reviewsReducer from "@/lib/features/reviews/reviewSlice";
+import chatReducer from "@/lib/features/chat/chatSlice";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     skills: skillsReducer,
     category: categoryReducer,
     reviews: reviewsReducer,
+    chat: chatReducer,
   },
 });
 

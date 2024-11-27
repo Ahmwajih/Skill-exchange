@@ -41,7 +41,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     country: {
       type: String,
-      required: true,
+      required: false,
       maxlength: 50,
     },
     role: {

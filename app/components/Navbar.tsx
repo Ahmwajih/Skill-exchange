@@ -5,7 +5,7 @@ import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "@/lib/features/auth/authSlice";
+import { logoutUser } from "@/lib/features/auth/authSlice";
 import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch, RootState } from "@/lib/store";
 import { searchSkills } from "@/lib/features/skills/skillsSlice";
@@ -28,10 +28,10 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   ];
 
   const handleLogout = () => {
-    dispatch(logout());
-    router.push("/");
+    dispatch(logoutUser()); // Log out the user
+    router.push("/"); // Redirect to the homepage
   };
-
+  
   const toggleSearch = () => {
     setIsSearchOpen((prev) => !prev);
   };

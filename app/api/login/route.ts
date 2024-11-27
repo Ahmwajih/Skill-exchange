@@ -30,6 +30,11 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    // if (!isActive) {
+    //   return NextResponse.json(
+    //     { success: false, error: "User is not active" },
+    //     { status: 400 }
+    //   );
 
     const user = await User.findOne({ email });
     if (!user) {

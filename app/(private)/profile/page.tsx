@@ -10,11 +10,6 @@ import FiltredCountry from '@/app/components/FiltredCountry';
 
 function Page() {
   const [loading, setLoading] = useState(true);
-  const [searchResults, setSearchResults] = useState([]);
-
-  const handleSearchResults = (results: any[]) => {
-    setSearchResults(results);
-  };
 
 //   if (loading) {
 //     return (
@@ -26,7 +21,7 @@ function Page() {
 
   return (
     <Protect>
-      <Navbar onSearchResults={handleSearchResults} />
+      <Navbar />
       {/* <FiltredCountry searchResults={searchResults} /> */}
 
       <Footer />

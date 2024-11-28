@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/lib/features/auth/authSlice";
 import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch, RootState } from "@/lib/store";
-import { searchSkills } from "@/lib/features/skills/skillsSlice";
+import { searchSkills, setSearchResults } from "@/lib/features/skills/skillsSlice";
 
 const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSearchResults }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -17,14 +17,15 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const router = useRouter();
   const dispatch: AppDispatch = useDispatch();
-  const searchResults = useSelector((state: RootState) => state.skills.filteredSkills);
+  const searchResults = useSelector((state: RootState) => state.skills.searchResults);
 
   useEffect(() => {
-    onSearchResults(searchResults);
-  }, [searchResults, onSearchResults]);
+    dispatch(setSearchResults(searchResults));
+  }, [searchResults, dispatch]);
 
   const navItems = [
     { label: "Home", isActive: true, href: "/" },
+    { label: "Main", isActive: true, href: "/main" },
     { label: "Dashboard", isActive: true, href: "/user_dashboard" },
   ];
 
@@ -46,7 +47,7 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   };
 
   const handleSearch = (searchTerm: string) => {
-    dispatch(searchSkills({ searchSkill: searchTerm }));
+    dispatch(searchSkills({ searchSkill: searchTerm }, router));
   };
   const handleAvatarClick = () => {
     router.push("/profile");

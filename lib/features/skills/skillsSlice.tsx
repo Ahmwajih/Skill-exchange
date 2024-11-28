@@ -33,8 +33,7 @@ interface SkillState {
 const initialState: SkillState = {
   data: [],
   filteredSkills: [],
-  searchResults: Skill[];
-
+  searchResults: [],
 };
 
 const skillSlice = createSlice({
@@ -66,7 +65,7 @@ const skillSlice = createSlice({
       if (country === "All") {
         state.filteredSkills = state.data;
       } else {
-        state.filteredSkills = state.data.filter(skill => skill.userId.country.toLowerCase() === country.toLowerCase());
+        state.filteredSkills = state.data.filter(skill => skill.user.country.toLowerCase() === country.toLowerCase());
       }
     },
     setFilteredSkills: (state, action: PayloadAction<Skill[]>) => {
@@ -78,7 +77,7 @@ const skillSlice = createSlice({
   },
 });
 
-export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill, filterSkillsByCountry, setFilteredSkill, setSearchResults } = skillSlice.actions;
+export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill, filterSkillsByCountry, setFilteredSkills, setSearchResults } = skillSlice.actions;
 
 export const fetchSkills = () => async (dispatch: AppDispatch) => {
   try {
@@ -115,7 +114,7 @@ export const fetchSkillById = createAsyncThunk(
 );
 
 export const searchSkills =
-  ({ searchSkill }: { searchSkill: string }) =>
+  ({ searchSkill }: { searchSkill: string }, router: NextRouter) =>
   async (dispatch: AppDispatch) => {
     try {
       const res = await fetch(`${baseUrl}/api/skills`);
@@ -125,10 +124,12 @@ export const searchSkills =
           keys: ["title", "description", "category"],
           threshold: 0.3,
         });
-        dispatch(setFilteredSkills(fuse.search(searchSkill).map((result) => result.item)));
+        const results = fuse.search(searchSkill).map((result) => result.item);
+        dispatch(setSearchResults(results));
       } else {
-        dispatch(setFilteredSkills(data.data));
+        dispatch(setSearchResults(data.data));
       }
+      router.push("/main"); // Navigate to the main page
     } catch (error) {
       toast.error("Error fetching filtered skills");
     }

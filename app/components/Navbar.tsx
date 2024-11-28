@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from "react";
 import Logo from "@/app/public/Logo.svg";
 import Image from "next/image";
@@ -47,9 +48,12 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   const handleSearch = (searchTerm: string) => {
     dispatch(searchSkills({ searchSkill: searchTerm }));
   };
+  const handleAvatarClick = () => {
+    router.push("/profile");
+  };
 
   return (
-    <header className="w-full bg-neutral-50 px-1 py-4 border-b shadow-md">
+    <div className="w-full bg-neutral-50 px-1 py-4 border-b shadow-md">
       <div className="flex justify-between items-center max-w-screen-xl mx-auto px-4">
         <div className="flex items-center hidden md:block flex-shrink-0">
           <Link href="/">
@@ -84,6 +88,12 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
             {isAvatarMenuOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10">
                 <ul className="py-2">
+                <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleAvatarClick}
+                  >
+                    Profile
+                  </li>
                   <li
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     onClick={handleLogout}
@@ -109,6 +119,12 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
             {isAvatarMenuOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10">
                 <ul className="py-2">
+                  <li
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleAvatarClick}
+                  >
+                    Profile
+                  </li>
                   <li
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     onClick={handleLogout}
@@ -144,7 +160,7 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
           ))}
         </nav>
       )}
-    </header>
+    </div>
   );
 };
 

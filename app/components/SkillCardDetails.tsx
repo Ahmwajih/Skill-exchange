@@ -254,7 +254,7 @@ const SkillCardDetails: React.FC = () => {
           >
             Start a Conversation
           </button>
-          {showModal && (<ModalConversation providerName={skill.user.name} closeModal={handleCancelConversation} />)}
+          {showModal && (<ModalConversation providerName={skill.user.name} providerEmail={skill.user.email} closeModal={handleCancelConversation} />)}
           <div>
 
           </div>

@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/router";
 
 const url = process.env.baseUrl || "http://localhost:3000/";
 
@@ -41,7 +43,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    auth: (state, action: PayloadAction<AuthState>) => {
+    authAll: (state, action: PayloadAction<AuthState>) => {
       state.currentUser = action.payload.currentUser;
       state.token = action.payload.token;
       state.email = action.payload.email;
@@ -60,9 +62,8 @@ const authSlice = createSlice({
   },
 });
 
-export const { auth, logout } = authSlice.actions;
+export const { authAll, logout } = authSlice.actions;
 export default authSlice.reducer;
-
 
 export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
   try {
@@ -83,7 +84,7 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
       provider: "email",
     };
 
-    dispatch(auth(payload));
+    dispatch(authAll(payload));
 
     if (typeof window !== "undefined") {
       sessionStorage.setItem("name", data.data.name);
@@ -99,8 +100,6 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
     toast.error(error.message || "Login failed. Please try again.");
   }
 };
-
-
 
 export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
   try {
@@ -121,7 +120,7 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
       provider: "email",
     };
 
-    dispatch(auth(payload));
+    dispatch(authAll(payload));
 
     // Save session info
     if (typeof window !== "undefined") {
@@ -139,38 +138,33 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
   }
 };
 
-
 export const logoutUser = (router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
   try {
-    const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
+      const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
 
-    const res = await fetch(`${url}api/logout`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      // Sign out from Firebase
+      await auth.signOut();
 
-    if (res.ok) {
-      dispatch(logout());
+      const res = await fetch(`${url}api/logout`, {
+          method: "POST",
+          headers: {
+              Authorization: `Bearer ${token}`, 
+          },
+      });
 
-      // Clear session
-      if (typeof window !== "undefined") {
-        sessionStorage.clear();
+      if (res.ok) {
+          dispatch(logout());
+          sessionStorage.clear();
+          router.push("/signin");
+          toast.success("Logged out successfully!");
+      } else {
+          throw new Error("Failed to log out.");
       }
-
-      router.push("/signin");
-      toast.success("Logged out successfully!");
-    } else {
-      throw new Error("Failed to log out.");
-    }
-  } catch (error: any) {
-    console.error("Logout error:", error);
-    toast.error(error.message || "An error occurred. Please try again.");
+  } catch (error) {
+      console.error("Logout error:", error);
+      toast.error(error.message || "An error occurred. Please try again.");
   }
 };
-
-
 
 export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInfo) => async () => {
   try {
@@ -195,13 +189,12 @@ export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInf
   }
 };
 
-
 export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: AppDispatch) => {
   try {
     const res = await fetch(`${url}api/users/${userInfo.id}`, {
       method: "GET",
       headers: {
-        Authorization: `token ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
+        Authorization: `Bearer ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,
       },
     });
 
@@ -211,18 +204,20 @@ export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: 
     if (!data.success) throw new Error("User profile fetch failed");
 
     const payload = {
-      name: data.data.name,
+      currentUser: data.data.name,
       email: data.data.email,
       role: data.data.role,
+      provider: "email",
+      isAuthenticated: true,
     };
 
-    dispatch(auth(payload));
+    dispatch(authAll(payload));
     if (typeof window !== "undefined") {
       sessionStorage.setItem("name", data.data.name);
       sessionStorage.setItem("email", data.data.email);
       sessionStorage.setItem("role", data.data.role);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching user profile:", error);
     toast.error("An error occurred while fetching the profile. Please try again.");
   }

@@ -8,6 +8,7 @@ import {login} from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import 'react-toastify/dist/ReactToastify.css';
 import { AppDispatch } from "@/lib/store";
+import { authAll } from "@/lib/features/auth/authSlice";
 
 export default function SignIn() {
   const router = useRouter();
@@ -36,14 +37,35 @@ export default function SignIn() {
 
   const handleProviderSignIn = async (provider) => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      console.log("User logged in successfully:", result.user);
-      router.push("/main");
+        const result = await signInWithPopup(auth, provider);
+        console.log("User logged in successfully:", result.user);
+
+        const { displayName, email } = result.user;
+        const token = await result.user.getIdToken();
+
+        const payload = {
+            currentUser: displayName,
+            token,
+            email,
+            role: 'provider', 
+            provider: provider.providerId,
+        };
+
+        dispatch(authAll(payload));
+
+        if (typeof window !== "undefined") {
+            sessionStorage.setItem("name", displayName);
+            sessionStorage.setItem("token", token);
+            sessionStorage.setItem("email", email);
+            sessionStorage.setItem("role", null); // Adjust as necessary
+        }
+
+        router.push("/main");
     } catch (error) {
-      console.error(`Error signing in with provider:`, error);
-      alert(error.message);
+        console.error(`Error signing in with provider:`, error);
+        alert(error.message);
     }
-  };
+};
 
   return (
     <section className="flex flex-col items-center bg-white py-4 px-4 sm:px-8">

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-function ModalConversation({providerName, closeModal} ) {
+function ModalConversation({providerName, providerEmail, closeModal} ) {
   const [message, setMessage] = useState("");
   const [timeFrame, setTimeFrame] = useState("1 day");
   const [showDealFields, setShowDealFields] = useState(false);
@@ -9,15 +9,44 @@ function ModalConversation({providerName, closeModal} ) {
   const [skillsOffered, setSkillsOffered] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-const router = useRouter();
-  const handleSend = () => {
+
+
+
+  const handleSend = async () => {
     const dealDetails = showDealFields
-      ? `\nProposed Deal:\nTime Frame: ${timeFrame}\nSkills Offered: ${skillsOffered}\nNumber of Sessions: ${numberOfSessions}`
+      ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
       : "";
 
-    alert(`Message sent to the provider:\nMessage: ${message}${dealDetails}`);
-    setShowModal(false);
-    resetFields();
+    const emailContent = `
+      <p>${message}</p>
+      ${dealDetails}
+    `;
+
+    try {
+      const response = await fetch('/api/sendmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: providerEmail,
+          subject: `From Community Skill Exchane New Message from ${providerName}`, // the message is from the seeker not the provider 
+          html: emailContent,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert('Message sent successfully!');
+        resetFields();
+        closeModal();
+      } else {
+        alert('Failed to send message.');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('An error occurred while sending the message.');
+    }
   };
 
   const handleCancel = () => {

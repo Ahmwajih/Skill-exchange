@@ -27,11 +27,14 @@ interface SkillState {
   data: Skill[];
   filteredSkills: Skill[];
   selectedSkill?: Skill;
+  searchResults: Skill[];
 }
 
 const initialState: SkillState = {
   data: [],
   filteredSkills: [],
+  searchResults: Skill[];
+
 };
 
 const skillSlice = createSlice({
@@ -69,10 +72,13 @@ const skillSlice = createSlice({
     setFilteredSkills: (state, action: PayloadAction<Skill[]>) => {
       state.filteredSkills = action.payload;
     },
+    setSearchResults: (state, action: PayloadAction<Skill[]>) => {
+      state.searchResults = action.payload;
+    },
   },
 });
 
-export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill, filterSkillsByCountry, setFilteredSkills } = skillSlice.actions;
+export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill, filterSkillsByCountry, setFilteredSkill, setSearchResults } = skillSlice.actions;
 
 export const fetchSkills = () => async (dispatch: AppDispatch) => {
   try {

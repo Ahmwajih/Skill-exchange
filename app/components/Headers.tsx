@@ -9,7 +9,7 @@ import SH from "../public/SH.jpg";
 export default function Headers() {
   return (
     <div className="m-0">
-      <header className="bg-light-blue dark:bg-gray-800 text-brown dark:text-white">
+      <div className="bg-light-blue dark:bg-gray-800 text-brown dark:text-white">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 lg:p-0 md:p-0">
           <Link href="/home">
             <Image className="logo hidden md:block" src={Logo} alt="logo" />
@@ -20,7 +20,7 @@ export default function Headers() {
             </h1>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="w-full ">
         <Image

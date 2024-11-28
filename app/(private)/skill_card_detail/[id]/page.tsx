@@ -6,9 +6,7 @@ import Protect from "@/app/components/Protect";
 function page() {
   return (
     <Protect>
-    <div>
         <SkillCardDetails />
-    </div>
     </Protect>
 
   )

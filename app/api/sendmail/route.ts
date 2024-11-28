@@ -1,4 +1,3 @@
-// /pages/api/sendEmail.js
 
 import { NextResponse, NextRequest } from 'next/server';
 import { sendMail } from '@/lib/mailer';

@@ -171,7 +171,7 @@ const SkillProviderDetails: React.FC = () => {
           className="bg-blue text-white py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition">
           Start a Conversation
         </button>
-        {showModal && (<ModalConversation providerName={provider.name} closeModal={handleCancelConversation} />)}
+        {showModal && (<ModalConversation providerName={provider.name} providerEmail={provider.email} closeModal={handleCancelConversation} />)}
           
       </div>
      

@@ -2,13 +2,11 @@
 import React, { useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '@/app/components/Navbar';
-import Protect from "@/app/components/Protect"; // Adjust the path to your Protect component
+import Protect from "@/app/components/Protect"; 
 
-// import { useRouter } from "next/navigation";
-// import { useEffect } from 'react';
+
 import FiltredCountry from '@/app/components/FiltredCountry';
 import Footer from "@/app/components/Footer";
-// import { useSelector } from "react-redux";
 
 
 
@@ -24,12 +22,11 @@ function Pages() {
 
   return (
     <Protect>
-    <div>
+   
       <Navbar onSearchResults={handleSearchResults} />
       <FiltredCountry searchResults={searchResults} />
       <Footer />
       
-    </div>
     </Protect>
   );
 }

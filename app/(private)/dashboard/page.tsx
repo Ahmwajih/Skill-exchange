@@ -5,7 +5,7 @@ import Protect from "@/app/components/Protect";
 function page() {
   return (
     <Protect>
-      <div></div>
+      <h1>Hello</h1>
     </Protect>
   );
 }

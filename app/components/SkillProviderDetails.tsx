@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { selectedUserById } from '@/lib/features/dashboard/userSlice';
 import avatar from '@/app/public/avatar.jpg';
 import Image from 'next/image';
-import loading2 from '@/app/public/loading2.gif';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
 import ModalConversation from '@/app/components/ModalConversation';
 
@@ -60,14 +59,6 @@ const SkillProviderDetails: React.FC = () => {
     console.log('Cancel conversation'); 
   }
 
-
-  if (loading) {
-    return (
-      <div className="flex justify-center bg-white items-center h-screen">
-        <Image src={loading2} alt="Loading..." width={200} height={200} />
-      </div>
-    );
-  }
 
   if (!provider) {
     return (

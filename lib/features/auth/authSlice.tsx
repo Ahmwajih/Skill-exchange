@@ -10,6 +10,15 @@ interface UserInfo {
   name: string;
   email: string;
   password: string;
+  country: string;
+  role: string;
+  skills: string[];
+  skill_exchanges: string[];
+  reviews: string[];
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  isAdmin: boolean;
 }
 
 interface PasswordChangeInfo {

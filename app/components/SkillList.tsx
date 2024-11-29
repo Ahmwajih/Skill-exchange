@@ -48,7 +48,7 @@ const SkillsList: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto lg:px-2 py-6">
+    <div className="container  mx-auto lg:px-2 py-6">
       <div className="flex flex-wrap justify-center space-x-2 mb-6">
         {categories.map((category) => (
           <button

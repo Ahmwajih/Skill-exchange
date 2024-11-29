@@ -9,7 +9,6 @@ import {
 } from "@/lib/features/reviews/reviewSlice";
 import avatar from "@/app/public/avatar.jpg";
 import Image from "next/image";
-import loading2 from "@/app/public/loading2.gif";
 import ModalConversation from "@/app/components/ModalConversation";
 
 interface Skill {
@@ -86,14 +85,6 @@ const SkillCardDetails: React.FC = () => {
     }
   }, [dispatch, id]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center bg-white items-center h-screen">
-        <Image src={loading2} alt="Loading..." width={250} height={250} />
-      </div>
-    );
-  }
-
   if (!skill) {
     return <p className="text-center">Skill not found.</p>;
   }
@@ -136,7 +127,7 @@ const SkillCardDetails: React.FC = () => {
   };
 
   return (
-    <div className="bg-neutral-50 shadow-lg rounded-lg p-6 mx-auto w-full h-full lg:flex lg:gap-6">
+    <div className="bg-neutral-50 shadow-lg  p-6 mx-auto w-full min-h-screen lg:flex lg:gap-6">
       {/* Left Side: Skill Details */}
       <div className="lg:w-2/3">
         {/* Header Image */}

@@ -22,11 +22,13 @@ interface User {
 interface UserState {
   users: User[];
   filteredUsers: User[];
+  currentUser?: User | null;
 }
 
 const initialState: UserState = {
   users: [],
   filteredUsers: [],
+  currentUser: null,
 };
 
 const userSlice = createSlice({
@@ -51,10 +53,16 @@ const userSlice = createSlice({
         user.name.toLowerCase().includes(query)
       );
     },
+    setCurrentUser: (state, action: PayloadAction<User>) => {
+      state.currentUser = action.payload; 
+    },
+    clearCurrentUser: (state) => {
+      state.currentUser = null; 
+    },
   },
 });
 
-export const { setUsers, filterUsersByCountry, searchUsersByName } = userSlice.actions;
+export const { setUsers, filterUsersByCountry, searchUsersByName, setCurrentUser, clearCurrentUser } = userSlice.actions;
 
 export const fetchUsers = () => async (dispatch: AppDispatch) => {
   try {
@@ -88,6 +96,31 @@ export const selectedUserById = createAsyncThunk(
     } catch (error) {
       toast.error('Error fetching user');
       throw error;
+    }
+  }
+);
+
+export const createUserProfile = createAsyncThunk(
+  'users/createUserProfile',
+  async ({ id, userData }: { id: string; userData: User }, { dispatch }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/users/${id}`, { 
+        method: "PUT", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 200) {
+        dispatch(setCurrentUser(data.data)); 
+        toast.success("Profile ccreated successfully!");
+      } else {
+        toast.error(data.error || "Failed to create profile");
+      }
+    } catch (error) {
+      console.error("Error creating profile:", error);
+      toast.error("Error creating profile");
     }
   }
 );

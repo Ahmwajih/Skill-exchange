@@ -51,7 +51,7 @@ const FiltredCountry: React.FC<{ searchResults: any[] }> = ({
         </p>
       </div>
 
-      <div className="container sm:mx-2 bg-white flex flex-row justify-around mx-auto lg:px-2 mt-6">
+      <div className="container mx-auto flex flex-wrap justify-center lg:px-2 mt-6">
         {filteredSkills.length > 0 ? (
           filteredSkills.map((skill: any) => (
             <div className=" cursor-pointer   my-4  ">

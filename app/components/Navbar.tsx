@@ -29,10 +29,12 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
     { label: "Dashboard", isActive: true, href: "/user_dashboard" },
   ];
 
-  const handleLogout = () => {
-    dispatch(logoutUser()); // Log out the user
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser(router)); // Log out the user
     router.push("/"); // Redirect to the homepage
   };
+  
   
   const toggleSearch = () => {
     setIsSearchOpen((prev) => !prev);

@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
-import Fuse from 'fuse.js';
 
 const baseUrl = process.env.baseUrl || "http://localhost:3000/";
 
@@ -109,6 +108,31 @@ export const fetchSkillById = createAsyncThunk(
       }
     } catch (error) {
       toast.error("Error fetching skill");
+    }
+  }
+);
+
+export const addSkillToUser = createAsyncThunk(
+  'skills/addSkillToUser',
+  async (skillData: Partial<Skill>, { dispatch }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/skills`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(skillData),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 201) {
+        dispatch(createSkill(data.data));
+        toast.success("Skill added successfully");
+        console.log("Skill added successfully");
+      } else {
+        toast.error("Failed to add skill");
+      }
+    } catch (error) {
+      toast.error("Error adding skill");
     }
   }
 );

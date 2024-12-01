@@ -1,12 +1,28 @@
-'use client';
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import {addSkillToUser} from "@/lib/features/skills/skillsSlice"
 
-const AddSkillModal = ({ onClose, onAddSkill, userId }) => {
-  const [skillTitle, setSkillTitle] = useState('');
-  const [skillDescription, setSkillDescription] = useState('');
-  const [skillCategory, setSkillCategory] = useState('');
-  const [skillPhoto, setSkillPhoto] = useState(null);
-  const [photoBase64, setPhotoBase64] = useState('');
+interface AddSkillModalProps {
+  onClose: () => void;
+  onAddSkill: (newSkill: {
+    title: string;
+    category: string;
+    description?: string;
+    photo?: string;
+  }) => void;
+  userId: string;
+}
+
+const AddSkillModal: React.FC<AddSkillModalProps> = ({
+  onClose,
+  onAddSkill,
+  userId,
+}) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [photoBase64, setPhotoBase64] = useState("");
+  const dispatch = useDispatch();
 
   const categories = [
     "Machine Learning",
@@ -19,102 +35,120 @@ const AddSkillModal = ({ onClose, onAddSkill, userId }) => {
     "Graphic Design",
   ];
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSkillPhoto(file); // Store the file for submission
-        setPhotoBase64(reader.result.split(',')[1]); // Store base64 for submission
+        setPhotoBase64(reader.result?.toString().split(",")[1] || "");
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (skillTitle && skillDescription && skillCategory) {
-      const newSkill = {
-        title: skillTitle,
-        description: skillDescription,
-        category: skillCategory,
-        photo: photoBase64, // Include the Base64 photo data
-        userId: userId, // Associate the skill with the user ID
-      };
-      
-      onAddSkill(newSkill); 
-      clearFields();
-    }
-  };
-
-  const clearFields = () => {
-    setSkillTitle('');
-    setSkillDescription('');
-    setSkillCategory('');
-    setSkillPhoto(null);
-    setPhotoBase64('');
+    onAddSkill({ title, description, category, photo: photoBase64, user:userId });
+    console.log(userId)
+    await dispatch(addSkillToUser({title, description, category, photo: photoBase64, userId:userId}))
+    console.log('skill added');
+    setTitle("");
+    setDescription("");
+    setCategory("");
+    setPhotoBase64("");
+    onClose();
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h3 className="text-lg text-brown font-semibold mb-4">Add New Skill</h3>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-brown text-sm font-medium">Title</label>
-            <input 
-              type="text" 
-              value={skillTitle}
-              onChange={(e) => setSkillTitle(e.target.value)}
-              required
-              className="mt-1 block bg-white w-full border border-gray-300 rounded-md shadow-sm"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-brown text-sm font-medium">Description</label>
-            <textarea 
-              value={skillDescription}
-              onChange={(e) => setSkillDescription(e.target.value)}
-              required
-              rows={3}
-              className="mt-1 block bg-white w-full border border-gray-300 rounded-md shadow-sm"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-brown text-sm font-medium">Category</label>
-            <select 
-              value={skillCategory}
-              onChange={(e) => setSkillCategory(e.target.value)}
-              required
-              className="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm"
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-8 shadow-lg">
+        <h2 className="text-2xl text-center font-bold mb-4 text-brown">
+          Add Skill
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-brown"
             >
-              <option value="">Select a category</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>{category}</option>
+              Title
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full bg-white border border-gray-300 rounded-md shadow-sm p-2"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-brown"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full bg-white border border-gray-300 rounded-md shadow-sm p-2"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium text-brown"
+            >
+              Category
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+              className="w-full bg-white border border-gray-300 rounded-md shadow-sm p-2"
+            >
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-brown text-sm font-medium">Photo</label>
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleFileChange} 
-              required
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+          <div>
+            <label
+              htmlFor="photo"
+              className="block text-sm font-medium text-brown"
+            >
+              Upload a Photo
+            </label>
+            <input
+              type="file"
+              id="photo"
+              accept="image/*"
+              onChange={handleFileChange}
             />
           </div>
 
-          <div className="flex justify-end">
-            <button type="button" onClick={onClose} className="mr-2 bg-gray text-white py-1 px-3 rounded-md hover:bg-gray-400 transition duration-200">
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray text-white py-2 px-4 rounded-md hover:bg-gray-500"
+            >
               Cancel
             </button>
-            <button type="submit" className="bg-orange text-white py-1 px-3 rounded-md hover:bg-blue-600 transition duration-200">
+            <button
+              type="submit"
+              className="bg-blue text-white py-2 px-4 rounded-md hover:bg-blue-600"
+            >
               Add Skill
             </button>
           </div>

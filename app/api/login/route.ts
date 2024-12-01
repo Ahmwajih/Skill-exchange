@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/User";
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: NextRequest) {
@@ -30,11 +29,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    // if (!isActive) {
-    //   return NextResponse.json(
-    //     { success: false, error: "User is not active" },
-    //     { status: 400 }
-    //   );
 
     const user = await User.findOne({ email });
     if (!user) {

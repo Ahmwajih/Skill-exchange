@@ -1,14 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import db from "@/lib/db";
+import User from "@/models/User";
 import { useState } from "react";
+import { NextRequest, NextResponse } from "next/server";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
-import {login} from "@/lib/features/auth/authSlice";
+import { login } from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch } from "@/lib/store";
 import { authAll } from "@/lib/features/auth/authSlice";
+
+
+const url = process.env.baseUrl || "http://localhost:3000";
 
 export default function SignIn() {
   const router = useRouter();
@@ -32,40 +38,87 @@ export default function SignIn() {
       console.error("Error logging in:", error);
       alert("Login failed. Please try again.");
     }
-
   };
 
   const handleProviderSignIn = async (provider) => {
     try {
-        const result = await signInWithPopup(auth, provider);
-        console.log("User logged in successfully:", result.user);
+      const result = await signInWithPopup(auth, provider);
+      console.log("User logged in successfully:", result.user);
+      console.log("user id", result.user.uid);
 
-        const { displayName, email } = result.user;
-        const token = await result.user.getIdToken();
+      const { displayName, email } = result.user;
+      const token = await result.user.getIdToken();
+      console.log("token", token);
+      const photoURL = result.user.photoURL;
+      console.log("photoURL", photoURL);
+      //TODO: i will use dispatch for register 
 
+      const response = await fetch(`${url}/api/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: displayName,
+          email: email,
+          password:result.user.uid,
+          token,
+          provider: "firebase",
+          isActive: true,
+          role: "provider",
+          photo: photoURL,
+        }),
+      });
+      if (!response.ok) {
         const payload = {
-            currentUser: displayName,
-            token,
-            email,
-            role: 'provider', 
-            provider: provider.providerId,
+              currentUser: displayName,
+              token,
+              email:email,
+              role: "provider",
+              provider: "firebase",
+              id: result.user.uid,
+            };
+            console.log("payload", payload);
+            dispatch(authAll(payload));
+            await dispatch(login({ email, password }, router));
+            console.log("User logged normally in successfully");
+    
+            if (typeof window !== "undefined") {
+              sessionStorage.setItem("name", displayName);
+              sessionStorage.setItem("token", token);
+              sessionStorage.setItem("email", email);
+              sessionStorage.setItem("role", null); 
+            }
+            router.push("/main");
+      } else {
+        const data = await response.json();
+        console.log("data", data);
+        const payload = {
+          currentUser: data.data,
+          token: data.token,
+          email: data.data.email,
+          role: data.data.role,
+          provider: "firebase",
+          isAuthenticated: true,
         };
-
+        console.log("payload", payload);
         dispatch(authAll(payload));
-
+    
         if (typeof window !== "undefined") {
-            sessionStorage.setItem("name", displayName);
-            sessionStorage.setItem("token", token);
-            sessionStorage.setItem("email", email);
-            sessionStorage.setItem("role", null); // Adjust as necessary
+          sessionStorage.setItem("currentUser", JSON.stringify(payload.currentUser));
+          sessionStorage.setItem("token", data.token);
+          sessionStorage.setItem("email", data.data.email);
+          sessionStorage.setItem("role", data.data.role);
         }
-
+    
         router.push("/main");
+      }
+
     } catch (error) {
-        console.error(`Error signing in with provider:`, error);
-        alert(error.message);
+      console.error(`Error signing in with provider:`, error);
+      alert(error.message);
     }
-};
+  };
 
   return (
     <section className="flex flex-col items-center min-h-screen bg-white py-4 px-4 sm:px-8">
@@ -156,7 +209,7 @@ export default function SignIn() {
         </button>
       </form>
       <p className="mt-4 text-xs font-medium leading-5 text-center text-blue-400">
-      Don't have an account? {" "}
+        Don't have an account?{" "}
         <a href="/signup" className="text-blue-400">
           Sign up
         </a>

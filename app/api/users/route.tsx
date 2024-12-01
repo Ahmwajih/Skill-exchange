@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, password, country, role, skillsLookingFor, bio, languages, Github, LinkedIn } = body;
+    const { name, email, password, country, photo, provider, role, skills, skillsLookingFor, bio, languages, Github, LinkedIn } = body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -70,6 +70,9 @@ export async function POST(req: NextRequest) {
       isAdmin: false,
       skillsLookingFor,
       bio,
+      skills,
+      photo,
+      provider,
       languages,
       Github,
       LinkedIn,

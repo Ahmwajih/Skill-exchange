@@ -18,6 +18,10 @@ export interface IUser extends Document {
   reviewedBy: mongoose.Types.String[];
   skills: mongoose.Types.ObjectId[];
   reviews: mongoose.Types.ObjectId[];
+  password?: string; 
+  firebaseUID?: string; 
+  profilePicture?: string; 
+  provider?: 'email' | 'firebase'; // Make provider optional
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema(
@@ -31,12 +35,21 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      maxlength: 150,
-      match: [/.+\@.+\..+/, "Please enter a valid email"],
+      validate: {
+        validator: function (v: string) {
+          const emailRegex =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(v);
+        },
+        message: (props: { value: string }) =>
+          `${props.value} is not a valid email address!`,
+      },
     },
     password: {
       type: String,
-      required: true,
+      required: function (this: IUser) {
+        return this.provider === 'email';
+      },
       minlength: 6,
     },
     country: {
@@ -56,6 +69,20 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: false,
+    },
+    firebaseUID: {
+      type: String,
+      unique: true,
+      sparse: true, 
+    },
+    profilePicture: {
+      type: String,
+    },
+    provider: {
+      type: String,
+      enum: ['email', 'firebase'],
+      default: 'email', 
+      required: false,
     },
     bio: {
       type: String,

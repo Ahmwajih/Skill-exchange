@@ -1,24 +1,26 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
-import { auth } from "@/lib/firebase";
+import { auth as firebaseAuth } from "@/lib/firebase";
 import { useRouter } from "next/router";
 
 const url = process.env.baseUrl || "http://localhost:3000/";
 
 interface UserInfo {
+  id: string;
   name: string;
   email: string;
-  password: string;
-  country: string;
-  role: string;
-  skills: string[];
-  skill_exchanges: string[];
-  reviews: string[];
-  createdAt: string;
-  updatedAt: string;
-  isActive: boolean;
-  isAdmin: boolean;
+  password?: string;
+  country?: string;
+  role?: string;
+  skills?: string[];
+  skill_exchanges?: string[];
+  reviews?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  isActive?: boolean;
+  isAdmin?: boolean;
+  provider?: "email" | "google" | "github";
 }
 
 interface PasswordChangeInfo {
@@ -31,20 +33,22 @@ interface UserProfileInfo {
 }
 
 interface AuthState {
-  currentUser: string | null;
+  currentUser: UserInfo | null;
   token: string | null;
   email: string | null;
   role: string | null;
   provider: "email" | "google" | "github" | null;
+  id: string | null;
   isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
-  currentUser: typeof window !== "undefined" ? sessionStorage.getItem("name") : null,
+  currentUser: typeof window !== "undefined" ? JSON.parse(sessionStorage.getItem("currentUser") || "null") : null,
   token: typeof window !== "undefined" ? sessionStorage.getItem("token") : null,
   email: typeof window !== "undefined" ? sessionStorage.getItem("email") : null,
   role: typeof window !== "undefined" ? sessionStorage.getItem("role") : null,
   provider: null,
+  id: typeof window !== "undefined" ? sessionStorage.getItem("id") : null,
   isAuthenticated: typeof window !== "undefined" ? !!sessionStorage.getItem("token") : false,
 };
 
@@ -60,6 +64,12 @@ const authSlice = createSlice({
       state.provider = action.payload.provider;
       state.isAuthenticated = true;
     },
+    setUser: (state, action: PayloadAction<UserInfo>) => {
+      state.currentUser = action.payload;
+    },
+    clearUser: (state) => {
+      state.currentUser = null;
+    },
     logout: (state) => {
       state.currentUser = null;
       state.token = null;
@@ -71,7 +81,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { authAll, logout } = authSlice.actions;
+export const { authAll, logout, setUser, clearUser } = authSlice.actions;
 export default authSlice.reducer;
 
 export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
@@ -86,17 +96,23 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
     if (!res.ok || !data.success) throw new Error(data.message || "Login failed");
 
     const payload = {
-      currentUser: data.data.name,
+      currentUser: {
+        id: data.data.id,
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+      },
       token: data.token,
       email: data.data.email,
       role: data.data.role,
       provider: "email",
+      isAuthenticated: true,
     };
 
     dispatch(authAll(payload));
 
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("name", data.data.name);
+      sessionStorage.setItem("currentUser", JSON.stringify(payload.currentUser));
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("email", data.data.email);
       sessionStorage.setItem("role", data.data.role);
@@ -115,25 +131,31 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
     const res = await fetch(`${url}api/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userInfo),
+      body: JSON.stringify({ ...userInfo, provider: userInfo.provider || "email" }), // Ensure provider is set
     });
 
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.message || "Registration failed");
 
     const payload = {
-      currentUser: data.data.name,
+      currentUser: {
+        id: data.data.id,
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+      },
       token: data.token,
       email: data.data.email,
       role: data.data.role,
       provider: "email",
+      isAuthenticated: true,
     };
 
     dispatch(authAll(payload));
 
     // Save session info
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("name", data.data.name);
+      sessionStorage.setItem("currentUser", JSON.stringify(payload.currentUser));
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("email", data.data.email);
       sessionStorage.setItem("role", data.data.role);
@@ -149,29 +171,33 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
 
 export const logoutUser = (router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
   try {
-      const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
 
-      // Sign out from Firebase
-      await auth.signOut();
+    if (!token) {
+      throw new Error("No token found. Already logged out.");
+    }
 
-      const res = await fetch(`${url}api/logout`, {
-          method: "POST",
-          headers: {
-              Authorization: `Bearer ${token}`, 
-          },
-      });
+    // Sign out from Firebase
+    await firebaseAuth.signOut();
 
-      if (res.ok) {
-          dispatch(logout());
-          sessionStorage.clear();
-          router.push("/signin");
-          toast.success("Logged out successfully!");
-      } else {
-          throw new Error("Failed to log out.");
-      }
+    const res = await fetch(`${url}api/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.ok) {
+      dispatch(logout());
+      sessionStorage.clear();
+      router.push("/signin");
+      toast.success("Logged out successfully!");
+    } else {
+      throw new Error("Failed to log out.");
+    }
   } catch (error) {
-      console.error("Logout error:", error);
-      toast.error(error.message || "An error occurred. Please try again.");
+    console.error("Logout error:", error);
+    toast.error(error.message || "An error occurred. Please try again.");
   }
 };
 
@@ -213,7 +239,12 @@ export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: 
     if (!data.success) throw new Error("User profile fetch failed");
 
     const payload = {
-      currentUser: data.data.name,
+      currentUser: {
+        id: data.data.id,
+        name: data.data.name,
+        email: data.data.email,
+        role: data.data.role,
+      },
       email: data.data.email,
       role: data.data.role,
       provider: "email",
@@ -222,7 +253,7 @@ export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: 
 
     dispatch(authAll(payload));
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("name", data.data.name);
+      sessionStorage.setItem("currentUser", JSON.stringify(payload.currentUser));
       sessionStorage.setItem("email", data.data.email);
       sessionStorage.setItem("role", data.data.role);
     }

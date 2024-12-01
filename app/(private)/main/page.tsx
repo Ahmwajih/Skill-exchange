@@ -32,7 +32,7 @@ function Pages() {
       setLoading(false); 
     }, 2000); 
 
-    return () => clearTimeout(timer); // Cleanup timer on unmount
+    return () => clearTimeout(timer); 
   }, []);
 
   if (loading) {

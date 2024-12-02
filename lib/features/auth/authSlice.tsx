@@ -201,9 +201,13 @@ export const logoutUser = (router: ReturnType<typeof useRouter>) => async (dispa
   }
 };
 
-export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInfo) => async () => {
+export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInfo) => async (dispatch: AppDispatch) => {
   try {
     const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
+
+    if (!token) {
+      throw new Error("No token found");
+    }
 
     const res = await fetch(`${url}api/users/change-password/${id}`, {
       method: "PUT",
@@ -223,7 +227,6 @@ export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInf
     toast.error(error.message || "Failed to change password. Please try again.");
   }
 };
-
 export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: AppDispatch) => {
   try {
     const res = await fetch(`${url}api/users/${userInfo.id}`, {

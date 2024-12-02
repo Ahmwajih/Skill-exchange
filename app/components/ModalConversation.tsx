@@ -30,7 +30,7 @@ function ModalConversation({providerName, providerEmail, closeModal} ) {
         },
         body: JSON.stringify({
           to: providerEmail,
-          subject: `From Community Skill Exchane New Message from ${providerName}`, // the message is from the seeker not the provider 
+          subject: `Community Skill Exchange New Message from ${providerName}`,
           html: emailContent,
         }),
       });

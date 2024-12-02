@@ -110,6 +110,7 @@ export default function SignIn() {
           sessionStorage.setItem("token", data.token);
           sessionStorage.setItem("email", data.data.email);
           sessionStorage.setItem("role", data.data.role);
+          sessionStorage.setItem("provider", "firebase");
         }
     
         router.push("/main");

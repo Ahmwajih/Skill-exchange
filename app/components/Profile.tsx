@@ -4,10 +4,15 @@ import { RootState, AppDispatch } from "@/lib/store";
 import {
   selectedUserById,
   updateUserProfile,
+  deleteUser,
 } from "@/lib/features/dashboard/userSlice";
+import { logoutUser } from "@/lib/features/auth/authSlice";
+import { useRouter } from "next/navigation";
 import avatarPlaceholder from "@/app/public/avatar.jpg";
 import ReactCountryFlag from "react-country-flag";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
+import AddSkillModal from "./AddSkillModal";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 const getMissingFields = (profile) => {
   const requiredFields = [
@@ -17,7 +22,7 @@ const getMissingFields = (profile) => {
     "country",
     "Github",
     "LinkedIn",
-    "skillsLookingFor",
+    "Skills looking for",
   ];
   return requiredFields.filter(
     (field) =>
@@ -28,6 +33,7 @@ const getMissingFields = (profile) => {
 
 const ProfileManagement: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
+  const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.currentUser);
 
   const [profile, setProfile] = useState({
@@ -43,8 +49,8 @@ const ProfileManagement: React.FC = () => {
 
   const [editField, setEditField] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showMissingFields, setShowMissingFields] = useState(false);
+  const [showSkillModal, setShowSkillModal] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -65,7 +71,19 @@ const ProfileManagement: React.FC = () => {
       });
     }
   }, [dispatch, user]);
-
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          avatar: URL.createObjectURL(file),
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   const calculateProfileCompletion = () => {
     const fields = [
       "name",
@@ -76,42 +94,53 @@ const ProfileManagement: React.FC = () => {
       "LinkedIn",
       "skillsLookingFor",
     ];
-    const filled = fields.filter(
-      (field) => profile[field as keyof typeof profile]
-    );
+    const filled = fields.filter((field) => profile[field as keyof typeof profile]);
     const percentage = Math.round((filled.length / fields.length) * 100);
-
+  
     let color;
-    if (percentage < 30) color = "red";
-    else if (percentage < 60) color = "yellow";
-    else color = "green";
-
+    if (percentage < 30) color = "#FF0000"; // Red
+    else if (percentage < 60) color = "#dada0d"; // Yellow
+    else color = "#008000"; // Green
+  
     return { percentage, color };
   };
-
+  
   const { percentage, color } = calculateProfileCompletion();
 
   const handleSave = () => {
     if (user?.id) {
       dispatch(updateUserProfile({ id: user.id, userData: profile }));
+      router.push("/main");
     }
   };
   const missingFields = getMissingFields(profile);
+  const handleDeleteAccount = async () => {
+    if (
+      user &&
+      user.id &&
+      confirm("Are you sure you want to delete your account?")
+    ) {
+      await dispatch(deleteUser(user.id));
+      dispatch(logoutUser());
+      router.push("/signin");
+    }
+  };
 
   return (
-    <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="container w-2/3 mx-auto p-6 bg-white shadow-lg rounded-lg">
       {/* Profile Progress */}
       <div className="flex justify-between items-center mb-4">
-        <div className="w-full">
-          <p className={`text-brown`}>Profile Strength</p>
-          <div className="flex items-center">
-            <progress
-              value={percentage}
-              max="100"
-              className={`w-full text-${color}`}
-            ></progress>
-            <span className="ml-2">{percentage}%</span>
-          </div>
+    <div className="w-full">
+      <p className="text-brown">Profile Strength</p>
+      <div className="flex items-center">
+        <progress
+          value={percentage}
+          max="100"
+          className="w-full"
+          style={{ color }}
+        ></progress>
+        <span className="ml-2" style={{ color }}>{percentage}%</span>
+      </div>
           <button
             className="text-brown hover:underline mt-2"
             onClick={() => setShowMissingFields(!showMissingFields)}
@@ -135,53 +164,82 @@ const ProfileManagement: React.FC = () => {
       </div>
 
       {/* Profile Header */}
-      <div className="flex mb-6">
-        <img
-          src={profile.avatar}
-          alt="Profile Avatar"
-          className="w-24 h-24 rounded-full"
-        />
-        <div className="ml-4">
-          {editField === "name" ? (
-            <input
-              type="text"
-              value={profile.name}
-              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-              className="border p-2 w-full mb-2"
-            />
-          ) : (
-            <p>{profile.name || "No Name"}</p>
-          )}
-          {editField === "email" ? (
-            <input
-              type="email"
-              value={profile.email}
-              onChange={(e) =>
-                setProfile({ ...profile, email: e.target.value })
-              }
-              className="border p-2 w-full"
-            />
-          ) : (
-            <p>{profile.email || "No Email"}</p>
-          )}
-          {profile.country && (
-            <ReactCountryFlag
-              countryCode={profile.country}
-              svg
-              style={{
-                width: "2em",
-                height: "2em",
-                marginRight: "0.5rem",
-              }}
-              title={profile.country}
-            />
-          )}
-          <button
-            onClick={() => setEditField(editField === "name" ? null : "name")}
-            className="text-blue hover:underline mt-2"
-          >
-            Edit Info
-          </button>
+      <div className="flex justify-between mb-3">
+        <div>
+          <h2 className="text-xl lg:text-3xl font-bold text-brown mb-3">
+            Welcome, {profile.name || "Guest"}!
+          </h2>
+          <div className="flex items-start mt-16">
+            <button
+              type="button"
+              onClick={() => setShowSkillModal(true)}
+              className="text-white bg-blue px-4 py-2 rounded-md"
+            >
+              Add Skill
+            </button>
+          </div>
+        </div>
+        <div className="flex">
+          <img
+            src={profile.avatar}
+            alt="Profile Avatar"
+            className="w-24 h-24 rounded-full"
+          />
+          <div className="ml-4">
+            {editField === "name" ? (
+              <input
+                type="text"
+                value={profile.name}
+                onChange={(e) =>
+                  setProfile({ ...profile, name: e.target.value })
+                }
+                className="border p-2 w-full mb-2"
+              />
+            ) : (
+              <p>{profile.name || "No Name"}</p>
+            )}
+            {editField === "email" ? (
+              <input
+                type="email"
+                value={profile.email}
+                onChange={(e) =>
+                  setProfile({ ...profile, email: e.target.value })
+                }
+                className="border p-2 w-full"
+              />
+            ) : (
+              <p>{profile.email || "No Email"}</p>
+            )}
+            {profile.country && (
+              <ReactCountryFlag
+                countryCode={profile.country}
+                svg
+                style={{
+                  width: "2em",
+                  height: "2em",
+                  marginRight: "0.5rem",
+                }}
+                title={profile.country}
+              />
+            )}
+            <button
+              onClick={() => setEditField(editField === "name" ? null : "name")}
+              className="text-blue hover:underline mt-2"
+            >
+              Edit Info
+            </button>
+            <div className="mt-2">
+              <label className="block text-sm font-medium text-brown">
+                Update Photo
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="mt-1"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -221,7 +279,7 @@ const ProfileManagement: React.FC = () => {
         <label className="block font-medium text-brown">Social Media:</label>
         <div className="flex items-center mb-2">
           <FaGithub style={{ color: "black" }} />
-          GitHub:
+          <span className="text-black px-3"> GitHub:</span>{" "}
           <input
             type="url"
             value={profile.Github}
@@ -232,7 +290,7 @@ const ProfileManagement: React.FC = () => {
         </div>
         <div className="flex items-center">
           <FaLinkedin style={{ color: "#0077B5" }} />
-          LinkedIn:
+          <span className="text-blue px-2">LinkedIn:</span>
           <input
             type="url"
             value={profile.LinkedIn}
@@ -275,7 +333,9 @@ const ProfileManagement: React.FC = () => {
                 }
                 className="form-checkbox h-5 w-5 text-gray"
               />
-              <span className=" flex ml-2 mx-3 justify-center text-gray">{skill}</span>
+              <span className=" flex ml-2 mx-3 justify-center text-gray">
+                {skill}
+              </span>
             </label>
             {profile.skillsLookingFor.includes(skill) && (
               <input
@@ -301,7 +361,7 @@ const ProfileManagement: React.FC = () => {
       <div className="flex justify-between">
         <button
           onClick={handleSave}
-          className={`bg-orange text-white px-4 py-2 rounded`}
+          className={`bg-orange text-white px-4 py-2 rounded hover:underline`}
         >
           Save
         </button>
@@ -312,7 +372,7 @@ const ProfileManagement: React.FC = () => {
           Change Password
         </button>
         <button
-          onClick={() => setShowDeleteModal(true)}
+          onClick={() => handleDeleteAccount()}
           className="bg-red-500 text-white px-4 py-2 rounded hover:underline"
         >
           Delete Account
@@ -321,13 +381,17 @@ const ProfileManagement: React.FC = () => {
 
       {/* Modals for Password Change and Delete Account */}
       {showPasswordModal && (
-        // Implement password modal here
-        <div>Change Password Modal</div>
+        <ChangePasswordModal
+          onClose={() => setShowPasswordModal(false)}
+          userId={user?.id}
+        />
       )}
-
-      {showDeleteModal && (
-        // Implement delete account modal here
-        <div>Delete Account Modal</div>
+      {/* Modals */}
+      {showSkillModal && (
+        <AddSkillModal
+          onClose={() => setShowSkillModal(false)}
+          userId={user?.id}
+        />
       )}
     </div>
   );

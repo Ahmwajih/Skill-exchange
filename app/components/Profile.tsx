@@ -1,243 +1,336 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAuth } from "firebase/auth";
-import { useRouter } from "next/navigation";
 import { RootState, AppDispatch } from "@/lib/store";
-import { setUser, logoutUser } from "@/lib/features/auth/authSlice";
-import { selectedUserById, createUserProfile } from "@/lib/features/dashboard/userSlice";
-import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
+import {
+  selectedUserById,
+  updateUserProfile,
+} from "@/lib/features/dashboard/userSlice";
 import avatarPlaceholder from "@/app/public/avatar.jpg";
-import AddSkillModal from "./AddSkillModal";
-import ChangePasswordModal from "./ChangePasswordModal";
-import Image from 'next/image';
-import germanyFlag from '@/app/public/germany.png'; 
-import canadaFlag from '@/app/public/canada.png'; 
+import ReactCountryFlag from "react-country-flag";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
-const countryFlags = {
-    Germany: germanyFlag,
-    Canada: canadaFlag,
+const getMissingFields = (profile) => {
+  const requiredFields = [
+    "name",
+    "email",
+    "bio",
+    "country",
+    "Github",
+    "LinkedIn",
+    "skillsLookingFor",
+  ];
+  return requiredFields.filter(
+    (field) =>
+      !profile[field] ||
+      (Array.isArray(profile[field]) && profile[field].length === 0)
+  );
 };
 
-const Profile: React.FC = () => {
+const ProfileManagement: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.currentUser);
-  const skill = useSelector((state: RootState) => state.skills.skill);
+
   const [profile, setProfile] = useState({
-    name: '',
-    email: '',
-    country: '',
-    skillsLookingFor: '',
-    skills: [],
     avatar: avatarPlaceholder,
-    photoBase64: '',
+    name: "",
+    email: "",
+    bio: "",
+    country: "",
+    Github: "",
+    LinkedIn: "",
+    skillsLookingFor: [],
   });
-  const [showSkillModal, setShowSkillModal] = useState(false);
+
+  const [editField, setEditField] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showMissingFields, setShowMissingFields] = useState(false);
 
   useEffect(() => {
-    if (user && user.id) {
+    if (user?.id) {
       dispatch(selectedUserById(user.id)).then((response) => {
         if (response.payload) {
-          const userData = response.payload.data;
+          const data = response.payload.data;
           setProfile({
-            name: userData.name,
-            email: userData.email,
-            country: userData.country,
-            skillsLookingFor: userData.skillsLookingFor.join(", "),
-            skills: userData.skills,
-            avatar: userData.avatar || avatarPlaceholder,
-            photoBase64: '',
+            avatar: data.photo || avatarPlaceholder,
+            name: data.name || "",
+            email: data.email || "",
+            bio: data.bio || "",
+            country: data.country || "",
+            Github: data.Github || "",
+            LinkedIn: data.LinkedIn || "",
+            skillsLookingFor: data.skillsLookingFor || [],
           });
         }
       });
     }
   }, [dispatch, user]);
 
-  useEffect(() => {
-    const auth = getAuth();
-    const firebaseUser = auth.currentUser;
+  const calculateProfileCompletion = () => {
+    const fields = [
+      "name",
+      "email",
+      "bio",
+      "country",
+      "Github",
+      "LinkedIn",
+      "skillsLookingFor",
+    ];
+    const filled = fields.filter(
+      (field) => profile[field as keyof typeof profile]
+    );
+    const percentage = Math.round((filled.length / fields.length) * 100);
 
-    if (firebaseUser) {
-      const displayName = firebaseUser.displayName || firebaseUser.email.split('@')[0] || "Guest";
-      const photoURL = firebaseUser.photoURL || avatarPlaceholder;
-    
+    let color;
+    if (percentage < 30) color = "red";
+    else if (percentage < 60) color = "yellow";
+    else color = "green";
 
-      if (!user) {
-        dispatch(setUser({
-          id: firebaseUser.uid,
-          name: displayName,
-          email: firebaseUser.email,
-          photo: photoURL,
-        }));
-      }
-
-      setProfile(prevProfile => ({
-        ...prevProfile,
-        name: displayName,
-        email: firebaseUser.email,
-        photo: photoURL,
-      }));
-    }
-  }, [user, dispatch]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setProfile(prevProfile => ({
-      ...prevProfile,
-      [name]: value,
-    }));
+    return { percentage, color };
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile(prevProfile => ({
-          ...prevProfile,
-          avatar: URL.createObjectURL(file),
-          photoBase64: reader.result?.toString().split(",")[1] || "",
-        }));
-      };
-      reader.readAsDataURL(file);
+  const { percentage, color } = calculateProfileCompletion();
+
+  const handleSave = () => {
+    if (user?.id) {
+      dispatch(updateUserProfile({ id: user.id, userData: profile }));
     }
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const dataToSubmit = {
-      ...profile,
-      skillsLookingFor: profile.skillsLookingFor.split(",").map(skill => skill.trim()),
-    };
-    if (user && user.id) {
-      dispatch(createUserProfile({ id: user.id, userData: dataToSubmit }));
-      router.push("/main");
-    }
-  };
-
-  const onAddSkill = async (skill) => {
-    await dispatch(addSkillToUser(skill));
-    }
-
-  const handleDeleteAccount = () => {
-    // Implement delete account functionality here
-  };
+  const missingFields = getMissingFields(profile);
 
   return (
-    <div className="container bg-white mx-auto p-6 sm:px-4 lg:px-8 w-full">
-      <h2 className="text-2xl text-brown font-bold mb-4">
-        Welcome, {profile.name || "Guest"}!
-      </h2>
-      <p className="text-lg text-brown mb-4">Create your profile</p>
-
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-lg p-6"
-      >
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-brown">Avatar</label>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
-          <img
-            src={profile.photo}
-            alt="Avatar Preview"
-            className="w-24 h-24 rounded-full mt-2"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-brown">Country</label>
-          <select
-            name="country"
-            value={profile.country}
-            onChange={handleChange}
-            className="bg-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-          >
-            <option value="">Select your country</option>
-            {Object.keys(countryFlags).map((country) => (
-              <option key={country} value={country}>
-                {country}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-brown">Skills</label>
-          <div className="bg-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-            {profile.skills.length > 0 ? (
-              profile.skills.map((skill, index) => (
-                <div key={index} className="mb-2">
-                  <strong>{skill.title}</strong> - {skill.category}
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500">Skills will be added here</p>
-            )}
+    <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
+      {/* Profile Progress */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="w-full">
+          <p className={`text-brown`}>Profile Strength</p>
+          <div className="flex items-center">
+            <progress
+              value={percentage}
+              max="100"
+              className={`w-full text-${color}`}
+            ></progress>
+            <span className="ml-2">{percentage}%</span>
           </div>
           <button
-            type="button"
-            onClick={() => setShowSkillModal(true)}
-            className="mt-2 bg-blue text-white py-1 px-3 rounded-md hover:bg-blue-600"
+            className="text-brown hover:underline mt-2"
+            onClick={() => setShowMissingFields(!showMissingFields)}
           >
-            Add Skill
+            What's Missing?
+          </button>
+          {showMissingFields && (
+            <div className="mt-2 text-sm text-gray-600">
+              {missingFields.length > 0 ? (
+                <ul>
+                  {missingFields.map((field) => (
+                    <li key={field}>{field} is missing</li>
+                  ))}
+                </ul>
+              ) : (
+                "All fields are complete!"
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Profile Header */}
+      <div className="flex mb-6">
+        <img
+          src={profile.avatar}
+          alt="Profile Avatar"
+          className="w-24 h-24 rounded-full"
+        />
+        <div className="ml-4">
+          {editField === "name" ? (
+            <input
+              type="text"
+              value={profile.name}
+              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+              className="border p-2 w-full mb-2"
+            />
+          ) : (
+            <p>{profile.name || "No Name"}</p>
+          )}
+          {editField === "email" ? (
+            <input
+              type="email"
+              value={profile.email}
+              onChange={(e) =>
+                setProfile({ ...profile, email: e.target.value })
+              }
+              className="border p-2 w-full"
+            />
+          ) : (
+            <p>{profile.email || "No Email"}</p>
+          )}
+          {profile.country && (
+            <ReactCountryFlag
+              countryCode={profile.country}
+              svg
+              style={{
+                width: "2em",
+                height: "2em",
+                marginRight: "0.5rem",
+              }}
+              title={profile.country}
+            />
+          )}
+          <button
+            onClick={() => setEditField(editField === "name" ? null : "name")}
+            className="text-blue hover:underline mt-2"
+          >
+            Edit Info
           </button>
         </div>
+      </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-brown">
-            Skills Looking For
-          </label>
-          <textarea
-            name="skillsLookingFor"
-            value={profile.skillsLookingFor}
-            onChange={handleChange}
-            placeholder="Enter skills looking for separated by commas"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-            rows={3}
+      {/* Bio Section */}
+      <div className="mb-6">
+        <label className="block font-medium text-brown">Bio:</label>
+        <textarea
+          value={profile.bio}
+          onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+          placeholder="About You"
+          className="border bg-white p-2 w-full"
+          rows={4}
+        ></textarea>
+        <p className="text-gray text-sm mt-1">
+          The community wants to get to know you! The more you describe
+          yourself, the more other members are likely to reach out to you. (
+          {profile.bio.length} characters)
+        </p>
+      </div>
+
+      {/* Country Selection */}
+      <div className="mb-6">
+        <label className="block font-medium text-brown">Country:</label>
+        <select
+          value={profile.country}
+          onChange={(e) => setProfile({ ...profile, country: e.target.value })}
+          className="border bg-white p-2 w-full"
+        >
+          <option value="">Select Country</option>
+          <option value="DE">Germany 🇩🇪</option>
+          <option value="CA">Canada 🇨🇦</option>
+        </select>
+      </div>
+
+      {/* Social Media Links */}
+      <div className="mb-6">
+        <label className="block font-medium text-brown">Social Media:</label>
+        <div className="flex items-center mb-2">
+          <FaGithub style={{ color: "black" }} />
+          GitHub:
+          <input
+            type="url"
+            value={profile.Github}
+            onChange={(e) => setProfile({ ...profile, Github: e.target.value })}
+            placeholder={profile.Github || "GitHub URL"}
+            className="border  bg-white p-2 w-full ml-2"
           />
         </div>
+        <div className="flex items-center">
+          <FaLinkedin style={{ color: "#0077B5" }} />
+          LinkedIn:
+          <input
+            type="url"
+            value={profile.LinkedIn}
+            onChange={(e) =>
+              setProfile({ ...profile, LinkedIn: e.target.value })
+            }
+            placeholder={profile.LinkedIn || "LinkedIn URL"}
+            className="border bg-white p-2 w-full ml-2"
+          />
+        </div>
+      </div>
 
+      {/* Skills Section */}
+      <div className="mb-6">
+        <label className="block bg-white font-medium text-brown">
+          Skills Looking For:
+        </label>
+        {[
+          "Machine Learning",
+          "Web Development",
+          "Mobile Development",
+          "Data Science",
+          "Cybersecurity",
+          "DevOps",
+          "AI Development",
+          "Graphic Design",
+        ].map((skill) => (
+          <>
+            <label key={skill} className="inline-flex items-center mt-3">
+              <input
+                type="checkbox"
+                checked={profile.skillsLookingFor.includes(skill)}
+                onChange={() =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    skillsLookingFor: prev.skillsLookingFor.includes(skill)
+                      ? prev.skillsLookingFor.filter((s) => s !== skill)
+                      : [...prev.skillsLookingFor, skill],
+                  }))
+                }
+                className="form-checkbox h-5 w-5 text-gray"
+              />
+              <span className=" flex ml-2 mx-3 justify-center text-gray">{skill}</span>
+            </label>
+            {profile.skillsLookingFor.includes(skill) && (
+              <input
+                type="text"
+                placeholder={`Details about ${skill}`}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    skillsLookingForDetails: {
+                      ...profile.skillsLookingForDetails,
+                      [skill]: e.target.value,
+                    },
+                  })
+                }
+                className="border bg-white mx-5 p-2 w-full mb-2 mt-1"
+              />
+            )}
+          </>
+        ))}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-between">
         <button
-          type="submit"
-          className="w-full bg-orange text-white py-3 rounded-md hover:bg-blue-600"
+          onClick={handleSave}
+          className={`bg-orange text-white px-4 py-2 rounded`}
         >
-          Create Profile
+          Save
         </button>
-      </form>
+        <button
+          onClick={() => setShowPasswordModal(true)}
+          className="bg-blue text-white px-4 py-2 rounded hover:underline"
+        >
+          Change Password
+        </button>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:underline"
+        >
+          Delete Account
+        </button>
+      </div>
 
-      <button
-        type="button"
-        onClick={handleDeleteAccount}
-        className="w-full bg-red-600 text-white py-3 rounded-md hover:bg-red-700 mt-4"
-      >
-        Delete Account
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setShowPasswordModal(true)}
-        className="w-full bg-blue text-white py-3 rounded-md hover:bg-blue-700 mt-4"
-      >
-        Change Password
-      </button>
-
-      {showSkillModal && (
-        <AddSkillModal
-          onClose={() => setShowSkillModal(false)}
-          onAddSkill={onAddSkill}
-          userId={user?.id} // Pass the user ID to the AddSkillModal
-        />
+      {/* Modals for Password Change and Delete Account */}
+      {showPasswordModal && (
+        // Implement password modal here
+        <div>Change Password Modal</div>
       )}
 
-      {showPasswordModal && (
-        <ChangePasswordModal
-          onClose={() => setShowPasswordModal(false)}
-          userId={user?.id} // Pass the user ID to the ChangePasswordModal
-        />
+      {showDeleteModal && (
+        // Implement delete account modal here
+        <div>Delete Account Modal</div>
       )}
     </div>
   );
 };
 
-export default Profile;
+export default ProfileManagement;

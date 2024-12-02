@@ -30,7 +30,9 @@ function Page() {
   return (
     <Protect>
       <Navbar />
-        <Profile />
+      <div className="bg-white">
+      <Profile />
+      </div>
       <Footer />
     </Protect>
   );

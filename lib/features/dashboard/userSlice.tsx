@@ -100,6 +100,31 @@ export const selectedUserById = createAsyncThunk(
   }
 );
 
+export const updateUserProfile = createAsyncThunk(
+  'users/updateUserProfile',
+  async ({ id, userData }: { id: string; userData: User }, { dispatch }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/users/${id}`, { 
+        method: "PUT", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 200) {
+        dispatch(setCurrentUser(data.data)); 
+        toast.success("Profile updated successfully!");
+      } else {
+        toast.error(data.error || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Error updating profile");
+    }
+  }
+);
+
 export const createUserProfile = createAsyncThunk(
   'users/createUserProfile',
   async ({ id, userData }: { id: string; userData: User }, { dispatch }) => {
@@ -125,4 +150,26 @@ export const createUserProfile = createAsyncThunk(
   }
 );
 
+
+export const deleteUser = createAsyncThunk(
+  'user/deleteUser',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/users/${id}`, { method: 'DELETE' });
+
+      if (!res.ok) {
+        const error = await res.json();
+        toast.error(error.error || 'Failed to delete user');
+        return rejectWithValue(error);
+      }
+
+      toast.success('User deleted successfully');
+      return await res.json(); // Return deleted user data if needed
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast.error('Error deleting user');
+      return rejectWithValue(error.message || 'Unknown error');
+    }
+  }
+);
 export default userSlice.reducer;

@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
-import {register} from "@/lib/features/auth/authSlice";
+import { register } from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch } from "@/lib/store";
 
 export default function SignIn() {
@@ -16,7 +16,6 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [retypePassword, setRetypePassword] = useState("");
 
-  
   const dispatch = useDispatch();
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -33,27 +32,96 @@ export default function SignIn() {
     }
 
     try {
-      await dispatch(register({name, email, password }, router));
+      await dispatch(register({ name, email, password }, router));
       console.log("user registered successfully");
       router.push("/signin");
     } catch (error) {
       console.error("Error logging in:", error);
       alert("register failed. Please try again.");
     }
-
   };
 
   const handleProviderSignIn = async (provider) => {
     try {
       const result = await signInWithPopup(auth, provider);
       console.log("User logged in successfully:", result.user);
-      router.push("/main");
+      console.log("user id", result.user.uid);
+
+      const { displayName, email } = result.user;
+      const token = await result.user.getIdToken();
+      console.log("token", token);
+      const photoURL = result.user.photoURL;
+      console.log("photoURL", photoURL);
+      //TODO: i will use dispatch for register
+
+      const response = await fetch(`${url}/api/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: displayName,
+          email: email,
+          password: result.user.uid,
+          token,
+          provider: "firebase",
+          isActive: true,
+          role: "provider",
+          photo: photoURL,
+        }),
+      });
+      if (!response.ok) {
+        const payload = {
+          currentUser: displayName,
+          token,
+          email: email,
+          role: "provider",
+          provider: "firebase",
+          id: result.user.uid,
+        };
+        console.log("payload", payload);
+        dispatch(authAll(payload));
+        await dispatch(login({ email, password }, router));
+        console.log("User logged normally in successfully");
+
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("name", displayName);
+          sessionStorage.setItem("token", token);
+          sessionStorage.setItem("email", email);
+          sessionStorage.setItem("role", null);
+        }
+        router.push("/main");
+      } else {
+        const data = await response.json();
+        console.log("data", data);
+        const payload = {
+          currentUser: data.data,
+          token: data.token,
+          email: data.data.email,
+          role: data.data.role,
+          provider: "firebase",
+          isAuthenticated: true,
+        };
+        console.log("payload", payload);
+        dispatch(authAll(payload));
+
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(
+            "currentUser",
+            JSON.stringify(payload.currentUser)
+          );
+          sessionStorage.setItem("token", data.token);
+          sessionStorage.setItem("email", data.data.email);
+          sessionStorage.setItem("role", data.data.role);
+        }
+
+        router.push("/main");
+      }
     } catch (error) {
       console.error(`Error signing in with provider:`, error);
       alert(error.message);
     }
   };
-
   return (
     <section className="flex flex-col items-center min-h-screen bg-white py-4 px-4 sm:px-8">
       <img
@@ -110,7 +178,10 @@ export default function SignIn() {
           />
         </div>
         <div className="flex flex-col mt-6 w-full">
-          <label htmlFor="retype-password" className="font-medium text-slate-700">
+          <label
+            htmlFor="retype-password"
+            className="font-medium text-slate-700"
+          >
             Retype Password*
           </label>
           <input

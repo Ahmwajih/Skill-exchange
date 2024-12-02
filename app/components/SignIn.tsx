@@ -50,6 +50,7 @@ export default function SignIn() {
       const token = await result.user.getIdToken();
       console.log("token", token);
       const photoURL = result.user.photoURL;
+      const password = result.user.uid
       console.log("photoURL", photoURL);
       //TODO: i will use dispatch for register 
 
@@ -61,7 +62,7 @@ export default function SignIn() {
         body: JSON.stringify({
           name: displayName,
           email: email,
-          password:result.user.uid,
+          password: result.user.uid,
           token,
           provider: "firebase",
           isActive: true,

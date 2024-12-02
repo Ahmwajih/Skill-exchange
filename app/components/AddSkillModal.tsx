@@ -15,7 +15,7 @@ interface AddSkillModalProps {
 
 const AddSkillModal: React.FC<AddSkillModalProps> = ({
   onClose,
-  onAddSkill,
+  // onAddSkill,
   userId,
 }) => {
   const [title, setTitle] = useState("");
@@ -43,6 +43,7 @@ const AddSkillModal: React.FC<AddSkillModalProps> = ({
         setPhotoBase64(reader.result?.toString().split(",")[1] || "");
       };
       reader.readAsDataURL(file);
+      console.log(photoBase64)
     }
   };
 

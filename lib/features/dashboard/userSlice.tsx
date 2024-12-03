@@ -11,8 +11,9 @@ interface User {
   country: string;
   role: string;
   skills: string[];
-  skill_exchanges: string[];
+  photo: string;
   reviews: string[];
+  skillsLookingFor: string[];
   createdAt: string;
   updatedAt: string;
   isActive: boolean;

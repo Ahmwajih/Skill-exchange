@@ -8,11 +8,13 @@ import {
 } from "@/lib/features/dashboard/userSlice";
 import { logoutUser } from "@/lib/features/auth/authSlice";
 import { useRouter } from "next/navigation";
-import avatarPlaceholder from "@/app/public/avatar.jpg";
+import avatar from "@/app/public/avatar.jpg";
 import ReactCountryFlag from "react-country-flag";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import AddSkillModal from "./AddSkillModal";
 import ChangePasswordModal from "./ChangePasswordModal";
+import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
+
 
 const getMissingFields = (profile) => {
   const requiredFields = [
@@ -35,9 +37,11 @@ const ProfileManagement: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.currentUser);
+  const skill = useSelector((state: RootState) => state.skills.skill);
+
 
   const [profile, setProfile] = useState({
-    avatar: avatarPlaceholder,
+    avatar: avatar,
     name: "",
     email: "",
     bio: "",
@@ -58,7 +62,7 @@ const ProfileManagement: React.FC = () => {
         if (response.payload) {
           const data = response.payload.data;
           setProfile({
-            avatar: data.photo || avatarPlaceholder,
+            photo: data.photo || avatar,
             name: data.name || "",
             email: data.email || "",
             bio: data.bio || "",
@@ -71,6 +75,7 @@ const ProfileManagement: React.FC = () => {
       });
     }
   }, [dispatch, user]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -78,12 +83,18 @@ const ProfileManagement: React.FC = () => {
       reader.onloadend = () => {
         setProfile((prevProfile) => ({
           ...prevProfile,
-          avatar: URL.createObjectURL(file),
+          photo: URL.createObjectURL(file),
+
         }));
       };
       reader.readAsDataURL(file);
+      console.log('photo added')
+      console.log("avatar", file)
     }
   };
+  const onAddSkill = async (skill) => {
+    await dispatch(addSkillToUser(skill));
+    }
   const calculateProfileCompletion = () => {
     const fields = [
       "name",
@@ -181,7 +192,7 @@ const ProfileManagement: React.FC = () => {
         </div>
         <div className="flex">
           <img
-            src={profile.avatar}
+            src={profile.photo || avatar}
             alt="Profile Avatar"
             className="w-24 h-24 rounded-full"
           />
@@ -391,6 +402,7 @@ const ProfileManagement: React.FC = () => {
         <AddSkillModal
           onClose={() => setShowSkillModal(false)}
           userId={user?.id}
+          onAddSkill={onAddSkill}
         />
       )}
     </div>

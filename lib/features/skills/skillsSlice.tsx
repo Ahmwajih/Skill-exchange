@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
+import Fuse from 'fuse.js';
+
 
 const baseUrl = process.env.baseUrl || "http://localhost:3000/";
 
@@ -143,17 +145,19 @@ export const searchSkills =
     try {
       const res = await fetch(`${baseUrl}/api/skills`);
       const data = await res.json();
+      console.log('data', data.data)
       if (searchSkill) {
         const fuse = new Fuse(data.data, {
           keys: ["title", "description", "category"],
           threshold: 0.3,
         });
         const results = fuse.search(searchSkill).map((result) => result.item);
+        console.log('results', results)
         dispatch(setSearchResults(results));
       } else {
         dispatch(setSearchResults(data.data));
       }
-      router.push("/main"); // Navigate to the main page
+      router.push("/main"); 
     } catch (error) {
       toast.error("Error fetching filtered skills");
     }

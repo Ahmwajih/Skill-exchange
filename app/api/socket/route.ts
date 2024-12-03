@@ -1,32 +1,36 @@
-import { Server } from "socket.io";
-import { NextApiRequest, NextApiResponse } from "next";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { addMessage } from "@/lib/chat/chatSlice"; // Adjust import based on your structure
+import { io } from "socket.io-client";
 
-let io: any;
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (!res.socket.server.io) {
-        io = new Server(res.socket.server, {
-            path: "/api/socket",
-            cors: {
-                origin: "*",
-            },
-        });
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 
-        io.on("connection", (socket) => {
-            console.log("A user connected: ", socket.id);
+const socket = io(BASE_URL + "/api/socket");
 
-            socket.on("send_message", (message) => {
-                console.log("Message received: ", message);
-                io.emit("receive_message", message); 
-            });
+const ChatComponent = () => {
+  const dispatch = useDispatch();
 
-            socket.on("disconnect", () => {
-                console.log("User disconnected: ", socket.id);
-            });
-        });
+  useEffect(() => {
+    socket.on("receive_message", (message) => {
+      dispatch(addMessage(message));
+    });
 
-        res.socket.server.io = io;
-    }
+    socket.on("deal_accepted", ({ providerEmail, providerName }) => {
+      // Handle deal acceptance notification
+      console.log(`${providerName} has accepted your deal.`);
+      // You can also notify users or update UI accordingly
+    });
 
-    res.end();
-}
+    return () => {
+      socket.off("receive_message");
+      socket.off("deal_accepted");
+    };
+  }, [dispatch]);
+
+  return (
+    <div>
+      {/* Render chat messages here */}
+    </div>
+  );
+};

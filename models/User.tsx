@@ -19,9 +19,7 @@ export interface IUser extends Document {
   skills: mongoose.Types.ObjectId[];
   reviews: mongoose.Types.ObjectId[];
   password?: string; 
-  firebaseUID?: string; 
-  profilePicture?: string; 
-  provider?: 'email' | 'firebase'; // Make provider optional
+  provider?: 'email' | 'firebase'; 
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema(
@@ -74,9 +72,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: String,
       unique: true,
       sparse: true, 
-    },
-    profilePicture: {
-      type: String,
     },
     provider: {
       type: String,

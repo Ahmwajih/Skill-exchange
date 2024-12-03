@@ -19,6 +19,7 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   const dispatch: AppDispatch = useDispatch();
   const searchResults = useSelector((state: RootState) => state.skills.searchResults);
 
+  console.log('search rsults', searchResults);
   useEffect(() => {
     dispatch(setSearchResults(searchResults));
   }, [searchResults, dispatch]);
@@ -27,12 +28,13 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
     { label: "Home", isActive: true, href: "/" },
     { label: "Main", isActive: true, href: "/main" },
     { label: "Dashboard", isActive: true, href: "/user_dashboard" },
+    { label: "Messages", isActive: true, href: "/chat" },
   ];
 
 
   const handleLogout = async () => {
-    await dispatch(logoutUser(router)); // Log out the user
-    router.push("/"); // Redirect to the homepage
+    await dispatch(logoutUser(router)); 
+    router.push("/"); 
   };
   
   
@@ -49,6 +51,7 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   };
 
   const handleSearch = (searchTerm: string) => {
+    console.log("Handling search for:", searchTerm)
     dispatch(searchSkills({ searchSkill: searchTerm }, router));
   };
   const handleAvatarClick = () => {
@@ -186,11 +189,24 @@ const NavItem: React.FC<{ label: string; isActive: boolean; href: string }> = ({
 
 const SearchBar: React.FC<{ onSearch: (searchTerm: string) => void }> = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
+  // const handleSearch = async () => {
+  //   try {
+  //     await dispatch(searchSkills({ searchSkill: searchTerm }, router));
+  //   } catch (error) {
+  //     toast.error("Error performing search");
+  //   }
+  // };
   const handleSearch = () => {
-    onSearch(searchTerm);
+    if (searchTerm.trim()) { // Check if searchTerm is not empty
+      onSearch(searchTerm);
+      console.log("Searching for:", searchTerm); // Log the search term
+    } else {
+      console.log("No search term provided");
+    }
   };
-
   return (
     <div className="flex items-center border border-gray bg-white rounded-md">
       <input

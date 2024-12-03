@@ -9,17 +9,22 @@ function ModalConversation({providerName, providerEmail, closeModal} ) {
   const [skillsOffered, setSkillsOffered] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 
 
 
   const handleSend = async () => {
     const dealDetails = showDealFields
-      ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
-      : "";
+    ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
+    : "";
+    const acceptDealLink = `${BASE_URL}/api/accept-deal?providerEmail=${providerEmail}&providerName=${providerName}`;
 
     const emailContent = `
       <p>${message}</p>
       ${dealDetails}
+      <p>
+        <a href="${acceptDealLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Accept Deal</a>
+      </p>
     `;
 
     try {

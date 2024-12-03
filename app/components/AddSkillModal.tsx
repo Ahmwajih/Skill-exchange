@@ -15,7 +15,7 @@ interface AddSkillModalProps {
 
 const AddSkillModal: React.FC<AddSkillModalProps> = ({
   onClose,
-  // onAddSkill,
+  onAddSkill,
   userId,
 }) => {
   const [title, setTitle] = useState("");
@@ -49,7 +49,7 @@ const AddSkillModal: React.FC<AddSkillModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onAddSkill({ title, description, category, photo: photoBase64, user:userId });
+    onAddSkill({ title, description, category, photo: photoBase64, userId:userId });
     console.log(userId)
     await dispatch(addSkillToUser({title, description, category, photo: photoBase64, userId:userId}))
     console.log('skill added');

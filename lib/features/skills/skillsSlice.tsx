@@ -18,8 +18,10 @@ interface Skill {
   title: string;
   description: string;
   category: string;
-  photo?: string;
-  user: User;
+  photo: string;
+  user: {
+    country: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -35,6 +37,7 @@ const initialState: SkillState = {
   data: [],
   filteredSkills: [],
   searchResults: [],
+  selectedSkill: null,
 };
 
 const skillSlice = createSlice({

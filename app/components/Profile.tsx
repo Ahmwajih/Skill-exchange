@@ -37,7 +37,7 @@ const ProfileManagement: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.currentUser);
-  const skill = useSelector((state: RootState) => state.skills.skill);
+  // const skill = useSelector((state: RootState) => state.skills.skill);
 
 
   const [profile, setProfile] = useState({
@@ -88,33 +88,32 @@ const ProfileManagement: React.FC = () => {
         }));
       };
       reader.readAsDataURL(file);
-      console.log('photo added')
-      console.log("avatar", file)
+      // console.log('photo added')
+      // console.log("avatar", file)
     }
   };
-  const onAddSkill = async (skill) => {
-    await dispatch(addSkillToUser(skill));
-    }
-  const calculateProfileCompletion = () => {
-    const fields = [
-      "name",
-      "email",
-      "bio",
-      "country",
-      "Github",
-      "LinkedIn",
-      "skillsLookingFor",
-    ];
-    const filled = fields.filter((field) => profile[field as keyof typeof profile]);
-    const percentage = Math.round((filled.length / fields.length) * 100);
-  
-    let color;
-    if (percentage < 30) color = "#FF0000"; // Red
-    else if (percentage < 60) color = "#dada0d"; // Yellow
-    else color = "#008000"; // Green
-  
-    return { percentage, color };
-  };
+  // const onAddSkill = async (skill) => {
+  //   await dispatch(addSkillToUser(skill));
+  //   }
+    const PROFILE_COMPLETION_COLORS = {
+      low: "#FF0000",
+      medium: "#dada0d",
+      high: "#008000",
+    };
+    
+    const calculateProfileCompletion = () => {
+      const fields = ["name", "email", "bio", "country", "Github", "LinkedIn", "skillsLookingFor"];
+      const filled = fields.filter((field) => profile[field as keyof typeof profile]);
+      const percentage = Math.round((filled.length / fields.length) * 100);
+    
+      const color =
+        percentage < 30 ? PROFILE_COMPLETION_COLORS.low :
+        percentage < 60 ? PROFILE_COMPLETION_COLORS.medium :
+        PROFILE_COMPLETION_COLORS.high;
+    
+      return { percentage, color };
+    };
+    
   
   const { percentage, color } = calculateProfileCompletion();
 
@@ -402,7 +401,7 @@ const ProfileManagement: React.FC = () => {
         <AddSkillModal
           onClose={() => setShowSkillModal(false)}
           userId={user?.id}
-          onAddSkill={onAddSkill}
+          // onAddSkill={onAddSkill}
         />
       )}
     </div>

@@ -5,7 +5,7 @@ interface ISkill extends Document {
   title: string;
   description: string;
   category: string;
-  photo?: string;
+  photo: string;
   user: mongoose.Types.ObjectId;
 }
 

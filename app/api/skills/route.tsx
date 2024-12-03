@@ -3,7 +3,7 @@ import db from '@/lib/db';
 import Skill from '@/models/Skill';
 import User from '@/models/User';
 import mongoose from 'mongoose';
-import admin from '@/lib/firebaseAdmin'; // Import Firebase Admin SDK
+// import admin from '@/lib/firebaseAdmin'; // Import Firebase Admin SDK
 
 
 export async function GET(req: NextRequest) {
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
   await db();
 
   try {
-    const { title, description, category, userId } = await req.json();
+    const { title, description, category, photo, userId } = await req.json();
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json({ success: false, error: 'Valid user ID is required' }, { status: 400 });
@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
       title,
       description,
       category,
+      photo,
       user: userId,
     });
 

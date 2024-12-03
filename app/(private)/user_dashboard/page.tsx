@@ -1,15 +1,20 @@
-'use client';
-import React, {useState, useEffect} from 'react'
+"use client";
+import React, { useState, useEffect } from "react";
 import loading2 from "@/app/public/loading2.gif";
-import Image from 'next/image';
+import Image from "next/image";
+import Dashboard from "@/app/components/Dashboard";
+import Protect from "@/app/components/Protect";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+
 
 function page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setLoading(false); 
-    }, 2000); 
+      setLoading(false);
+    }, 2000);
 
     return () => clearTimeout(timer); // Cleanup timer on unmount
   }, []);
@@ -22,8 +27,14 @@ function page() {
     );
   }
   return (
-    <div>Hello from user dashboard</div>
-  )
+    <Protect>
+      <Navbar />
+      <div className="bg-white">
+      <Dashboard />
+      </div>
+      <Footer />
+    </Protect>
+  );
 }
 
-export default page
+export default page;

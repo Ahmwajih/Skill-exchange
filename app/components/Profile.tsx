@@ -76,22 +76,24 @@ const ProfileManagement: React.FC = () => {
     }
   }, [dispatch, user]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfile((prevProfile) => ({
-          ...prevProfile,
-          photo: URL.createObjectURL(file),
-
-        }));
+        const base64String = reader.result?.toString(); // Entire Base64 string with prefix
+        if (base64String) {
+          setProfile((prevProfile) => ({
+            ...prevProfile,
+            photo: base64String, // Includes the data:image/png;base64, prefix
+          }));
+        }
       };
-      reader.readAsDataURL(file);
-      // console.log('photo added')
-      // console.log("avatar", file)
+      reader.readAsDataURL(file); // Converts file to Base64 string
     }
   };
+  
+  
   // const onAddSkill = async (skill) => {
   //   await dispatch(addSkillToUser(skill));
   //   }

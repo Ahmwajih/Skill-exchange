@@ -81,22 +81,18 @@ const ProfileManagement: React.FC = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result?.toString(); // Entire Base64 string with prefix
+        const base64String = reader.result?.toString(); 
         if (base64String) {
           setProfile((prevProfile) => ({
             ...prevProfile,
-            photo: base64String, // Includes the data:image/png;base64, prefix
+            photo: base64String, 
           }));
         }
       };
-      reader.readAsDataURL(file); // Converts file to Base64 string
+      reader.readAsDataURL(file); 
     }
   };
   
-  
-  // const onAddSkill = async (skill) => {
-  //   await dispatch(addSkillToUser(skill));
-  //   }
     const PROFILE_COMPLETION_COLORS = {
       low: "#FF0000",
       medium: "#dada0d",

@@ -15,17 +15,16 @@ export async function GET(req: NextRequest) {
 
   try {
     const paginationData = await paginationMiddleware(req);
-    const users = await User.find({})
-      .skip(paginationData.skip)
-      .limit(paginationData.limit)
-      .select('-password')
-      // .populate('skills', 'title description category')
-      // .populate('reviews', 'rating comments')
-      .lean();
 
+    const users = await User.aggregate([
+      { $skip: paginationData.skip },
+      { $limit: paginationData.limit },
+      { $lookup: { from: 'skills', localField: 'skills', foreignField: '_id', as: 'skills' } },
+      { $lookup: { from: 'reviews', localField: 'reviews', foreignField: '_id', as: 'reviews' } },
+      { $project: { password: 0 } }, // Exclude password
+    ]);
 
-    const totalUsers = await User.countDocuments();
-
+const totalUsers = await User.countDocuments();
     return NextResponse.json({
       success: true,
       data: users,

@@ -29,35 +29,34 @@ const SkillProviderDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
-
-  useEffect(() => {
-    if (id) {
-      dispatch(selectedUserById(id))
-        .unwrap()
-        .then((response) => {
-          if (response.success) {
-            setProvider(response.data);
-          } else {
-            console.error('Failed to fetch provider:', response.message);
-          }
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Failed to fetch provider:', error);
-          alert('An error occurred while fetching provider details.');
-          setLoading(false);
-        });
-    }
-  }, [dispatch, id]);
-
-  const handleStartConversation = () => {
-    setShowModal(true);
-    console.log('Start a conversation');
-  };
-  const handleCancelConversation = () => {
-    setShowModal(false);
-    console.log('Cancel conversation'); 
-  }
+  
+    useEffect(() => {
+      if (id) {
+        dispatch(selectedUserById(id))
+          .unwrap()
+          .then((response) => {
+            if (response.success) {
+              setProvider(response.data);
+            } else {
+              console.error('Failed to fetch provider:', response.message);
+            }
+          })
+          .catch((error) => {
+            console.error('Failed to fetch provider:', error);
+            alert('An error occurred while fetching provider details.');
+          });
+      }
+    }, [dispatch, id]);
+  
+    const handleStartConversation = () => {
+      setShowModal(true);
+      console.log('Start a conversation');
+    };
+  
+    const handleCancelConversation = () => {
+      setShowModal(false);
+      console.log('Cancel conversation'); 
+    };
 
 
   if (!provider) {
@@ -134,7 +133,7 @@ const SkillProviderDetails: React.FC = () => {
           {provider.skills.length > 0 ? (
             <ul className="list-disc list-inside text-gray">
               {provider.skills.map((skill, index) => (
-                <li key={index}>{skill}</li>
+                <li key={index}>{skill.title}</li> 
               ))}
             </ul>
           ) : (
@@ -146,7 +145,7 @@ const SkillProviderDetails: React.FC = () => {
           {provider.skillsLookingFor.length > 0 ? (
             <ul className="list-disc list-inside text-gray">
               {provider.skillsLookingFor.map((skill, index) => (
-                <li key={index}>{skill}</li>
+                <li key={index}>{skill.title}</li>
               ))}
             </ul>
           ) : (

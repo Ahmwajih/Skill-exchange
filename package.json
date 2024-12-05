@@ -61,6 +61,7 @@
     "react-select": "^5.8.3",
     "react-toastify": "^10.0.6",
     "redux": "^5.0.1",
+    "rsuite": "^5.74.2",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "swr": "^2.2.5",

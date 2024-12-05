@@ -71,8 +71,8 @@ const SkillProviderDetails: React.FC = () => {
     <div className="container mx-auto max-w-full max-h-full p-6 bg-white rounded-lg shadow-lg">
       {/* Header Section */}
       <div className="flex items-center gap-6 mt-3 mb-8 max-w-6xl">
-        <Image
-          src={provider.photo || avatar}
+        <img
+          src={provider.photo}
           alt={provider.name}
           width={120}
           height={120}
@@ -161,7 +161,7 @@ const SkillProviderDetails: React.FC = () => {
           className="bg-blue text-white py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition">
           Start a Conversation
         </button>
-        {showModal && (<ModalConversation providerName={provider.name} providerEmail={provider.email} closeModal={handleCancelConversation} />)}
+        {showModal && (<ModalConversation providerId={id} closeModal={handleCancelConversation} />)}
           
       </div>
      

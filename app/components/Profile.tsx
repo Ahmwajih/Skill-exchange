@@ -16,6 +16,8 @@ import ChangePasswordModal from "./ChangePasswordModal";
 import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
 import Select from "react-select";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const getMissingFields = (profile) => {
   const requiredFields = [
@@ -28,6 +30,7 @@ const getMissingFields = (profile) => {
     "Skills looking for",
     "languages",
     "photo",
+    "availability",
   ];
   return requiredFields.filter(
     (field) =>
@@ -53,6 +56,7 @@ const ProfileManagement: React.FC = () => {
     LinkedIn: "",
     skillsLookingFor: [],
     languages: [],
+    availability: [],
   });
 
   const [editField, setEditField] = useState<string | null>(null);
@@ -102,6 +106,7 @@ const ProfileManagement: React.FC = () => {
     { value: "Galician", label: "Galician" },
     { value: "Welsh", label: "Welsh" },
   ]);
+  const [availability, setAvailability] = useState([]);
 
   useEffect(() => {
     if (user?.id) {
@@ -118,6 +123,7 @@ const ProfileManagement: React.FC = () => {
             Github: data.Github || "",
             LinkedIn: data.LinkedIn || "",
             skillsLookingFor: data.skillsLookingFor || [],
+            availability: data.availability || [],
           });
           
         }
@@ -126,6 +132,7 @@ const ProfileManagement: React.FC = () => {
           label: language,
       }));
       setSelectedLanguages(userLanguages);
+      setAvailability(data.availability || []);
         console.log("Selected Languages Before Save:", selectedLanguages);
       })    .catch((error) => {
         console.error("Failed to fetch user data:", error);
@@ -198,16 +205,22 @@ const ProfileManagement: React.FC = () => {
 //         console.error("Error updating profile:", error);
 //     }
 // };
+const handleAddAvailability = (date) => {
+  setAvailability([...availability, { date: date.toISOString().split("T")[0], times: [] }]);
+};
 
 const handleSave = async () => {
   const updatedLanguages = selectedLanguages.map((option) => option.value);
-  const updatedProfile = { ...profile, languages: updatedLanguages };
+  const updatedProfile = { ...profile, languages: updatedLanguages, availability };
 
   try {
     const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
     console.log("Response:", response);
-    router.push("/user_dashboard");
-    toast.success("Profile updated successfully!");
+    if (response.payload.success) {
+      toast.success("Profile updated successfully!");
+    } else {
+      toast.error("Failed to update profile.");
+    }
   } catch (error) {
     console.error("Error updating profile:", error);
     toast.error("Error updating profile.");
@@ -415,6 +428,29 @@ const handleSave = async () => {
           className="basic-multi-select text-gray"
           classNamePrefix="select"
         />
+      </div>
+
+            {/* Availability */}
+            <div className="mt-4 mb-4">
+        <h3 className="text-lg text-brown mb-2">Availability:</h3>
+        <DatePicker
+          selected={null}
+          onChange={handleAddAvailability}
+          placeholderText="Select a date to add availability"
+          className="w-full px-4 py-2 border bg-white rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+        <ul className="mt-2">
+          {availability.map((avail, index) => (
+            <li key={index} className="mb-2">
+              <strong>{avail.date}</strong>
+              <ul>
+                {avail.times.map((time, idx) => (
+                  <li key={idx}>{time}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Skills Section */}

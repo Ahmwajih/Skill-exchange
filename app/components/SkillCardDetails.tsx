@@ -245,7 +245,7 @@ const SkillCardDetails: React.FC = () => {
           >
             Start a Conversation
           </button>
-          {showModal && (<ModalConversation providerName={skill.user.name} providerEmail={skill.user.email} closeModal={handleCancelConversation} />)}
+          {showModal && (<ModalConversation providerId={skill.user._id} closeModal={handleCancelConversation} />)}
           <div>
 
           </div>
@@ -255,7 +255,7 @@ const SkillCardDetails: React.FC = () => {
         <div className=" flex flex-col  mx-4 mt-6 gap-4">
           <div className=" flex flex-col  items-start ">
             <img
-              src={avatar}
+              src={skill.user.photo}
               alt="App User"
               className="w-12 h-12 rounded-full"
             />

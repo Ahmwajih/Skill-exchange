@@ -21,6 +21,7 @@ export interface IUser extends Document {
   followers : mongoose.Types.ObjectId[];
   following : mongoose.Types.ObjectId[];
   password?: string; 
+  availability: { date: string; times: string[] }[];
   provider?: 'email' | 'firebase'; 
 }
 
@@ -88,6 +89,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: String,
       required: false,
     },
+    availability: { type: [{ date: String, times: [String] }], default: [] },
     skillsLookingFor: { type: [], required: false },
     languages: { type: [], required: false },
     Github: { type: String, required: false },

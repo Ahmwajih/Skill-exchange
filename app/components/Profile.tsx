@@ -14,7 +14,8 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 import AddSkillModal from "./AddSkillModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
-
+import Select from "react-select";
+import { toast } from "react-toastify";
 
 const getMissingFields = (profile) => {
   const requiredFields = [
@@ -25,6 +26,8 @@ const getMissingFields = (profile) => {
     "Github",
     "LinkedIn",
     "Skills looking for",
+    "languages",
+    "photo",
   ];
   return requiredFields.filter(
     (field) =>
@@ -49,12 +52,56 @@ const ProfileManagement: React.FC = () => {
     Github: "",
     LinkedIn: "",
     skillsLookingFor: [],
+    languages: [],
   });
 
   const [editField, setEditField] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showMissingFields, setShowMissingFields] = useState(false);
   const [showSkillModal, setShowSkillModal] = useState(false);
+  const [selectedLanguages, setSelectedLanguages] = useState([]);
+  const [availableLanguages, setAailableLanguages] = useState([
+    { value: "English", label: "English" },
+    { value: "Spanish", label: "Spanish" },
+    { value: "French", label: "French" },
+    { value: "German", label: "German" },
+    { value: "Chinese", label: "Chinese" },
+    { value: "Japanese", label: "Japanese" },
+    { value: "Korean", label: "Korean" },
+    { value: "Russian", label: "Russian" },
+    { value: "Arabic", label: "Arabic" },
+    { value: "Hindi", label: "Hindi" },
+    { value: "Portuguese", label: "Portuguese" },
+    { value: "Italian", label: "Italian" },
+    { value: "Dutch", label: "Dutch" },
+    { value: "Polish", label: "Polish" },
+    { value: "Swedish", label: "Swedish" },
+    { value: "Turkish", label: "Turkish" },
+    { value: "Vietnamese", label: "Vietnamese" },
+    { value: "Greek", label: "Greek" },
+    { value: "Czech", label: "Czech" },
+    { value: "Finnish", label: "Finnish" },
+    { value: "Danish", label: "Danish" },
+    { value: "Norwegian", label: "Norwegian" },
+    { value: "Hungarian", label: "Hungarian" },
+    { value: "Romanian", label: "Romanian" },
+    { value: "Thai", label: "Thai" },
+    { value: "Bulgarian", label: "Bulgarian" },
+    { value: "Indonesian", label: "Indonesian" },
+    { value: "Malay", label: "Malay" },
+    { value: "Ukrainian", label: "Ukrainian" },
+    { value: "Slovak", label: "Slovak" },
+    { value: "Croatian", label: "Croatian" },
+    { value: "Lithuanian", label: "Lithuanian" },
+    { value: "Slovenian", label: "Slovenian" },
+    { value: "Latvian", label: "Latvian" },
+    { value: "Estonian", label: "Estonian" },
+    { value: "Serbian", label: "Serbian" },
+    { value: "Catalan", label: "Catalan" },
+    { value: "Basque", label: "Basque" },
+    { value: "Galician", label: "Galician" },
+    { value: "Welsh", label: "Welsh" },
+  ]);
 
   useEffect(() => {
     if (user?.id) {
@@ -66,61 +113,106 @@ const ProfileManagement: React.FC = () => {
             name: data.name || "",
             email: data.email || "",
             bio: data.bio || "",
+            languages: data.languages || [],
             country: data.country || "",
             Github: data.Github || "",
             LinkedIn: data.LinkedIn || "",
             skillsLookingFor: data.skillsLookingFor || [],
           });
+          
         }
+        const userLanguages = response.payload.data.languages.map((language) => ({
+          value: language,
+          label: language,
+      }));
+      setSelectedLanguages(userLanguages);
+        console.log("Selected Languages Before Save:", selectedLanguages);
+      })    .catch((error) => {
+        console.error("Failed to fetch user data:", error);
       });
     }
   }, [dispatch, user]);
+
+  const handleLanguageChange = (selectedOptions) => {
+    setSelectedLanguages(selectedOptions);
+  };
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result?.toString(); 
+        const base64String = reader.result?.toString();
         if (base64String) {
           setProfile((prevProfile) => ({
             ...prevProfile,
-            photo: base64String, 
+            photo: base64String,
           }));
         }
       };
-      reader.readAsDataURL(file); 
+      reader.readAsDataURL(file);
     }
   };
-  
-    const PROFILE_COMPLETION_COLORS = {
-      low: "#FF0000",
-      medium: "#dada0d",
-      high: "#008000",
-    };
-    
-    const calculateProfileCompletion = () => {
-      const fields = ["name", "email", "bio", "country", "Github", "LinkedIn", "skillsLookingFor"];
-      const filled = fields.filter((field) => profile[field as keyof typeof profile]);
-      const percentage = Math.round((filled.length / fields.length) * 100);
-    
-      const color =
-        percentage < 30 ? PROFILE_COMPLETION_COLORS.low :
-        percentage < 60 ? PROFILE_COMPLETION_COLORS.medium :
-        PROFILE_COMPLETION_COLORS.high;
-    
-      return { percentage, color };
-    };
-    
-  
+
+
+
+  const PROFILE_COMPLETION_COLORS = {
+    low: "#FF0000",
+    medium: "#dada0d",
+    high: "#008000",
+  };
+
+  const calculateProfileCompletion = () => {
+    const fields = [
+      "name",
+      "email",
+      "bio",
+      "country",
+      "Github",
+      "LinkedIn",
+      "skillsLookingFor",
+    ];
+    const filled = fields.filter(
+      (field) => profile[field as keyof typeof profile]
+    );
+    const percentage = Math.round((filled.length / fields.length) * 100);
+
+    const color =
+      percentage < 30
+        ? PROFILE_COMPLETION_COLORS.low
+        : percentage < 60
+          ? PROFILE_COMPLETION_COLORS.medium
+          : PROFILE_COMPLETION_COLORS.high;
+
+    return { percentage, color };
+  };
+
   const { percentage, color } = calculateProfileCompletion();
 
-  const handleSave = () => {
-    if (user?.id) {
-      dispatch(updateUserProfile({ id: user.id, userData: profile }));
-      router.push("/main");
-    }
-  };
+//   const handleSave = async () => {
+//     try {
+//         const response = await dispatch(updateUserProfile({ id: user.id, userData: profile }));
+//         console.log("Response:", response);
+//     } catch (error) {
+//         console.error("Error updating profile:", error);
+//     }
+// };
+
+const handleSave = async () => {
+  const updatedLanguages = selectedLanguages.map((option) => option.value);
+  const updatedProfile = { ...profile, languages: updatedLanguages };
+
+  try {
+    const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
+    console.log("Response:", response);
+    router.push("/user_dashboard");
+    toast.success("Profile updated successfully!");
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    toast.error("Error updating profile.");
+  }
+};
   const missingFields = getMissingFields(profile);
   const handleDeleteAccount = async () => {
     if (
@@ -138,17 +230,19 @@ const ProfileManagement: React.FC = () => {
     <div className="container w-2/3 mx-auto p-6 bg-white shadow-lg rounded-lg">
       {/* Profile Progress */}
       <div className="flex justify-between items-center mb-4">
-    <div className="w-full">
-      <p className="text-brown">Profile Strength</p>
-      <div className="flex items-center">
-        <progress
-          value={percentage}
-          max="100"
-          className="w-full"
-          style={{ color }}
-        ></progress>
-        <span className="ml-2" style={{ color }}>{percentage}%</span>
-      </div>
+        <div className="w-full">
+          <p className="text-brown">Profile Strength</p>
+          <div className="flex items-center">
+            <progress
+              value={percentage}
+              max="100"
+              className="w-full"
+              style={{ color }}
+            ></progress>
+            <span className="ml-2" style={{ color }}>
+              {percentage}%
+            </span>
+          </div>
           <button
             className="text-brown hover:underline mt-2"
             onClick={() => setShowMissingFields(!showMissingFields)}
@@ -309,6 +403,18 @@ const ProfileManagement: React.FC = () => {
             className="border bg-white p-2 w-full ml-2"
           />
         </div>
+      </div>
+      {/* Languages */}
+      <div className="mt-4 mb-4">
+        <h3 className="text-lg text-brown mb-2">Languages:</h3>
+        <Select
+          isMulti
+          value={selectedLanguages}
+          onChange={(selectedLanguages) => setSelectedLanguages(selectedLanguages)}
+          options={availableLanguages}
+          className="basic-multi-select text-gray"
+          classNamePrefix="select"
+        />
       </div>
 
       {/* Skills Section */}

@@ -151,6 +151,37 @@ export const createUserProfile = createAsyncThunk(
   }
 );
 
+export const followUser = createAsyncThunk(
+  'users/followUser',
+  async (
+    { userId, currentUserId, action }: { userId: string; currentUserId: string; action: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(`${baseUrl}api/users/follow`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, currentUserId, action }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 200) {
+        toast.success(data.message || 'Followed user successfully!');
+        return data;
+      } else {
+        toast.error(data.error || 'Failed to follow user');
+        return rejectWithValue(data);
+      }
+    } catch (error: any) {
+      console.error('Error following user:', error);
+      toast.error('Error following user');
+      return rejectWithValue(error.message || 'Unknown error');
+    }
+  }
+);
+
+
 
 export const deleteUser = createAsyncThunk(
   'user/deleteUser',

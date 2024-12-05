@@ -18,6 +18,8 @@ export interface IUser extends Document {
   reviewedBy: mongoose.Types.String[];
   skills: mongoose.Types.ObjectId[];
   reviews: mongoose.Types.ObjectId[];
+  followers : mongoose.Types.ObjectId[];
+  following : mongoose.Types.ObjectId[];
   password?: string; 
   provider?: 'email' | 'firebase'; 
 }
@@ -68,11 +70,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    firebaseUID: {
-      type: String,
-      unique: true,
-      sparse: true, 
-    },
     provider: {
       type: String,
       enum: ['email', 'firebase'],
@@ -98,6 +95,16 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }],
     reviewedBy: [{ type: mongoose.Schema.Types.String, ref: "User" }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    followers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
+    following: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
   },
   {
     timestamps: true,

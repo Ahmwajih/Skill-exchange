@@ -3,14 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/store";
-import { selectedUserById } from "@/lib/features/dashboard/userSlice";
+import {
+  selectedUserById,
+  followUser,
+} from "@/lib/features/dashboard/userSlice";
 import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
 import { fetchSkillById } from "@/lib/features/skills/skillsSlice";
 import ReactCountryFlag from "react-country-flag";
+import { useRouter } from "next/navigation";
 import AddSkillModal from "./AddSkillModal";
 import Link from "next/link";
 import Image from "next/image";
 import LinkedIn from "@/app/public/LinkedIn.png";
+import github from "@/app/public/github.jpg";
 import avatar from "@/app/public/avatar.jpg";
 
 const Dashboard = () => {
@@ -19,7 +24,13 @@ const Dashboard = () => {
   // const skills = useSelector((state: RootState) => state.skills.data);
   const [isVacationMode, setIsVacationMode] = useState(false);
   const [showAddSkillModal, setShowAddSkillModal] = useState(false);
+  const [following, setFollowing] = useState(false);
+
+  const router = useRouter();
   console.log(user.id);
+  const handleClickCard = (id) => {
+    router.push(`/skill_card_detail/${id}`);
+  };
 
   const [profileData, setProfileData] = useState({
     name: "",
@@ -27,11 +38,13 @@ const Dashboard = () => {
     location: "",
     photo: "",
     LinkedIn: "",
+    Github: "",
     followers: 0,
     memberSince: "",
     skills: [],
     skillsLookingFor: [],
     bio: "",
+    languages: [],
   });
 
   const handleAddSkill = () => {
@@ -49,8 +62,11 @@ const Dashboard = () => {
             email: response.data.email,
             country: response.data.country,
             photo: response.data.photo,
-            followers: 0,
-            memberSince: "October 2024",
+            followers: response.data.followers,
+            languages: response.data.languages || [],
+            memberSince: new Date(response.data.createdAt).toLocaleDateString(),
+            LinkedIn: response.data.LinkedIn,
+            Github: response.data.Github,
             skills: response.data.skills || [],
             skillsLookingFor: response.data.skillsLookingFor || [],
             bio: response.data.bio || "No Bio",
@@ -59,11 +75,31 @@ const Dashboard = () => {
     }
   }, [dispatch, user]);
 
+  const handleFollow = async () => {
+    const action = following ? "unfollow" : "follow";
+    try {
+      const res = await dispatch(
+        followUser({
+          userId: user.id,
+          currentUserId: "674dfb05a84536e50c1b8f8e",
+          action,
+        })
+      );
+      if (res.success) {
+        setFollowing(!following);
+      } else {
+        console.error("Follow action failed:", res);
+      }
+    } catch (error) {
+      console.error("Error during follow action:", error);
+    }
+  };
+
   const calculateProfileStrength = () => {
     const fields = [
       "name",
       "email",
-      "location",
+      "country",
       "photo",
       "skills",
       "skillsLookingFor",
@@ -110,11 +146,18 @@ const Dashboard = () => {
             <p className="text-gray text-sm mt-2">
               Member since {profileData.memberSince}
             </p>
-            <div className="mt-4">
-              <span className="text-gray">
-                <span className="font-bold">{profileData.followers}</span>{" "}
-                followers
-              </span>
+            <div className="mt-4 flex justify-center items-center">
+              <button
+                onClick={handleFollow}
+                className={`flex items-center px-4 py-2 rounded-full text-white ${
+                  following
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-blue hover:bg-blue"
+                } transition-colors duration-300`}
+              >
+                <span className="font-bold mr-2">{profileData.followers}</span>
+                {following ? "Unfollow" : "Follow"}
+              </button>
             </div>
           </div>
 
@@ -122,13 +165,29 @@ const Dashboard = () => {
           <div className="mt-6 flex justify-center gap-2">
             {profileData.LinkedIn && (
               <span className="bg-blue p-2 rounded-full">
-                <Link href={profileData.LinkedIn} passHref>
+                <Link href={profileData.LinkedIn} passHref legacyBehavior>
                   <a target="_blank" rel="noopener noreferrer">
                     <Image
                       src={LinkedIn}
                       width={20}
                       height={20}
                       alt="LinkedIn Verified"
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                  </a>
+                </Link>
+              </span>
+            )}
+
+            {profileData.LinkedIn && (
+              <span className="bg-black p-2 rounded-full">
+                <Link href={profileData.Github} passHref legacyBehavior>
+                  <a target="_blank" rel="noopener noreferrer">
+                    <Image
+                      src={github}
+                      width={20}
+                      height={20}
+                      alt="Github Verified"
                       className="hover:opacity-80 transition-opacity"
                     />
                   </a>
@@ -146,7 +205,7 @@ const Dashboard = () => {
           {/* Profile Strength */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg text-gray">
+              <h3 className="text-lg text-brown">
                 Profile Strength:{" "}
                 <span className="text-red-500">
                   {calculateProfileStrength()}%
@@ -158,7 +217,7 @@ const Dashboard = () => {
             </div>
             <div className="w-full bg-gray rounded-full h-2">
               <div
-                className="bg-green-500 rounded-full h-2"
+                className="bg-green-600 rounded-full h-2"
                 style={{ width: `${calculateProfileStrength()}%` }}
               ></div>
             </div>
@@ -167,7 +226,7 @@ const Dashboard = () => {
           {/* Introduction */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl text-gray">
+              <h2 className="text-2xl text-brown">
                 Hey, I'm {profileData.name?.split(" ")[0]}!
               </h2>
               <div className="flex items-center gap-2 text-gray">
@@ -193,11 +252,8 @@ const Dashboard = () => {
             {/* Looking For */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg text-gray">Looking for:</h3>
-                <Link
-                  href="/edit-interests"
-                  className="text-blue hover:underline"
-                >
+                <h3 className="text-lg text-brown">Looking for:</h3>
+                <Link href="/profile" className="text-blue hover:underline">
                   Edit Interests
                 </Link>
               </div>
@@ -211,16 +267,31 @@ const Dashboard = () => {
                   </span>
                 ))}
               </div>
+              {/* Languages */}
+              <div className="mt-4 mb-4">
+                <h3 className="text-lg text-brown mb-2">Languages:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {profileData.languages.map((language, index) => (
+                    <span
+                      key={index}
+                      className="bg-orange text-white px-3 py-1 rounded-full text-sm"
+                    >
+                      {language}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Offered Services */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg text-gray mb-4">Offered Services</h3>
+            <div className="bg-white rounded-lg shadow p-6 sm:p-1">
+              <h3 className="text-lg text-brown mb-4">Offered Services</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {profileData.skills.map((skill) => (
                   <div
                     key={skill._id}
-                    className="relative bg-white border rounded-lg shadow hover:shadow-lg transition-shadow"
+                    className="relative cursor-pointer bg-white border rounded-lg shadow hover:shadow-lg transition-shadow"
+                    onClick={() => handleClickCard(skill._id)}
                   >
                     {/* Skill Image */}
                     <div
@@ -250,8 +321,8 @@ const Dashboard = () => {
                     </div>
 
                     {/* Title and Category */}
-                    <div className="p-4 bg-white rounded-b-lg">
-                      <h4 className="text-md font-semibold text-gray transition-opacity duration-300 hover:opacity-70">
+                    <div className="p-4 bg-beige h-24 rounded-b-lg">
+                      <h4 className="text-md font-semibold text-brown transition-opacity duration-300 hover:opacity-70">
                         {skill.title}
                       </h4>
                       <h6 className="text-sm text-gray transition-opacity duration-300 hover:opacity-50">
@@ -264,7 +335,7 @@ const Dashboard = () => {
                 {/* Add Service Button Styled as a Card */}
                 <button
                   onClick={handleAddSkill}
-                  className="relative flex flex-col items-center justify-center border-dashed border-blue border rounded-lg p-4 text-blue hover:bg-blue-50 transition-colors"
+                  className="relative flex flex-col items-center justify-center border-dashed border-blue border rounded-lg p-4 text-blue hover:bg-blue hover:text-white transition-colors"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -272,7 +343,7 @@ const Dashboard = () => {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-12 h-12 text-blue"
+                    className="w-12 h-12 hover:text-white text-blue"
                   >
                     <path
                       strokeLinecap="round"
@@ -280,7 +351,7 @@ const Dashboard = () => {
                       d="M12 4.5v15m7.5-7.5h-15"
                     />
                   </svg>
-                  <span>Add Service</span>
+                  <span>Add Skills</span>
                 </button>
               </div>
             </div>

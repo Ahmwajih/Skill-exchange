@@ -109,6 +109,7 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
         isActive: data.data.isActive,
         isAdmin: data.data.isAdmin,
         update : data.data.updatedAt,
+        languages: data.data.languages,
       },
       token: data.token,
       email: data.data.email,

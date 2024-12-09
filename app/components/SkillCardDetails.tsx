@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchSkillById } from "@/lib/features/skills/skillsSlice";
 import {
   getReviewsBySkillId,
   createReview,
 } from "@/lib/features/reviews/reviewSlice";
+import { RootState } from "@/lib/store";
 import avatar from "@/app/public/avatar.jpg";
 import Image from "next/image";
 import ModalConversation from "@/app/components/ModalConversation";
@@ -48,6 +49,9 @@ const SkillCardDetails: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const currentUser = useSelector((state:RootState) => state.auth.currentUser);
+  console.log('current user', currentUser.id);
+  console.log('skill.user._id', skill?.user._id);
 
   const router = useRouter();
 
@@ -123,7 +127,11 @@ const SkillCardDetails: React.FC = () => {
       });
   };
   const handleProviderClick = () => {
-    router.push(`/skill_provider_details/${skill.user._id}`);
+    if (skill.user._id === currentUser.id) {
+      router.push("/user_dashboard");
+    } else {
+      router.push(`/skill_provider_details/${skill.user._id}`);
+    }
   };
 
   return (

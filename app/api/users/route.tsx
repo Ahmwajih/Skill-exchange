@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, password, country, photo, provider, role, skills, skillsLookingFor, bio, languages, Github, LinkedIn } = body;
+    const { name, email, password, country, photo, provider, role, skills, skillsLookingFor, bio, languages, Github, LinkedIn, availability } = body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
       languages,
       Github,
       LinkedIn,
+      availability,
     });
     const savedUser = await newUser.save();
 
@@ -86,7 +87,8 @@ export async function POST(req: NextRequest) {
 
     // Send activation email
     const activationLink = `${BASE_URL}/api/auth/activate?token=${activationToken}`;
-    await sendMail(email, 'Activate Your Account', generateActivationEmail(activationLink));    console.log("Activation link:", activationLink);
+    await sendMail(email, 'Activate Your Account', generateActivationEmail(activationLink));   
+     console.log("Activation link:", activationLink);
 
     return NextResponse.json(
       {

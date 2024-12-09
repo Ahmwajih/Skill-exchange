@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 
 interface FooterProps {
   companyName: string;
@@ -42,38 +43,41 @@ const Footer: React.FC<FooterProps> = () => {
                   <h2 className="self-start text-2xl font-poppins">
                     Community Skill Trade{" "}
                   </h2>
-                  <p className="mt-4 text-xs max-md:text-sm">
+                  <p className="mt-4 text-xs max-md:text-sm font-poppins">
                     The experience with Skill Trade has been outstanding. Every
                     interaction within our community has been met with prompt
                     support and meaningful connections.
                   </p>
                 </div>
                 <nav className="flex flex-col items-start mt-2.5 text-xs font-bold">
-                  <h3 className="ml-3 text-base max-md:ml-2.5">Quick links</h3>
+                  <h3 className="ml-3 text-base text-white max-md:ml-2.5 font-poppins">Quick links</h3>
                   <ul>
                     {quickLinks.map((link) => (
                       <li
                         key={link.name}
-                        className="gap-2.5 self-stretch px-2.5 py-3 mt-4 min-h-[35px]"
+                        className="gap-2.5 font-poppins self-stretch hover:opacity-80 hover:text-white text-white px-2.5 py-3 mt-4 min-h-[35px]"
                       >
-                        <a href={link.href}>{link.name}</a>
+                        <Link href={link.href}  style={{ textDecoration:"none", cursor: "pointer", color:"#ffffff" }}>{link.name}</Link>
                       </li>
                     ))}
                   </ul>
                 </nav>
                 <div className="flex flex-col mt-2.5">
-                  <nav className="flex flex-col items-start self-start ml-3 text-xs font-bold max-md:ml-2.5">
-                    <h3 className="self-stretch text-base">Social media</h3>
-                    <ul className="mt-5">
+                  <nav className="flex flex-col items-start self-start ml-3 text-xs font-bold max-md:ml-2.5 font-poppins">
+                    <h3 className="self-stretch text-base font-poppins">Social media</h3>
+                    <ul className="mt-5 text-white">
                       {socialLinks.map((link, index) => (
-                        <li key={link.name} className={index > 0 ? "mt-3" : ""}>
-                          <a
+                        <li key={link.name} className={index > 0 ? "mt-3 text-white" : ""}>
+                          <Link
                             href={link.url}
                             target="_blank"
                             rel="noopener noreferrer"
+                             className="text-white font-poppins hover:opacity-80 hover:text-white"
+                             style={{ textDecoration:"none", cursor: "pointer" }}
                           >
                             {link.name}
-                          </a>
+                           
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -83,8 +87,8 @@ const Footer: React.FC<FooterProps> = () => {
             </div>
             <div className="flex flex-col w-[30%] max-md:w-full ">
               <div className="flex flex-col items-start mt-2.5 w-full max-md:mt-5">
-                <h3 className="text-base font-bold text-white">Newsletter</h3>
-                <p className="mt-4 text-xs font-bold text-white">
+                <h3 className="text-base font-bold text-white font-poppins">Newsletter</h3>
+                <p className="mt-4 text-xs font-bold text-white font-poppins">
                   Subscribe to our newsletter to stay updated on the latest
                   skill exchange opportunities, community events, and exclusive
                   member perks.
@@ -93,7 +97,7 @@ const Footer: React.FC<FooterProps> = () => {
                   onSubmit={handleSubmit}
                   className="flex gap-12 justify-evenly self-stretch max-w-52 pr-1 pl-5 mt-5 bg-white rounded-md"
                 >
-                  <label htmlFor="email" className="sr-only">
+                  <label htmlFor="email" className="sr-only font-poppins">
                     Enter your email
                   </label>
                   <input
@@ -108,7 +112,7 @@ const Footer: React.FC<FooterProps> = () => {
                   />
                   <button
                     type="submit"
-                    className="px-2 pt-3 pb-3 text-sm font-semibold text-white whitespace-nowrap bg-blue-400 rounded max-md:px-4"
+                    className="px-2 pt-3 pb-3 text-sm font-semibold font-poppins text-white whitespace-nowrap bg-blue-400 rounded max-md:px-4"
                   >
                     Subscribe
                   </button>
@@ -117,7 +121,7 @@ const Footer: React.FC<FooterProps> = () => {
             </div>
           </div>
           <div className="flex justify-start">
-        <p className="mt-10 text-base text-white font-semibold max-md:mt-6">
+        <p className="mt-10 text-base text-white font-poppins font-semibold max-md:mt-6">
           {" "}
           Community Skill Trade 2024 ©
         </p>

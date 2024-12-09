@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
+import Link from "next/link";
 import { register } from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
@@ -124,11 +125,13 @@ export default function SignIn() {
   };
   return (
     <section className="flex flex-col items-center min-h-screen bg-white py-4 px-4 sm:px-8">
+      <Link href="/" >
       <img
         src="https://cdn.builder.io/api/v1/image/assets/TEMP/d53f44d0b4930bc2c267dce9c30b2f4116e32dc1b203ed76d08054d5180281f8?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
         alt=""
         className="object-contain mt-3 aspect-square w-[63px]"
       />
+       </Link>
       <h2 className="mt-6 text-3xl font-bold leading-none text-center text-slate-800">
         Join our community
       </h2>

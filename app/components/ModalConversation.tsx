@@ -6,6 +6,7 @@ import { RootState, AppDispatch } from "@/lib/store";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar, Badge, List } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
+import { toast } from "react-toastify";
 
 function ModalConversation({ providerId, closeModal }) {
   const [message, setMessage] = useState("");
@@ -16,6 +17,7 @@ function ModalConversation({ providerId, closeModal }) {
   const [provider, setProvider] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState("");
 
   const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 
@@ -24,8 +26,9 @@ function ModalConversation({ providerId, closeModal }) {
   useEffect(() => {
     if (providerId) {
       dispatch(selectedUserById(providerId)).then((response) => {
+        console.log("response", response.payload.data);
         if (response.payload) {
-          setProvider(response.payload);
+          setProvider(response.payload.data);
         } else {
           console.error("Failed to fetch provider:", response.error.message);
         }
@@ -37,11 +40,15 @@ function ModalConversation({ providerId, closeModal }) {
     const dealDetails = showDealFields
       ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
       : "";
+    const selectedAvailability = selectedDate && selectedTime
+      ? `<br><strong>Selected Availability:</strong><br>Date: ${selectedDate.toISOString().split("T")[0]}<br>Time: ${selectedTime}`
+      : "";
     const acceptDealLink = `${BASE_URL}/api/accept-deal?providerEmail=${provider.email}&providerName=${provider.name}`;
 
     const emailContent = `
       <p>${message}</p>
       ${dealDetails}
+      ${selectedAvailability}
       <p>
         <a href="${acceptDealLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Accept Deal</a>
       </p>
@@ -63,14 +70,17 @@ function ModalConversation({ providerId, closeModal }) {
       const result = await response.json();
       if (result.success) {
         alert("Message sent successfully!");
+        toast.success("Message sent successfully!");
         resetFields();
         closeModal();
       } else {
         alert("Failed to send message.");
+        toast.error("Failed to send message.");
       }
     } catch (error) {
       console.error("Error sending message:", error);
       alert("An error occurred while sending the message.");
+      toast.error("An error occurred while sending the message.");
     }
   };
 
@@ -86,6 +96,8 @@ function ModalConversation({ providerId, closeModal }) {
     setShowDealFields(false);
     setSkillsOffered("");
     setNumberOfSessions(1);
+    setSelectedDate(null);
+    setSelectedTime("");
   };
 
   const getTodoList = (date) => {
@@ -117,7 +129,13 @@ function ModalConversation({ providerId, closeModal }) {
     return (
       <List style={{ flex: 1 }} bordered>
         {list.map((item, index) => (
-          <List.Item key={index}>
+          <List.Item
+            key={index}
+            onClick={() => {
+              setSelectedDate(date);
+              setSelectedTime(item.time);
+            }}
+          >
             <div>{item.time}</div>
             <div>{item.title}</div>
           </List.Item>
@@ -252,7 +270,9 @@ function ModalConversation({ providerId, closeModal }) {
               style={{ width: 320 }}
               disabledDate={disabledDate}
             />
-            <TodoList date={selectedDate} />
+            <div className="flex-1 ml-4">
+              <TodoList date={selectedDate} />
+            </div>
           </div>
 
           {/* Modal Actions */}

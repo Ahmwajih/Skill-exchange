@@ -28,7 +28,10 @@ function page() {
   return (
     <Protect>
       <Navbar />
+      <div className=" bg-white">
       <SkillProviderDetails />
+
+      </div>
       <Footer />
     </Protect>
   );

@@ -64,6 +64,9 @@ const ProfileManagement: React.FC = () => {
   const [showMissingFields, setShowMissingFields] = useState(false);
   const [showSkillModal, setShowSkillModal] = useState(false);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
+  const [availability, setAvailability] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState("");
   const [availableLanguages, setAailableLanguages] = useState([
     { value: "English", label: "English" },
     { value: "Spanish", label: "Spanish" },
@@ -106,43 +109,71 @@ const ProfileManagement: React.FC = () => {
     { value: "Galician", label: "Galician" },
     { value: "Welsh", label: "Welsh" },
   ]);
-  const [availability, setAvailability] = useState([]);
 
   useEffect(() => {
     if (user?.id) {
-      dispatch(selectedUserById(user.id)).then((response) => {
-        if (response.payload) {
-          const data = response.payload.data;
-          setProfile({
-            photo: data.photo || avatar,
-            name: data.name || "",
-            email: data.email || "",
-            bio: data.bio || "",
-            languages: data.languages || [],
-            country: data.country || "",
-            Github: data.Github || "",
-            LinkedIn: data.LinkedIn || "",
-            skillsLookingFor: data.skillsLookingFor || [],
-            availability: data.availability || [],
-          });
-          
-        }
-        const userLanguages = response.payload.data.languages.map((language) => ({
-          value: language,
-          label: language,
-      }));
-      setSelectedLanguages(userLanguages);
-      setAvailability(data.availability || []);
-        console.log("Selected Languages Before Save:", selectedLanguages);
-      })    .catch((error) => {
-        console.error("Failed to fetch user data:", error);
-      });
+      dispatch(selectedUserById(user.id))
+        .then((response) => {
+          if (response.payload) {
+            const data = response.payload.data;
+            setProfile({
+              photo: data.photo || "",
+              name: data.name || "",
+              email: data.email || "",
+              bio: data.bio || "",
+              country: data.country || "",
+              Github: data.Github || "",
+              LinkedIn: data.LinkedIn || "",
+              skillsLookingFor: data.skillsLookingFor || [],
+              languages: data.languages || [],
+              availability: data.availability || [],
+            });
+
+            const userLanguages = data.languages.map((language) => ({
+              value: language,
+              label: language,
+            }));
+            setSelectedLanguages(userLanguages);
+            setAvailability(data.availability || []);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch user data:", error);
+        });
     }
   }, [dispatch, user]);
 
   const handleLanguageChange = (selectedOptions) => {
     setSelectedLanguages(selectedOptions);
   };
+  const handleAddAvailability = () => {
+    if (selectedDate && selectedTime) {
+      const dateString = selectedDate.toISOString().split("T")[0];
+      const newAvailability = { date: dateString, times: [selectedTime] };
+      setAvailability([...availability, newAvailability]);
+      setSelectedDate(null);
+      setSelectedTime("");
+    }
+  };
+
+  const handleSave = async () => {
+    const updatedLanguages = selectedLanguages.map((option) => option.value);
+    const updatedProfile = { ...profile, languages: updatedLanguages, availability };
+
+    try {
+      const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
+      console.log("Response:", response);
+      if (response.payload.success) {
+        toast.success("Profile updated successfully!");
+      } else {
+        toast.error("Failed to update profile.");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Error updating profile.");
+    }
+  };
+
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,27 +236,27 @@ const ProfileManagement: React.FC = () => {
 //         console.error("Error updating profile:", error);
 //     }
 // };
-const handleAddAvailability = (date) => {
-  setAvailability([...availability, { date: date.toISOString().split("T")[0], times: [] }]);
-};
+// const handleAddAvailability = (date) => {
+//   setAvailability([...availability, { date: date.toISOString().split("T")[0], times: [] }]);
+// };
 
-const handleSave = async () => {
-  const updatedLanguages = selectedLanguages.map((option) => option.value);
-  const updatedProfile = { ...profile, languages: updatedLanguages, availability };
+// const handleSave = async () => {
+//   const updatedLanguages = selectedLanguages.map((option) => option.value);
+//   const updatedProfile = { ...profile, languages: updatedLanguages, availability };
 
-  try {
-    const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
-    console.log("Response:", response);
-    if (response.payload.success) {
-      toast.success("Profile updated successfully!");
-    } else {
-      toast.error("Failed to update profile.");
-    }
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    toast.error("Error updating profile.");
-  }
-};
+//   try {
+//     const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
+//     console.log("Response:", response);
+//     if (response.payload.success) {
+//       toast.success("Profile updated successfully!");
+//     } else {
+//       toast.error("Failed to update profile.");
+//     }
+//   } catch (error) {
+//     console.error("Error updating profile:", error);
+//     toast.error("Error updating profile.");
+//   }
+// };
   const missingFields = getMissingFields(profile);
   const handleDeleteAccount = async () => {
     if (
@@ -433,12 +464,26 @@ const handleSave = async () => {
             {/* Availability */}
             <div className="mt-4 mb-4">
         <h3 className="text-lg text-brown mb-2">Availability:</h3>
-        <DatePicker
-          selected={null}
-          onChange={handleAddAvailability}
-          placeholderText="Select a date to add availability"
-          className="w-full px-4 py-2 border bg-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-        />
+        <div className="flex items-center mb-4">
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+            placeholderText="Select a date"
+            className="w-full px-4 py-2 border bg-white rounded-md focus:ring-blue focus:border-blue"
+          />
+          <input
+            type="time"
+            value={selectedTime}
+            onChange={(e) => setSelectedTime(e.target.value)}
+            className="w-full px-4 py-2 border text-black bg-white rounded-md focus:ring-blue focus:border-blue ml-4"
+          />
+          <button
+            onClick={handleAddAvailability}
+            className="bg-blue text-white px-4 py-2 rounded ml-4"
+          >
+            Add
+          </button>
+        </div>
         <ul className="mt-2">
           {availability.map((avail, index) => (
             <li key={index} className="mb-2">

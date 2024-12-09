@@ -18,6 +18,8 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   const router = useRouter();
   const dispatch: AppDispatch = useDispatch();
   const searchResults = useSelector((state: RootState) => state.skills.searchResults);
+  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+
 
   console.log('search rsults', searchResults);
   useEffect(() => {
@@ -43,7 +45,7 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   };
 
   const toggleAvatarMenu = () => {
-    setIsAvatarMenuOpen((prev) => !prev);
+    setIsAvatarMenuOpen(!isAvatarMenuOpen);
   };
 
   const toggleMenu = () => {
@@ -73,7 +75,7 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
           </Link>
         </div>
 
-        <nav className="hidden md:flex flex-1 justify-center gap-6 text-black hover:text-brown">
+        <nav className="hidden md:flex flex-1 justify-center gap-6 text-brown hover:text-brown">
           {navItems.map((item, index) => (
             <NavItem
               key={index}
@@ -117,30 +119,39 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
             onClick={toggleSearch}
             className="text-gray-600 w-6 h-6 cursor-pointer"
           />
-          <div className="relative">
-            <FaUserCircle
-              className="text-gray w-8 h-8 cursor-pointer"
-              onClick={toggleAvatarMenu}
-            />
-            {isAvatarMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10">
-                <ul className="py-2">
-                  <li
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleAvatarClick}
-                  >
-                    Profile
-                  </li>
-                  <li
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
+        <div className="relative">
+      {currentUser?.photo ? (
+        <img
+          src={currentUser.photo}
+          alt="Profile"
+          className="w-8 h-8 rounded-full cursor-pointer"
+          onClick={toggleAvatarMenu}
+        />
+      ) : (
+        <FaUserCircle
+          className="text-gray w-8 h-8 cursor-pointer"
+          onClick={toggleAvatarMenu}
+        />
+      )}
+      {isAvatarMenuOpen && (
+        <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10">
+          <ul className="py-2">
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={handleAvatarClick}
+            >
+              Profile
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={handleLogout}
+            >
+              Logout
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
 
           <button onClick={toggleMenu} className="text-gray-600">
             <FaBars className="w-6 h-6" />
@@ -178,9 +189,11 @@ const NavItem: React.FC<{ label: string; isActive: boolean; href: string }> = ({
   return (
     <Link
       href={href}
-      className={`block text-center py-2 ${
+      className={`block text-center font-poppins text-lg hover:opacity-80  py-2 ${
         isActive ? "font-bold text-orange-500" : "text-gray-700"
       }`}
+
+      style={{ textDecoration:"none", cursor: "pointer", color:"#3c1e06" }}
     >
       {label}
     </Link>

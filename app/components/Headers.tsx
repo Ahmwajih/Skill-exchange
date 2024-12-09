@@ -11,7 +11,7 @@ export default function Headers() {
     <div className="m-0">
       <div className="bg-light-blue dark:bg-gray-800 text-brown dark:text-white">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 lg:p-0 md:p-0">
-          <Link href="/home">
+          <Link href="/main">
             <Image className="logo hidden md:block" src={Logo} alt="logo" />
           </Link>
           <div className="flex justify-center items-center col-span-1 md:col-span-4">
@@ -60,7 +60,7 @@ export default function Headers() {
                   </p>
                   <div className="gap-2 self-stretch mt-3.5 text-center">
                     <button className="px-5 py-3 bg-orange text-white rounded-md shadow-[0px_1px_2px_rgba(105,81,255,0.05)] min-h-[1.5rem]">
-                      Get Started
+                     <Link href="/main" >Get Started</Link>
                     </button>
                   </div>
                 </div>

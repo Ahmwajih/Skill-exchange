@@ -57,7 +57,7 @@ const FAQSection: React.FC = () => {
     },
     { 
       question: "What Should I Do if I Encounter Issues During an Exchange?", 
-      answer: "If you encounter issues, contact us through our platform's in contact page." 
+      answer: "If you encounter issues, contact us through our platform's contact page." 
     }
   ];
 

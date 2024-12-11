@@ -15,9 +15,12 @@ const chatSlice = createSlice({
         addMessage(state, action: PayloadAction<{ text: string; sender?: string }>) {
             state.messages.push(action.payload);
         },
+        acceptDeal(state, action: PayloadAction<{ providerEmail: string; providerName: string }>) {
+            // Handle deal acceptance logic here
+        },
     },
 });
 
-export const { addMessage } = chatSlice.actions;
+export const { addMessage, acceptDeal } = chatSlice.actions;
 
 export default chatSlice.reducer;

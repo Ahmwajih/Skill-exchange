@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage } from "../store/chatSlice"; // Adjust import based on your structure
+import { addMessage, acceptDeal } from "@/lib/features/chat/chatSlice";
 import Message from "./Message";
-import { io } from "socket.io-client";
-
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
-
-const socket = io(`${BASE_URL}/api/socket`);
+import socket from "@/Utils/socket";
 
 const ChatWindow = () => {
   const dispatch = useDispatch();
@@ -18,14 +14,20 @@ const ChatWindow = () => {
       dispatch(addMessage(message));
     });
 
+    socket.on("deal_accepted", ({ providerEmail, providerName, seekerEmail, seekerName }) => {
+      dispatch(acceptDeal({ providerEmail, providerName }));
+      console.log(`${providerName} has accepted your deal.`);
+    });
+
     return () => {
       socket.off("receive_message");
+      socket.off("deal_accepted");
     };
   }, [dispatch]);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      socket.emit("send_message", newMessage);
+      socket.emit("send_message", { text: newMessage, sender: 'me' });
       dispatch(addMessage({ text: newMessage, sender: 'me' }));
       setNewMessage("");
     }

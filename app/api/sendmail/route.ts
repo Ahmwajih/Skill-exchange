@@ -4,10 +4,7 @@ import { sendMail } from '@/lib/mailer';
 export async function POST(req: NextRequest) {
   try {
     const { to, subject, html } = await req.json();
-    console.log(to, subject, html);
-
     await sendMail(to, subject, html);
-    console.log(to, subject, html);
     return NextResponse.json({ success: true, message: 'Email sent successfully!' }, { status: 200 });
   } catch (error) {
     console.error('Error sending email:', error);

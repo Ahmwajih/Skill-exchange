@@ -56,12 +56,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  await db(); 
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  await db();
 
   const { id } = params;
 
@@ -70,24 +66,21 @@ export async function PUT(
   }
 
   try {
-    const body = await req.json(); 
-    const user = await User.findByIdAndUpdate(id, body, { new: true, runValidators: true }); 
+    const body = await req.json();
+    const user = await User.findByIdAndUpdate(id, body, { new: true, runValidators: true });
 
     if (!user) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: user }); 
+    return NextResponse.json({ success: true, data: user });
   } catch (error) {
     console.error('Error updating user:', error);
     return NextResponse.json({ success: false, error: 'Error updating user' }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
 
   const { id } = params;

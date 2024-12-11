@@ -1,36 +1,47 @@
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { addMessage } from "@/lib/chat/chatSlice"; // Adjust import based on your structure
-import { io } from "socket.io-client";
+import { Server } from "socket.io";
+import { NextRequest, NextResponse } from 'next/server';
 
+let io: Server | undefined;
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
-
-const socket = io(BASE_URL + "/api/socket");
-
-const ChatComponent = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    socket.on("receive_message", (message) => {
-      dispatch(addMessage(message));
+export async function GET(request: NextRequest) {
+  if (!io) {
+    io = new Server({
+      cors: {
+        origin: '*',
+      },
     });
 
-    socket.on("deal_accepted", ({ providerEmail, providerName }) => {
-      // Handle deal acceptance notification
-      console.log(`${providerName} has accepted your deal.`);
-      // You can also notify users or update UI accordingly
+    io.on("connection", (socket) => {
+      console.log("A user connected:", socket.id);
+
+      socket.on("join_room", (room) => {
+        socket.join(room);
+        console.log(`User joined room: ${room}`);
+      });
+
+      socket.on("send_message", (message) => {
+        const { text, room } = message;
+        console.log(`Message received in room ${room}:`, text);
+        io.to(room).emit("receive_message", message);
+      });
+
+      socket.on("accept_deal", ({ providerEmail, providerName, seekerEmail, seekerName }) => {
+        console.log(`${providerName} has accepted the deal.`);
+        io.to(providerEmail).emit("deal_accepted", { providerEmail, providerName, seekerEmail, seekerName });
+        io.to(seekerEmail).emit("deal_accepted", { providerEmail, providerName, seekerEmail, seekerName });
+      });
+
+      socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+      });
     });
+  }
 
-    return () => {
-      socket.off("receive_message");
-      socket.off("deal_accepted");
-    };
-  }, [dispatch]);
+  return NextResponse.json({ message: 'Socket server initialized' });
+}
 
-  return (
-    <div>
-      {/* Render chat messages here */}
-    </div>
-  );
-};
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };

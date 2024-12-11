@@ -9,6 +9,7 @@ import { register } from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch } from "@/lib/store";
+import { toast } from "react-toastify";
 
 export default function SignIn() {
   const router = useRouter();
@@ -23,12 +24,12 @@ export default function SignIn() {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Please enter both email and password.");
+      toast.warning("Please enter both email and password.");
       return;
     }
 
     if (password !== retypePassword) {
-      alert("Passwords do not match.");
+      toast.warning("Passwords do not match.");
       return;
     }
 
@@ -37,24 +38,18 @@ export default function SignIn() {
       console.log("user registered successfully");
       router.push("/signin");
     } catch (error) {
-      console.error("Error logging in:", error);
-      alert("register failed. Please try again.");
+      toast.error("register failed. Please try again.");
     }
   };
 
   const handleProviderSignIn = async (provider) => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log("User logged in successfully:", result.user);
-      console.log("user id", result.user.uid);
+
 
       const { displayName, email } = result.user;
       const token = await result.user.getIdToken();
-      console.log("token", token);
       const photoURL = result.user.photoURL;
-      console.log("photoURL", photoURL);
-      //TODO: i will use dispatch for register
-
       const response = await fetch(`${url}/api/users`, {
         method: "POST",
         headers: {
@@ -83,7 +78,6 @@ export default function SignIn() {
         console.log("payload", payload);
         dispatch(authAll(payload));
         await dispatch(login({ email, password }, router));
-        console.log("User logged normally in successfully");
 
         if (typeof window !== "undefined") {
           sessionStorage.setItem("name", displayName);

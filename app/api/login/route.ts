@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    console.log("Request body:", body); // Log the request body
+    console.log("Request body:", body); 
     const { email, password } = body;
 
     if (!email || !password) {

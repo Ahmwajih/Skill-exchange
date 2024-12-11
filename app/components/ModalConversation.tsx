@@ -1,12 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { selectedUserById } from "@/lib/features/dashboard/userSlice";
-import { RootState, AppDispatch } from "@/lib/store";
 import { useDispatch, useSelector } from "react-redux";
+import { selectedUserById } from "@/lib/features/dashboard/userSlice";
+import { createDeal } from "@/lib/features/deal/dealSlice"; // Import createDeal thunk
+import { RootState, AppDispatch } from "@/lib/store";
 import { Calendar, Badge, List } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import { toast } from "react-toastify";
+import socket from "@/Utils/socket";
+
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 
 function ModalConversation({ providerId, closeModal }) {
   const [message, setMessage] = useState("");
@@ -15,18 +18,17 @@ function ModalConversation({ providerId, closeModal }) {
   const [numberOfSessions, setNumberOfSessions] = useState(1);
   const [skillsOffered, setSkillsOffered] = useState("");
   const [provider, setProvider] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [seeker, setSeeker] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState("");
-
-  const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+  const [selectedAvailabilities, setSelectedAvailabilities] = useState([]);
 
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.auth.currentUser);
 
+  // Fetch provider data
   useEffect(() => {
     if (providerId) {
       dispatch(selectedUserById(providerId)).then((response) => {
-        console.log("response", response.payload.data);
         if (response.payload) {
           setProvider(response.payload.data);
         } else {
@@ -36,25 +38,100 @@ function ModalConversation({ providerId, closeModal }) {
     }
   }, [dispatch, providerId]);
 
-  const handleSend = async () => {
-    const dealDetails = showDealFields
-      ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
-      : "";
-    const selectedAvailability = selectedDate && selectedTime
-      ? `<br><strong>Selected Availability:</strong><br>Date: ${selectedDate.toISOString().split("T")[0]}<br>Time: ${selectedTime}`
-      : "";
-    const acceptDealLink = `${BASE_URL}/api/accept-deal?providerEmail=${provider.email}&providerName=${provider.name}`;
+  // Fetch seeker data
+  useEffect(() => {
+    if (user.id) {
+      dispatch(selectedUserById(user.id)).then((response) => {
+        if (response.payload) {
+          setSeeker(response.payload.data);
+        } else {
+          console.error("Failed to fetch seeker:", response.error.message);
+        }
+      });
+    }
+  }, [dispatch, user.id]);
 
-    const emailContent = `
-      <p>${message}</p>
-      ${dealDetails}
-      ${selectedAvailability}
-      <p>
-        <a href="${acceptDealLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Accept Deal</a>
-      </p>
-    `;
+  // Handle sending a deal
+  const handleSend = async () => {
+    if (!message.trim()) {
+      toast.error("Please enter a message.");
+      return;
+    }
+
+    if (showDealFields && !skillsOffered.trim()) {
+      toast.error("Please specify the skills offered.");
+      return;
+    }
+
+    // Prepare deal data
+    const dealData = {
+      providerId: providerId,
+      seekerId: user.id,
+      timeFrame,
+      skillOffered: skillsOffered,
+      numberOfSessions,
+      selectedAvailabilities,
+      status: "pending",
+    };
 
     try {
+      // Dispatch the createDeal action
+      await dispatch(createDeal(dealData)).unwrap();
+      
+      // Success feedback
+      toast.success("Deal sent successfully!");
+
+      // Prepare message content for socket
+      const dealDetails = showDealFields
+        ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
+        : "";
+      
+      const selectedAvailability = selectedAvailabilities.length
+        ? `<br><strong>Selected Availability:</strong><br>${selectedAvailabilities.join("<br>")}`
+        : "";
+      
+      const acceptDealLink = `${BASE_URL}/api/accept-deal/${provider._id}?providerEmail=${provider.email}&providerName=${provider.name}&seekerEmail=${user.email}&seekerName=${user.name}&seekerId=${user._id}`;
+      
+      const messageContent = `${message}${dealDetails}${selectedAvailability}<br><a href="${acceptDealLink}">Accept Deal</a>`;
+      
+      // Emit message via socket
+      socket.emit("send_message", { text: messageContent, sender: user.name });
+      
+      // Reset message field
+      setMessage("");
+
+      // Prepare and send email content
+      const emailContent = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;">
+          <div style="max-width: 600px; margin: auto; background-color: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div style="text-align: center; padding: 20px; border-bottom: 1px solid #ddd;">
+              <a href="${BASE_URL}" style="text-decoration: none; color: #333;">
+                <img src="" alt="Skill Logo" style="max-width: 150px;">
+              </a>
+            </div>
+            <div style="padding: 20px;">
+              <h2 style="color: #333;">${seeker.name} has sent you a proposal:</h2>
+              <div style="text-align: center; margin-bottom: 20px;">
+                <img src="${seeker.photo}" alt="${seeker.name}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                <p style="margin-top: 10px;"><strong>${seeker.name}</strong><br>${seeker.country}</p>
+              </div>
+              <p><strong>New Proposal Received</strong></p>
+              <p>${message}</p>
+              ${dealDetails}
+              ${selectedAvailability}
+              <p style="text-align: center;">
+                <a href="${acceptDealLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Accept/Decline</a>
+              </p>
+            </div>
+            <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-top: 1px solid #ddd;">
+              <p style="margin-bottom: 5px;">Please add us to your address book to ensure you don’t miss any messages.</p>
+              <p style="margin-bottom: 0;">Best regards,<br>The Community Skill Exchange Team</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Send email notification
       const response = await fetch("/api/sendmail", {
         method: "POST",
         headers: {
@@ -62,25 +139,23 @@ function ModalConversation({ providerId, closeModal }) {
         },
         body: JSON.stringify({
           to: provider.email,
-          subject: `Community Skill Exchange New Message from ${provider.name}`,
+          subject: `Community Skill Exchange New Message from ${user.name}`,
           html: emailContent,
         }),
       });
 
       const result = await response.json();
+      
       if (result.success) {
-        alert("Message sent successfully!");
-        toast.success("Message sent successfully!");
+        toast.success("Email sent successfully!");
         resetFields();
         closeModal();
       } else {
-        alert("Failed to send message.");
-        toast.error("Failed to send message.");
+        toast.error("Failed to send email.");
       }
     } catch (error) {
-      console.error("Error sending message:", error);
-      alert("An error occurred while sending the message.");
-      toast.error("An error occurred while sending the message.");
+      console.error("Error creating deal or sending message:", error);
+      toast.error("An error occurred while sending the deal or message.");
     }
   };
 
@@ -126,14 +201,27 @@ function ModalConversation({ providerId, closeModal }) {
     if (!list.length) {
       return null;
     }
+    const toggleAvailability = (date, time) => {
+      const dateString = date.toISOString().split("T")[0];
+      const availabilityString = `${dateString} ${time}`;
+      setSelectedAvailabilities((prev) =>
+        prev.includes(availabilityString)
+          ? prev.filter((a) => a !== availabilityString)
+          : [...prev, availabilityString]
+      );
+    };
     return (
       <List style={{ flex: 1 }} bordered>
         {list.map((item, index) => (
           <List.Item
             key={index}
-            onClick={() => {
-              setSelectedDate(date);
-              setSelectedTime(item.time);
+            onClick={() => toggleAvailability(date, item.time)}
+            style={{
+              backgroundColor: selectedAvailabilities.includes(
+                `${date.toISOString().split("T")[0]} ${item.time}`
+              )
+                ? "#e0f7fa"
+                : "transparent",
             }}
           >
             <div>{item.time}</div>

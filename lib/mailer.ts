@@ -11,7 +11,6 @@ export const sendMail = async (to: string, subject: string, html: string) => {
       auth: {
         user: MY_EMAIL2,
         pass: PASS,
-     
       },
     });
 

@@ -1,9 +1,11 @@
 import { Server } from "socket.io";
 import { NextRequest, NextResponse } from 'next/server';
+import db from "@/lib/db"; // Ensure you have a database connection utility
+import Conversation from "@/models/Conversation"; // Import your Conversation model
 
-let io: Server | undefined;
+let io;
 
-export async function GET(request: NextRequest) {
+export async function GET(request) {
   if (!io) {
     io = new Server({
       cors: {
@@ -19,16 +21,48 @@ export async function GET(request: NextRequest) {
         console.log(`User joined room: ${room}`);
       });
 
-      socket.on("send_message", (message) => {
-        const { text, room } = message;
+      socket.on("send_message", async (message) => {
+        const { text, room, senderId } = message;
+
         console.log(`Message received in room ${room}:`, text);
-        io.to(room).emit("receive_message", message);
+
+        // Save message to conversation
+        try {
+          const conversation = await Conversation.findOneAndUpdate(
+            { 
+              $or: [
+                { providerId: room },  // Assuming room is providerId
+                { seekerId: room }     // Assuming room is seekerId
+              ]
+            },
+            { 
+              $push: { messages: { senderId, content: text, timestamp: new Date() } }
+            },
+            { new: true, upsert: true } // Create if not exists
+          );
+
+          io.to(room).emit("receive_message", message);
+          console.log("Message saved to conversation:", conversation);
+        } catch (error) {
+          console.error("Error saving message:", error);
+        }
       });
 
-      socket.on("accept_deal", ({ providerEmail, providerName, seekerEmail, seekerName }) => {
-        console.log(`${providerName} has accepted the deal.`);
-        io.to(providerEmail).emit("deal_accepted", { providerEmail, providerName, seekerEmail, seekerName });
-        io.to(seekerEmail).emit("deal_accepted", { providerEmail, providerName, seekerEmail, seekerName });
+      socket.on("accept_deal", async ({ providerId, seekerId }) => {
+        console.log(`${providerId} has accepted the deal.`);
+        
+        // Emit an event to both users to join the conversation
+        const room = providerId; // Use providerId as room identifier
+        socket.join(room); // Join the provider's room
+        
+        // Optionally create a new conversation in the DB here if needed
+        const newConversation = await Conversation.create({
+          providerId,
+          seekerId,
+          messages: [], // Start with an empty messages array
+        });
+
+        io.to(room).emit("deal_accepted", { providerId, seekerId });
       });
 
       socket.on("disconnect", () => {
@@ -39,9 +73,3 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ message: 'Socket server initialized' });
 }
-
-// export const config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };

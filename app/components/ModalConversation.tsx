@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectedUserById } from "@/lib/features/dashboard/userSlice";
-import { createDeal } from "@/lib/features/deal/dealSlice"; // Import createDeal thunk
+import { createDeal } from "@/lib/features/deal/dealSlice"; 
 import { RootState, AppDispatch } from "@/lib/store";
 import { Calendar, Badge, List } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
@@ -90,15 +90,16 @@ function ModalConversation({ providerId, closeModal }) {
         ? `<br><strong>Selected Availability:</strong><br>${selectedAvailabilities.join("<br>")}`
         : "";
       
-      const acceptDealLink = `${BASE_URL}/api/accept-deal/${provider._id}?providerEmail=${provider.email}&providerName=${provider.name}&seekerEmail=${user.email}&seekerName=${user.name}&seekerId=${user._id}`;
+        const acceptDealLink = `${BASE_URL}/api/accept-deal/${providerId}?providerEmail=${provider.email}&providerName=${provider.name}&seekerEmail=${user.email}&seekerName=${user.name}&seekerId=${user.id}`;
       
-      const messageContent = `${message}${dealDetails}${selectedAvailability}<br><a href="${acceptDealLink}">Accept Deal</a>`;
-      
-      // Emit message via socket
-      socket.emit("send_message", { text: messageContent, sender: user.name });
-      
-      // Reset message field
-      setMessage("");
+        const messageContent = `${message}${dealDetails}${selectedAvailability}<br><a href="${acceptDealLink}">Accept Deal</a>`;
+        
+        // Emit message via socket with additional identifiers for starting a conversation
+        socket.emit("send_message", { text: messageContent, room: provider._id, senderId: user.id });
+  
+  
+        // Reset message field
+        setMessage("");
 
       // Prepare and send email content
       const emailContent = `

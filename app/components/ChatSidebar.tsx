@@ -5,7 +5,7 @@ import React from 'react';
 
 const ChatSidebar = ({ onSelectConversation, conversations }) => {
   return (
-    <div className="chat-sidebar">
+    <div className="chat-sidebar bg-white text-black">
       <h2>Conversations</h2>
       <ul>
         {conversations.map((conversation) => (
@@ -20,10 +20,12 @@ const ChatSidebar = ({ onSelectConversation, conversations }) => {
           flex: 1;
           border-right: 1px solid #ccc;
           padding: 10px;
+          color #111010;
         }
         ul {
           list-style: none;
           padding: 0;
+          color: #111010;
         }
         li {
           padding: 10px;

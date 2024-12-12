@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import { NextRequest, NextResponse } from 'next/server';
-import db from "@/lib/db"; // Ensure you have a database connection utility
-import Conversation from "@/models/Conversation"; // Import your Conversation model
+import db from "@/lib/db";
+import Conversation from "@/models/Conversation";
 
 let io: Server | undefined;
 
@@ -11,9 +11,9 @@ export async function GET(request: NextRequest) {
   if (!io) {
     io = new Server({
       cors: {
-        origin: 'http://localhost:3000', // Ensure this matches your app's base URL
+        origin: 'http://localhost:3000',
       },
-      path: '/socket.io', // Ensure this matches your client configuration
+      path: '/api/socket', // Ensure this matches your client configuration
     });
 
     io.on("connection", (socket) => {
@@ -29,19 +29,18 @@ export async function GET(request: NextRequest) {
 
         console.log(`Message received in room ${room}:`, text);
 
-        // Save message to conversation
         try {
           const conversation = await Conversation.findOneAndUpdate(
             { 
               $or: [
-                { providerId: room },  // Assuming room is providerId
-                { seekerId: room }     // Assuming room is seekerId
+                { providerId: room },
+                { seekerId: room }
               ]
             },
             { 
               $push: { messages: { senderId, content: text, timestamp: new Date() } }
             },
-            { new: true, upsert: true } // Create if not exists
+            { new: true, upsert: true }
           );
 
           io.to(room).emit("receive_message", message);
@@ -54,15 +53,13 @@ export async function GET(request: NextRequest) {
       socket.on("accept_deal", async ({ providerId, seekerId }) => {
         console.log(`${providerId} has accepted the deal.`);
         
-        // Emit an event to both users to join the conversation
-        const room = providerId; // Use providerId as room identifier
-        socket.join(room); // Join the provider's room
+        const room = providerId;
+        socket.join(room);
         
-        // Optionally create a new conversation in the DB here if needed
         const newConversation = await Conversation.create({
           providerId,
           seekerId,
-          messages: [], // Start with an empty messages array
+          messages: [],
         });
 
         io.to(room).emit("deal_accepted", { providerId, seekerId });
@@ -74,8 +71,10 @@ export async function GET(request: NextRequest) {
     });
 
     // Attach the Socket.io server to the HTTP server
-    if (request.nextUrl) {
+    if (request.nextUrl && request.nextUrl.server) {
       request.nextUrl.server.io = io;
+    } else {
+      console.error("Failed to attach Socket.io server: request.nextUrl.server is undefined");
     }
   }
 

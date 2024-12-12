@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
@@ -14,21 +12,28 @@ const ChatWindow = ({ dealId }) => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.currentUser);
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const [deal, setDeal] = useState(null);
+  const [selectedDealId, setSelectedDealId] = useState(dealId || null);
   const [conversations, setConversations] = useState([]);
-  const [socketInstance, setSocketInstance] = useState(null);
 
   useEffect(() => {
     if (user) {
+      // Fetch deals
       dispatch(fetchDeals(user.id)).then((action) => {
-        console.log("action", action);
         if (action.error) {
           console.error("Failed to fetch deals:", action.error);
         } else if (Array.isArray(action.payload)) {
-          const fetchedDeal = action.payload.find(deal => deal._id === dealId);
-          setDeal(fetchedDeal);
+          console.log("Fetched Deals:", action.payload);
+
+          const deal = dealId
+            ? action.payload.find((deal) => deal._id === dealId)
+            : action.payload[0];
+          if (deal) {
+            setSelectedDealId(deal._id);
+          }
         }
       });
+
+      // Fetch conversations
       dispatch(fetchConversations(user.id)).then((action) => {
         if (action.error) {
           console.error("Failed to fetch conversations:", action.error);
@@ -40,29 +45,38 @@ const ChatWindow = ({ dealId }) => {
   }, [user, dealId, dispatch]);
 
   useEffect(() => {
-    setSocketInstance(socket);
+    socket.connect();
 
     return () => {
-      if (socketInstance) {
-        socketInstance.disconnect();
-      }
+      socket.disconnect();
     };
-  }, [socketInstance]);
-
+  }, []);
 
   return (
-    <div className="chat-window">
+    <div className="chat-window bg-white text-black">
       {/* Sidebar */}
-      <ChatSidebar onSelectConversation={setSelectedConversation} conversations={conversations} />
+      <ChatSidebar
+        onSelectConversation={setSelectedConversation}
+        conversations={conversations}
+      />
 
       {/* Main Chat Area */}
       {selectedConversation ? (
-        <div className="chat-main">
-          <ChatMessages conversation={selectedConversation} socket={socketInstance} user={user} />
-          <ChatDetails conversation={selectedConversation} deal={deal} />
+        <div className="chat-main bg-white text-black">
+          <ChatMessages
+            conversation={selectedConversation}
+            socket={socket}
+            user={user}
+          />
+          {selectedDealId && (
+            <ChatDetails
+              conversation={selectedConversation}
+              dealId={selectedDealId}
+            />
+          )}
         </div>
       ) : (
-        <div className="no-conversation">Select a conversation to start chatting</div>
+        <div className="no-conversation bg-white text-black">Select a conversation to start chatting</div>
       )}
 
       <style jsx>{`

@@ -1,21 +1,25 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/lib/store';
-import { addMessage } from '@/lib/features/chat/chatSlice'; 
-
+import { useDispatch } from 'react-redux';
+import { addMessage } from '@/lib/features/chat/chatSlice';
 
 const ChatMessages = ({ conversation, socket, user }) => {
   const dispatch = useDispatch();
-  const messages = useSelector((state: RootState) => state.conversations.data.find(conv => conv._id === conversation._id)?.messages || []);
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+
+  useEffect(() => {
+    if (conversation) {
+      setMessages(conversation.messages || []);
+    }
+  }, [conversation]);
 
   useEffect(() => {
     if (socket) {
       socket.on('receive_message', (message) => {
         dispatch(addMessage({ conversationId: conversation._id, message }));
+        setMessages(prevMessages => [...prevMessages, message]);
       });
     }
   }, [socket, dispatch, conversation._id]);
@@ -28,11 +32,12 @@ const ChatMessages = ({ conversation, socket, user }) => {
     };
     socket.emit('send_message', { ...message, room: conversation._id });
     dispatch(addMessage({ conversationId: conversation._id, message }));
+    setMessages(prevMessages => [...prevMessages, message]);
     setNewMessage('');
   };
 
   return (
-    <div className="chat-messages">
+    <div className="chat-messages bg-white text-black">
       <div className="messages">
         {messages.map((msg) => (
           <div key={msg._id} className="message">
@@ -74,6 +79,7 @@ const ChatMessages = ({ conversation, socket, user }) => {
           padding: 10px;
           border: 1px solid #ccc;
           border-radius: 4px;
+          background-color: #f9f9f9;
         }
         .message-input button {
           margin-left: 10px;

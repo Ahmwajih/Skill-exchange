@@ -64,3 +64,4 @@ export async function GET_LAST(req: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ error: 'Error fetching the most recent deal' }, { status: 500 });
   }
 }
+

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
 import ChatWindow from "@/app/components/ChatWindow";
-// import Message from "@/app/components/Message";
 import Protect from "@/app/components/Protect";
 
 function page() {
@@ -28,7 +27,6 @@ function page() {
     <Protect>
       <h1>Chat</h1>
       <ChatWindow />
-      {/* <Message /> */}
     </Protect>
   )
 }

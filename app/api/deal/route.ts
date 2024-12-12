@@ -12,14 +12,14 @@ export async function POST(req: NextRequest) {
     
     // Validate the request body
     if (!providerId || !seekerId) {
-      return NextResponse.json({ success: false, error: " no provider or seeker" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Provider and Seeker IDs are required" }, { status: 400 });
     }
 
     const provider = await User.findById(providerId);
     const seeker = await User.findById(seekerId);
 
     if (!provider || !seeker) {
-      return NextResponse.json({ success: false, error: "Provider or seeker not found" }, { status: 404 });
+      return NextResponse.json({ success: false, error: "Provider or Seeker not found" }, { status: 404 });
     }
 
     const newDeal = {

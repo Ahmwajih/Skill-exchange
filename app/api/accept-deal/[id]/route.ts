@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   await db();
   const { id } = params; // Get deal ID from URL
 
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url, BASE_URL);
   const providerEmail = searchParams.get('providerEmail');
   const providerName = searchParams.get('providerName');
   const seekerEmail = searchParams.get('seekerEmail');
@@ -38,6 +38,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         console.log("User disconnected:", socket.id);
       });
     });
+
+    // Attach the Socket.io server to the HTTP server
+    (req as any).socket.server.io = io;
   }
 
   try {

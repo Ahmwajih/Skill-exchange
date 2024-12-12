@@ -3,14 +3,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from "@/lib/db"; // Ensure you have a database connection utility
 import Conversation from "@/models/Conversation"; // Import your Conversation model
 
-let io;
+let io: Server | undefined;
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
+  await db();
+
   if (!io) {
     io = new Server({
       cors: {
-        origin: '*',
+        origin: 'http://localhost:3000', // Ensure this matches your app's base URL
       },
+      path: '/socket.io', // Ensure this matches your client configuration
     });
 
     io.on("connection", (socket) => {
@@ -69,6 +72,11 @@ export async function GET(request) {
         console.log("User disconnected:", socket.id);
       });
     });
+
+    // Attach the Socket.io server to the HTTP server
+    if (request.nextUrl) {
+      request.nextUrl.server.io = io;
+    }
   }
 
   return NextResponse.json({ message: 'Socket server initialized' });

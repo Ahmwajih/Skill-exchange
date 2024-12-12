@@ -27,26 +27,14 @@ const ChatDetails = ({ conversation, dealId }) => {
   const deal = deals.find((d) => d._id === dealId);
 
   return (
-    <div className="chat-details bg-white text-black">
-      <h2 className="font-poppins text-brown text-bold">Conversation Details</h2>
-      <p><strong>Provider:</strong> {conversation.providerId.name}</p>
-      <p><strong>Seeker:</strong> {conversation.seekerId.name}</p>
-      {deal ? (
-        <div>
-          <p><strong>Time Frame:</strong> {deal.timeFrame}</p>
-          <p><strong>Skill Offered:</strong> {deal.skillOffered}</p>
-        </div>
-      ) : (
-        <p>Loading deal details...</p>
-      )}
-
-      <style jsx>{`
-        .chat-details {
-          flex: 1;
-          padding: 10px;
-          border-left: 1px solid #ccc;
-        }
-      `}</style>
+    <div className="w-full p-4 bg-white border-t border-gray">
+      <h2 className="mb-4 text-lg font-bold text-orange">Deal Details</h2>
+      <p>
+        <strong>Provider:</strong> {conversation.providerId.name}
+      </p>
+      <p>
+        <strong>Seeker:</strong> {conversation.seekerId.name}
+      </p>
     </div>
   );
 };

@@ -5,38 +5,22 @@ import React from 'react';
 
 const ChatSidebar = ({ onSelectConversation, conversations }) => {
   return (
-    <div className="chat-sidebar bg-white text-black">
-      <h2>Conversations</h2>
-      <ul>
+    <div className="w-1/4 bg-white p-4 border-r border-gray text-black">
+      <h2 className="text-lg font-semibold mb-4">Conversations</h2>
+      <ul className="space-y-2 text-black">
         {conversations.map((conversation) => (
-          <li key={conversation._id} onClick={() => onSelectConversation(conversation)}>
-            {conversation.providerName || conversation.seekerName}
+          <li
+            key={conversation._id}
+            onClick={() => onSelectConversation(conversation)}
+            className="p-2 bg-white text-black rounded-lg shadow-sm cursor-pointer hover:bg-blue-100"
+          >
+            {conversation.providerId.name || conversation.seekerId.name}
           </li>
         ))}
       </ul>
-
-      <style jsx>{`
-        .chat-sidebar {
-          flex: 1;
-          border-right: 1px solid #ccc;
-          padding: 10px;
-          color #111010;
-        }
-        ul {
-          list-style: none;
-          padding: 0;
-          color: #111010;
-        }
-        li {
-          padding: 10px;
-          cursor: pointer;
-        }
-        li:hover {
-          background-color: #f0f0f0;
-        }
-      `}</style>
     </div>
   );
 };
 
 export default ChatSidebar;
+

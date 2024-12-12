@@ -5,94 +5,57 @@ import { useDispatch } from 'react-redux';
 import { addMessage } from '@/lib/features/chat/chatSlice';
 
 const ChatMessages = ({ conversation, socket, user }) => {
-  const dispatch = useDispatch();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
-    if (conversation) {
-      setMessages(conversation.messages || []);
-    }
+    if (conversation) setMessages(conversation.messages || []);
   }, [conversation]);
-
-  useEffect(() => {
-    if (socket) {
-      socket.on('receive_message', (message) => {
-        dispatch(addMessage({ conversationId: conversation._id, message }));
-        setMessages(prevMessages => [...prevMessages, message]);
-      });
-    }
-  }, [socket, dispatch, conversation._id]);
 
   const handleSendMessage = () => {
     const message = {
-      senderId: user._id,
+      senderId: user.id,
       content: newMessage,
       timestamp: new Date(),
     };
     socket.emit('send_message', { ...message, room: conversation._id });
-    dispatch(addMessage({ conversationId: conversation._id, message }));
-    setMessages(prevMessages => [...prevMessages, message]);
+    setMessages([...messages, message]);
     setNewMessage('');
   };
 
   return (
-    <div className="chat-messages bg-white text-black">
-      <div className="messages">
-        {messages.map((msg) => (
-          <div key={msg._id} className="message">
-            <strong>{msg.senderId}</strong>: {msg.content}
+    <div className="flex flex-col flex-1 bg-white">
+      <div className="flex-1 p-4 overflow-y-auto">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`mb-3 p-2 rounded-lg ${
+              msg.senderId === user.id ? 'bg-blue self-end' : 'bg-gray'
+            }`}
+          >
+            <p className="text-sm">{msg.content}</p>
           </div>
         ))}
       </div>
-      <div className="message-input">
+
+      <div className="flex items-center p-4 border-t border-gray">
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
+          className="flex-1 px-4 py-2 mr-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue"
         />
-        <button onClick={handleSendMessage}>Send</button>
+        <button
+          onClick={handleSendMessage}
+          className="px-4 py-2 text-white bg-blue rounded-lg hover:bg-blue-700"
+        >
+          Send
+        </button>
       </div>
-
-      <style jsx>{`
-        .chat-messages {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .messages {
-          flex: 1;
-          overflow-y: auto;
-          padding: 10px;
-        }
-        .message {
-          margin-bottom: 10px;
-        }
-        .message-input {
-          display: flex;
-          padding: 10px;
-          border-top: 1px solid #ccc;
-        }
-        .message-input input {
-          flex: 1;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          background-color: #f9f9f9;
-        }
-        .message-input button {
-          margin-left: 10px;
-          padding: 10px 20px;
-          border: none;
-          background-color: #007bff;
-          color: white;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-      `}</style>
     </div>
   );
 };
 
 export default ChatMessages;
+

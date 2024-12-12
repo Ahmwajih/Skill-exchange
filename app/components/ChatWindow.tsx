@@ -17,27 +17,17 @@ const ChatWindow = ({ dealId }) => {
 
   useEffect(() => {
     if (user) {
-      // Fetch deals
       dispatch(fetchDeals(user.id)).then((action) => {
-        if (action.error) {
-          console.error("Failed to fetch deals:", action.error);
-        } else if (Array.isArray(action.payload)) {
-          console.log("Fetched Deals:", action.payload);
-
+        if (!action.error && Array.isArray(action.payload)) {
           const deal = dealId
             ? action.payload.find((deal) => deal._id === dealId)
             : action.payload[0];
-          if (deal) {
-            setSelectedDealId(deal._id);
-          }
+          if (deal) setSelectedDealId(deal._id);
         }
       });
 
-      // Fetch conversations
       dispatch(fetchConversations(user.id)).then((action) => {
-        if (action.error) {
-          console.error("Failed to fetch conversations:", action.error);
-        } else if (Array.isArray(action.payload)) {
+        if (!action.error && Array.isArray(action.payload)) {
           setConversations(action.payload);
         }
       });
@@ -46,58 +36,37 @@ const ChatWindow = ({ dealId }) => {
 
   useEffect(() => {
     socket.connect();
-
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, []);
 
   return (
-    <div className="chat-window bg-white text-black">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-gray-100">
       <ChatSidebar
         onSelectConversation={setSelectedConversation}
         conversations={conversations}
       />
 
-      {/* Main Chat Area */}
-      {selectedConversation ? (
-        <div className="chat-main bg-white text-black">
-          <ChatMessages
-            conversation={selectedConversation}
-            socket={socket}
-            user={user}
-          />
-          {selectedDealId && (
-            <ChatDetails
+      <div className="flex flex-col flex-1">
+        {selectedConversation ? (
+          <>
+            <ChatMessages
               conversation={selectedConversation}
-              dealId={selectedDealId}
+              socket={socket}
+              user={user}
             />
-          )}
-        </div>
-      ) : (
-        <div className="no-conversation bg-white text-black">Select a conversation to start chatting</div>
-      )}
-
-      <style jsx>{`
-        .chat-window {
-          display: flex;
-          height: 100vh;
-          border: 1px solid #ccc;
-        }
-        .chat-main {
-          flex: 3;
-          display: flex;
-          flex-direction: column;
-        }
-        .no-conversation {
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #888;
-        }
-      `}</style>
+            {selectedDealId && (
+              <ChatDetails
+                conversation={selectedConversation}
+                dealId={selectedDealId}
+              />
+            )}
+          </>
+        ) : (
+          <div className="flex items-center justify-center flex-1 text-gray bg-white">
+            Select a conversation to start chatting
+          </div>
+        )}
+      </div>
     </div>
   );
 };

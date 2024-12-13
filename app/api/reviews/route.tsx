@@ -3,12 +3,12 @@ import db from '@/lib/db';
 import Review from '@/models/Review';
 import User from '@/models/User';
 import mongoose from 'mongoose';
-import admin from '@/lib/firebaseAdmin'; // Import Firebase Admin SDK
 
 export async function GET(req: NextRequest) {
   await db();
 
   const userId = req.nextUrl.searchParams.get('userId');
+  const skillId = req.nextUrl.searchParams.get('skillId'); // Added skillId
 
   try {
     let query = {};
@@ -17,9 +17,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ success: false, error: 'Invalid user ID' }, { status: 400 });
       }
       query = { user: userId };
+    } else if (skillId) { // Added skillId condition
+      if (!mongoose.Types.ObjectId.isValid(skillId)) {
+        return NextResponse.json({ success: false, error: 'Invalid skill ID' }, { status: 400 });
+      }
+      query = { skill: skillId };
     }
 
-    const reviews = await Review.find(query).populate('user', 'name email reviewedBy');
+    const reviews = await Review.find(query).populate('user', 'name email').populate('reviewedBy', 'name email'); // Added populate for reviewedBy
     return NextResponse.json({ success: true, data: reviews });
   } catch (error) {
     console.error('Error fetching reviews:', error);
@@ -31,28 +36,8 @@ export async function POST(req: NextRequest) {
   await db();
 
   try {
-    const { rating, comments, userId, skillId, reviewedBy, idToken } = await req.json();
-
-    if (!idToken) {
-      return NextResponse.json({ success: false, error: 'ID token is required' }, { status: 400 });
-    }
-
-    // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUserId = decodedToken.uid; // Get user ID from the token
-
-    // Find or create the user in the database
-    let user = await User.findOne({ firebaseUid: firebaseUserId });
-
-    if (!user) {
-      user = new User({
-        firebaseUid: firebaseUserId,
-        email: decodedToken.email,
-        name: decodedToken.name,
-        role: 'provider', 
-      });
-      await user.save();
-    }
+    const { rating, comments, userId, skillId, reviewedBy } = await req.json();
+    console.log('Received data:', { rating, comments, userId, skillId, reviewedBy });
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json({ success: false, error: 'Valid user ID is required' }, { status: 400 });
@@ -63,13 +48,15 @@ export async function POST(req: NextRequest) {
       comments,
       user: userId,
       skill: skillId,
-      reviewedBy: user._id, // Use the MongoDB user ID
+      reviewedBy: reviewedBy, // Use the provided reviewedBy ID
     });
 
     await newReview.save();
+    console.log('Saved new review:', newReview);
     await User.findByIdAndUpdate(userId, { $push: { reviews: newReview._id } });
 
-    const populatedReview = await Review.findById(newReview._id).populate('user', 'name email');
+    const populatedReview = await Review.findById(newReview._id).populate('user', 'name email').populate('reviewedBy', 'name email'); // Added populate for reviewedBy
+    console.log('Populated review:', populatedReview);
 
     return NextResponse.json({ success: true, data: populatedReview }, { status: 201 });
   } catch (error) {
@@ -82,22 +69,7 @@ export async function PUT(req: NextRequest) {
   await db();
 
   try {
-    const { reviewId, rating, comments, idToken } = await req.json();
-
-    if (!idToken) {
-      return NextResponse.json({ success: false, error: 'ID token is required' }, { status: 400 });
-    }
-
-    // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUserId = decodedToken.uid; // Get user ID from the token
-
-    // Find the user in the database
-    const user = await User.findOne({ firebaseUid: firebaseUserId });
-
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
-    }
+    const { reviewId, rating, comments } = await req.json();
 
     if (!reviewId || !mongoose.Types.ObjectId.isValid(reviewId)) {
       return NextResponse.json({ success: false, error: 'Valid review ID is required' }, { status: 400 });
@@ -107,13 +79,31 @@ export async function PUT(req: NextRequest) {
       reviewId,
       { rating, comments },
       { new: true }
-    ).populate('user', 'name email');
+    );
 
     if (!updatedReview) {
       return NextResponse.json({ success: false, error: 'Review not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: updatedReview });
+    const reviewWithUser = await Review.aggregate([
+      { $match: { _id: updatedReview._id } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          'user.password': 0 // Exclude password
+        }
+      }
+    ]);
+
+    return NextResponse.json({ success: true, data: reviewWithUser[0] });
   } catch (error) {
     console.error('Error updating review:', error);
     return NextResponse.json({ success: false, error: 'Error updating review' }, { status: 500 });
@@ -124,22 +114,7 @@ export async function DELETE(req: NextRequest) {
   await db();
 
   try {
-    const { reviewId, idToken } = await req.json();
-
-    if (!idToken) {
-      return NextResponse.json({ success: false, error: 'ID token is required' }, { status: 400 });
-    }
-
-    // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUserId = decodedToken.uid; // Get user ID from the token
-
-    // Find the user in the database
-    const user = await User.findOne({ firebaseUid: firebaseUserId });
-
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
-    }
+    const { reviewId } = await req.json();
 
     if (!reviewId || !mongoose.Types.ObjectId.isValid(reviewId)) {
       return NextResponse.json({ success: false, error: 'Valid review ID is required' }, { status: 400 });

@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   try {
-    const skill = await Skill.findById(id).populate('user', 'name email country bio photo');
+    const skill = await Skill.findById(id).populate('user', 'name email');
     if (!skill) {
       return NextResponse.json({ success: false, error: 'Skill not found' }, { status: 404 });
     }
@@ -66,67 +66,3 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ success: false, error: error.message || 'Error deleting skill' }, { status: 500 });
   }
 }
-
-
-
-// export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-//   await db();
-
-//   const { id } = params;
-
-//   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-//     return NextResponse.json({ success: false, error: 'Valid ID is required' }, { status: 400 });
-//   }
-
-//   try {
-//     const skill = await Skill.findById(id);
-
-//     if (!skill) {
-//       return NextResponse.json({ success: false, error: 'Skill not found' }, { status: 404 });
-//     }
-
-//     const populatedSkill = await Skill.aggregate([
-//       { $match: { _id: skill._id } },
-//       {
-//         $lookup: {
-//           from: 'users',
-//           localField: 'user',
-//           foreignField: '_id',
-//           as: 'user',
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: 'reviews',
-//           localField: 'reviews',
-//           foreignField: '_id',
-//           as: 'reviews',
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: 'categories',
-//           localField: 'category',
-//           foreignField: '_id',
-//           as: 'category',
-//         },
-//       },
-//       {
-//         $project: {
-//           'user.password': 0, // Remove password field from user
-//         },
-//       },
-//     ]);
-
-//     if (!populatedSkill || populatedSkill.length === 0) {
-//       return NextResponse.json({ success: false, error: 'Error populating skill data' }, { status: 500 });
-//     }
-
-//     // Validate response structure
-//     const skillData = populatedSkill[0];
-//     return NextResponse.json({ success: true, data: skillData });
-//   } catch (error) {
-//     console.error('Error fetching skill with populate:', error);
-//     return NextResponse.json({ success: false, error: 'Error fetching skill' }, { status: 500 });
-//   }
-// }

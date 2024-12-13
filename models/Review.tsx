@@ -5,7 +5,7 @@ export interface IReview extends Document {
   comments: string;
   user: mongoose.Types.ObjectId;
   skill: mongoose.Types.ObjectId;
-  reviewedBy: mongoose.Types.String;
+  reviewedBy: mongoose.Types.ObjectId; 
 }
 
 const reviewSchema: Schema<IReview> = new mongoose.Schema(
@@ -31,7 +31,7 @@ const reviewSchema: Schema<IReview> = new mongoose.Schema(
       required: true,
     },
     reviewedBy: {
-      type: mongoose.Schema.Types.String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: false,
     },

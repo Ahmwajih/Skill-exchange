@@ -19,7 +19,7 @@ interface Review {
     user: User;
     rating: number;
     comments: string;
-    
+    reviewedBy: string; // Added field
 }
 
 interface ReviewState {

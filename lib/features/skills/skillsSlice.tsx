@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
 import Fuse from 'fuse.js';
 
-
 const baseUrl = process.env.baseUrl || "http://localhost:3000/";
 
 interface User {
@@ -27,17 +26,21 @@ interface Skill {
 }
 
 interface SkillState {
-  data: Skill[];
+  data: Skill[] | null;
   filteredSkills: Skill[];
   selectedSkill?: Skill;
   searchResults: Skill[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: SkillState = {
-  data: [],
+  data: null,
   filteredSkills: [],
   searchResults: [],
   selectedSkill: null,
+  loading: false,
+  error: null,
 };
 
 const skillSlice = createSlice({
@@ -79,6 +82,21 @@ const skillSlice = createSlice({
       state.searchResults = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchSkillById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSkillById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchSkillById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+  },
 });
 
 export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill, filterSkillsByCountry, setFilteredSkills, setSearchResults } = skillSlice.actions;
@@ -99,20 +117,19 @@ export const fetchSkills = () => async (dispatch: AppDispatch) => {
 };
 
 export const fetchSkillById = createAsyncThunk(
-  'skills/fetchSkillById',
-  async (id: string, { dispatch }) => {
+  "skills/fetchSkillById",
+  async (id: string, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}api/skills/${id}`);
-      const data = await res.json();
-
-      if (res.status === 200) {
-        dispatch(readSkill(data));
-        return data;
-      } else {
-        toast.error("Failed to fetch skill");
+      console.log(`Fetching skill with ID: ${id}`);
+      const response = await fetch(`${baseUrl}api/skills/${id}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch skill");
       }
+      return data.data;
     } catch (error) {
-      toast.error("Error fetching skill");
+      console.error("Error fetching skill:", error);
+      return rejectWithValue(error.message);
     }
   }
 );

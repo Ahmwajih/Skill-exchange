@@ -35,8 +35,8 @@ interface Review {
   comment: string;
   user: {
     name: string;
-    // reviewedBy:[]
   };
+  reviewedBy: string; // Added field
 }
 
 const SkillCardDetails: React.FC = () => {
@@ -58,12 +58,11 @@ const SkillCardDetails: React.FC = () => {
   useEffect(() => {
     if (id) {
       dispatch(fetchSkillById(id))
-        .unwrap()
         .then((response) => {
-          if (response.success) {
-            setSkill(response.data);
+          if (response.payload.success) {
+            setSkill(response.payload.data);
           } else {
-            console.error("Failed to fetch skill:", response.message);
+            console.error("Failed to fetch skill:", response.payload.message);
           }
           setLoading(false);
         })
@@ -78,9 +77,9 @@ const SkillCardDetails: React.FC = () => {
   useEffect(() => {
     if (id) {
       dispatch(getReviewsBySkillId(id))
-        .unwrap()
-        .then((reviews) => {
-          setReviews(reviews);
+        .then((response) => {
+          console.log('response', response.payload);
+          setReviews(response.payload);
         })
         .catch((error) => {
           console.error("Failed to fetch reviews:", error);
@@ -103,22 +102,20 @@ const SkillCardDetails: React.FC = () => {
   const handleReviewSubmit = () => {
     const review = {
       skillId: skill._id,
-      userId: id,
+      userId: currentUser.id,
       rating,
       comment: newReview,
-      reviewedBy: "6717e35a47d471bd744d4cf0",
+      reviewedBy: currentUser.id, 
     };
 
-
     dispatch(createReview(review))
-      .unwrap()
       .then((response) => {
-        if (response.success) {
-          setReviews([...reviews, response.data]);
+        if (response.payload.success) {
+          setReviews([...reviews, response.payload.data]);
           setNewReview("");
           setRating(0);
         } else {
-          console.error("Failed to create review:", response.message);
+          console.error("Failed to create review:", response.payload.message); 
         }
       })
       .catch((error) => {
@@ -208,7 +205,7 @@ const SkillCardDetails: React.FC = () => {
               <div key={index} className="border-b py-2">
                 <p>
                   <strong className="text-brown">User:</strong>{" "}
-                  {review.user.name || "Anonymous"}
+                  {review.user ? review.user.name : "Anonymous"} {/* Added null check */}
                 </p>
                 <p className="text-yellow-500">
                   <strong className="text-brown">Rating:</strong>{" "}

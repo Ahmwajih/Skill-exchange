@@ -3,7 +3,6 @@ import db from '@/lib/db';
 import Review from '@/models/Review';
 import User from '@/models/User';
 import mongoose from 'mongoose';
-import admin from '@/lib/firebaseAdmin'; 
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
@@ -36,22 +35,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   try {
-    const { rating, comments, idToken } = await req.json();
-
-    if (!idToken) {
-      return NextResponse.json({ success: false, error: 'ID token is required' }, { status: 400 });
-    }
-
-    // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUserId = decodedToken.uid; // Get user ID from the token
-
-    // Find the user in the database
-    const user = await User.findOne({ firebaseUid: firebaseUserId });
-
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
-    }
+    const { rating, comments } = await req.json();
 
     const review = await Review.findByIdAndUpdate(
       id,
@@ -80,23 +64,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 
   try {
-    const { idToken } = await req.json();
-
-    if (!idToken) {
-      return NextResponse.json({ success: false, error: 'ID token is required' }, { status: 400 });
-    }
-
-    // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUserId = decodedToken.uid; // Get user ID from the token
-
-    // Find the user in the database
-    const user = await User.findOne({ firebaseUid: firebaseUserId });
-
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
-    }
-
     const review = await Review.findByIdAndDelete(id);
 
     if (!review) {

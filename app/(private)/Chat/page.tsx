@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
 import ChatWindow from "@/app/components/ChatWindow";
-// import Message from "@/app/components/Message";
 import Protect from "@/app/components/Protect";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
 
 function page() {
   const [loading, setLoading] = useState(true);
@@ -26,9 +27,9 @@ function page() {
   }
   return (
     <Protect>
-      <h1>Chat</h1>
+      <Navbar />
       <ChatWindow />
-      {/* <Message /> */}
+      <Footer />
     </Protect>
   )
 }

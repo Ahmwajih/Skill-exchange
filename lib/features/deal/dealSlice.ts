@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
-const baseUrl = process.env.baseUrl || "http://localhost:3000/";
+const baseUrl = process.env.BASE_URL || "http://localhost:3000/";
 
 interface Deal {
   _id: string;
@@ -27,60 +27,72 @@ const initialState: DealState = {
   loading: false,
 };
 
-
-export const fetchDeals = createAsyncThunk("deals/fetchDeals", async (userId: string) => {
-  try {
-    const res = await fetch(`${baseUrl}api/deal/${userId}`);
-    const data = await res.json();
-    if (res.status === 200) {
-      return data.data;
-    } else {
-      toast.error(data.error || "Failed to fetch deals");
-      throw new Error(data.error || "Failed to fetch deals");
+// Fetch deals for a user
+export const fetchDeals = createAsyncThunk<Deal[], string, { rejectValue: string }>(
+  "deals/fetchDeals",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/deal/${userId}`);
+      const data = await res.json();
+      if (res.status === 200) {
+        return data.data;
+      } else {
+        toast.error(data.error || "Failed to fetch deals");
+        return rejectWithValue(data.error || "Failed to fetch deals");
+      }
+    } catch (error) {
+      toast.error("Error fetching deals");
+      return rejectWithValue(error.message || "Error fetching deals");
     }
-  } catch (error) {
-    toast.error("Error fetching deals");
-    throw error;
   }
-});
+);
 
-export const fetchDealById = createAsyncThunk("deals/fetchDealById", async (dealId: string) => {
-  try {
-    const res = await fetch(`${baseUrl}api/deal/${dealId}`);
-    const data = await res.json();
-    if (res.status === 200) {
-      return data.data;
-    } else {
-      toast.error(data.error || "Failed to fetch deal");
-      throw new Error(data.error || "Failed to fetch deal");
+// Fetch a deal by ID
+export const fetchDealById = createAsyncThunk<Deal, string, { rejectValue: string }>(
+  "deals/fetchDealById",
+  async (dealId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/deal/${dealId}`);
+      const data = await res.json();
+      if (res.status === 200) {
+        return data.data;
+      } else {
+        toast.error(data.error || "Failed to fetch deal");
+        return rejectWithValue(data.error || "Failed to fetch deal");
+      }
+    } catch (error) {
+      toast.error("Error fetching deal");
+      return rejectWithValue(error.message || "Error fetching deal");
     }
-  } catch (error) {
-    toast.error("Error fetching deal");
-    throw error;
   }
-});
+);
 
-export const createDeal = createAsyncThunk("deals/createDeal", async (dealData: Partial<Deal>) => {
-  try {
-    const res = await fetch(`${baseUrl}api/deal`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dealData),
-    });
-    const data = await res.json();
-    if (res.status === 201) {
-      toast.success("Deal created successfully");
-      return data.data;
-    } else {
-      toast.error(data.error || "Failed to create deal");
-      throw new Error(data.error || "Failed to create deal");
+// Create a new deal
+export const createDeal = createAsyncThunk<Deal, Partial<Deal>, { rejectValue: string }>(
+  "deals/createDeal",
+  async (dealData, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${baseUrl}api/deal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dealData),
+      });
+      const data = await res.json();
+      if (res.status === 201) {
+        toast.success("Deal created successfully");
+        return data.data;
+      } else {
+        toast.error(data.error || "Failed to create deal");
+        return rejectWithValue(data.error || "Failed to create deal");
+      }
+    } catch (error) {
+      toast.error("Error creating deal");
+      return rejectWithValue(error.message || "Error creating deal");
     }
-  } catch (error) {
-    toast.error("Error creating deal");
-    throw error;
   }
-});
+);
 
+// Slice
 const dealSlice = createSlice({
   name: "deals",
   initialState,
@@ -89,45 +101,45 @@ const dealSlice = createSlice({
       state.currentDeal = null; // Clear the current deal from the state
     },
   },
-  extraReducers(builder) {
+  extraReducers: (builder) => {
     builder
       .addCase(fetchDeals.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchDeals.fulfilled, (state, action) => {
+      .addCase(fetchDeals.fulfilled, (state, action: PayloadAction<Deal[]>) => {
         state.loading = false;
         state.data = action.payload;
       })
-      .addCase(fetchDeals.rejected, (state, action) => {
+      .addCase(fetchDeals.rejected, (state, action: PayloadAction<string>) => {
         state.loading = false;
-        state.error = action.error.message || null;
+        state.error = action.payload;
       })
 
       .addCase(fetchDealById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchDealById.fulfilled, (state, action) => {
+      .addCase(fetchDealById.fulfilled, (state, action: PayloadAction<Deal>) => {
         state.loading = false;
         state.currentDeal = action.payload;
       })
-      .addCase(fetchDealById.rejected, (state, action) => {
+      .addCase(fetchDealById.rejected, (state, action: PayloadAction<string>) => {
         state.loading = false;
-        state.error = action.error.message || null;
+        state.error = action.payload;
       })
 
       .addCase(createDeal.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createDeal.fulfilled, (state, action) => {
+      .addCase(createDeal.fulfilled, (state, action: PayloadAction<Deal>) => {
         state.loading = false;
         state.data.push(action.payload);
       })
-      .addCase(createDeal.rejected, (state, action) => {
+      .addCase(createDeal.rejected, (state, action: PayloadAction<string>) => {
         state.loading = false;
-        state.error = action.error.message || null;
+        state.error = action.payload;
       });
   },
 });

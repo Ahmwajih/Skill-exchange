@@ -1,85 +1,87 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addMessage } from "@/lib/features/chat/chatSlice";
-import socket from "@/Utils/socket";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
+import { fetchDeals } from '@/lib/features/deal/dealSlice';
+import { fetchConversations } from '@/lib/features/conversation/conversationSlice';
+import ChatSidebar from './ChatSidebar';
+import ChatMessages from './ChatMessages';
+import ChatDetails from './ChatDetails';
+import socket from '@/Utils/socket';
 
-const ChatWindow = () => {
+const ChatWindow = ({ dealId }) => {
   const dispatch = useDispatch();
-  const messages = useSelector((state) => state.chat.messages);
-  const [newMessage, setNewMessage] = useState(""); // Define newMessage state
+  const user = useSelector((state: RootState) => state.auth.currentUser);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [selectedDealId, setSelectedDealId] = useState(dealId || null);
+  const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
-    socket.on("receive_message", (message) => {
-      dispatch(addMessage(message));
-    });
+    if (user) {
+      dispatch(fetchDeals(user.id)).then((action) => {
+        if (!action.error && Array.isArray(action.payload)) {
+          const deal = dealId
+            ? action.payload.find((deal) => deal._id === dealId)
+            : action.payload[0];
+          if (deal) setSelectedDealId(deal._id);
+        }
+      });
 
-    return () => {
-      socket.off("receive_message");
-    };
-  }, [dispatch]);
-
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const messageData = { text: newMessage, room: "someRoomIdentifier", senderId: user._id }; // Use appropriate room identifier and sender ID
-      socket.emit("send_message", messageData);
-      dispatch(addMessage({ text: newMessage, sender: 'me' }));
-      setNewMessage("");
+      dispatch(fetchConversations(user.id)).then((action) => {
+        if (!action.error && Array.isArray(action.payload)) {
+          setConversations(action.payload);
+        }
+      });
     }
+  }, [user, dealId, dispatch]);
+
+  useEffect(() => {
+    socket.connect();
+    return () => socket.disconnect();
+  }, []);
+
+  const handleSelectConversation = (conversation) => {
+    setSelectedConversation(conversation);
+    // Fetch the updated conversation data
+    dispatch(fetchConversations(user.id)).then((action) => {
+      if (!action.error && Array.isArray(action.payload)) {
+        const updatedConversation = action.payload.find(c => c._id === conversation._id);
+        if (updatedConversation) {
+          setSelectedConversation(updatedConversation);
+        }
+      }
+    });
   };
 
   return (
-    <div className="chat-window">
-      <div className="messages">
-        {messages.map((msg, index) => (
-          <div key={index}>
-            <strong>{msg.sender}:</strong> {msg.text}
+    <div className="flex h-screen bg-gray-100">
+      <ChatSidebar
+        onSelectConversation={handleSelectConversation}
+        conversations={conversations}
+      />
+
+      <div className="flex flex-col flex-1">
+        {selectedConversation ? (
+          <>
+            <ChatMessages
+              conversation={selectedConversation}
+              socket={socket}
+              user={user}
+            />
+            {selectedDealId && (
+              <ChatDetails
+                conversation={selectedConversation}
+                dealId={selectedDealId}
+              />
+            )}
+          </>
+        ) : (
+          <div className="flex items-center justify-center flex-1 text-gray bg-white">
+            Select a conversation to start chatting
           </div>
-        ))}
+        )}
       </div>
-      
-       <div className="input-area">
-         <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type your message..." />
-         <button onClick={handleSendMessage}>Send</button>
-       </div>
-       
-       {/* Add styles for chat window */}
-       <style jsx>{`
-         .chat-window {
-           display: flex;
-           flex-direction: column;
-           height: 400px; /* Adjust height as needed */
-           border: 1px solid #ccc;
-           border-radius: 10px;
-           overflow-y: auto;
-         }
-         
-         .messages {
-           flex-grow: 1;
-           padding: 10px;
-           overflow-y: auto;
-         }
-         
-         .input-area {
-           display: flex;
-         }
-         
-         input {
-           flex-grow: 1;
-           padding: 10px;
-           border-radius: 5px;
-           border: 1px solid #ccc;
-         }
-         
-         button {
-           padding: 10px;
-           margin-left: 5px;
-           border-radius: 5px;
-           background-color: #007bff;
-           color: white;
-         }
-       `}</style>
-     </div>
-   );
+    </div>
+  );
 };
 
 export default ChatWindow;

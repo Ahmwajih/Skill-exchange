@@ -6,6 +6,7 @@ import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
+import { fetchDeals } from '@/lib/features/deal/dealSlice';
 
 function page() {
   const [loading, setLoading] = useState(true);

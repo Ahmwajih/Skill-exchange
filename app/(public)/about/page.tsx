@@ -3,6 +3,7 @@
 import React, {useState, useEffect} from 'react'
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
+import About from "@/app/components/About";
 function page() {
 
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,7 @@ function page() {
     );
   }
   return (
-    <div>hello from about page</div>
+    <div className="bg-white"><About/></div>
   )
 }
 

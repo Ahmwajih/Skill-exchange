@@ -24,9 +24,10 @@ const chatSlice = createSlice({
       }
       state.messages[conversationId].push(message);
     },
+    
     acceptDeal(state, action: PayloadAction<{ providerEmail: string; providerName: string }>) {
-      // Handle deal acceptance logic here
-      // ...existing code...
+      // Handle the acceptDeal action
+
     },
   },
 });

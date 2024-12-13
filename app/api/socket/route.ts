@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       cors: {
         origin: 'http://localhost:3000',
       },
-      path: '/api/socket', // Ensure this matches your client configuration
+      path: '/api/socket', 
     });
 
     io.on("connection", (socket) => {
@@ -30,21 +30,20 @@ export async function GET(request: NextRequest) {
         console.log(`Message received in room ${room}:`, text);
 
         try {
-          const conversation = await Conversation.findOneAndUpdate(
-            { 
-              $or: [
-                { providerId: room },
-                { seekerId: room }
-              ]
-            },
-            { 
-              $push: { messages: { senderId, content: text, timestamp: new Date() } }
-            },
-            { new: true, upsert: true }
-          );
-
-          io.to(room).emit("receive_message", message);
-          console.log("Message saved to conversation:", conversation);
+          let conversation = await Conversation.findOne({ _id: room });
+      
+          if (!conversation) {
+            conversation = await Conversation.create({
+              providerId: senderId,
+              messages: [],
+            });
+          }
+      
+          const newMessage = { senderId, content: text, timestamp: new Date() };
+          conversation.messages.push(newMessage);
+          await conversation.save();
+      
+          io.to(room).emit("receive_message", newMessage);
         } catch (error) {
           console.error("Error saving message:", error);
         }
@@ -70,12 +69,7 @@ export async function GET(request: NextRequest) {
       });
     });
 
-    // Attach the Socket.io server to the HTTP server
-    if (request.nextUrl && request.nextUrl.server) {
-      request.nextUrl.server.io = io;
-    } else {
-      console.error("Failed to attach Socket.io server: request.nextUrl.server is undefined");
-    }
+    console.log("Socket.io server initialized");
   }
 
   return NextResponse.json({ message: 'Socket server initialized' });

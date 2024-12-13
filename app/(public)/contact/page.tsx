@@ -3,6 +3,7 @@
 import React, {useState, useEffect} from 'react'
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
+import Contact from "@/app/components/Contact";
 function page() {
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +23,7 @@ function page() {
     );
   }
   return (
-    <div>hello from contact page</div>
+    <div><Contact/></div>
   )
 }
 

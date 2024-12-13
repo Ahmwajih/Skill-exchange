@@ -1,16 +1,35 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addMessage } from '@/lib/features/chat/chatSlice';
 
 const ChatMessages = ({ conversation, socket, user }) => {
+  const dispatch = useDispatch();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
 
+  // Sync messages when conversation changes
   useEffect(() => {
-    if (conversation) setMessages(conversation.messages || []);
+    if (conversation) {
+      setMessages(conversation.messages || []);
+    }
   }, [conversation]);
+
+  // Listen for incoming messages via socket
+  useEffect(() => {
+    if (socket) {
+      socket.on('receive_message', (message) => {
+        dispatch(addMessage({ conversationId: conversation?._id, message }));
+        setMessages((prevMessages) => [...prevMessages, message]);
+      });
+    }
+  }, [socket, dispatch, conversation?._id]);
+
+  // Join the room when conversation changes
+  useEffect(() => {
+    if (socket && conversation?._id) {
+      socket.emit('join_room', conversation._id);
+    }
+  }, [socket, conversation?._id]);
 
   const handleSendMessage = () => {
     const message = {
@@ -18,8 +37,8 @@ const ChatMessages = ({ conversation, socket, user }) => {
       content: newMessage,
       timestamp: new Date(),
     };
-    socket.emit('send_message', { ...message, room: conversation._id });
-    setMessages([...messages, message]);
+    socket.emit('send_message', { ...message, room: conversation?._id });
+    setMessages((prevMessages) => [...prevMessages, message]);
     setNewMessage('');
   };
 
@@ -58,4 +77,3 @@ const ChatMessages = ({ conversation, socket, user }) => {
 };
 
 export default ChatMessages;
-

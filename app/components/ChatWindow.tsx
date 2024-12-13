@@ -39,10 +39,23 @@ const ChatWindow = ({ dealId }) => {
     return () => socket.disconnect();
   }, []);
 
+  const handleSelectConversation = (conversation) => {
+    setSelectedConversation(conversation);
+    // Fetch the updated conversation data
+    dispatch(fetchConversations(user.id)).then((action) => {
+      if (!action.error && Array.isArray(action.payload)) {
+        const updatedConversation = action.payload.find(c => c._id === conversation._id);
+        if (updatedConversation) {
+          setSelectedConversation(updatedConversation);
+        }
+      }
+    });
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <ChatSidebar
-        onSelectConversation={setSelectedConversation}
+        onSelectConversation={handleSelectConversation}
         conversations={conversations}
       />
 

@@ -7,6 +7,7 @@ import reviewsReducer from "@/lib/features/reviews/reviewSlice";
 import chatReducer from "@/lib/features/chat/chatSlice";
 import dealReducer from "@/lib/features/deal/dealSlice";
 import conversationReducer from "@/lib/features/conversation/conversationSlice";
+import contactReducer from "@/lib/features/contact/contactSlice";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,8 @@ const store = configureStore({
     chat: chatReducer,
     deal: dealReducer,
     conversation: conversationReducer,
+    contact: contactReducer,
+
   },
 });
 

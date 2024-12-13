@@ -1,6 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { useDispatch } from 'react-redux';
+import { subscribeNewsletter } from '@/lib/features/newsletter/newsletterSlice';
+import { toast } from 'react-toastify';
 
 interface FooterProps {
   companyName: string;
@@ -9,6 +12,7 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = () => {
   const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -16,8 +20,9 @@ const Footer: React.FC<FooterProps> = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Subscribed with email:", email);
-    setEmail("");
+    dispatch(subscribeNewsletter(email));
+    setEmail('');
+    toast.success('Subscribed successfully!');
   };
 
   const quickLinks = [

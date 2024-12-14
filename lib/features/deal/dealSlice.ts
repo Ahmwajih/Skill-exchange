@@ -98,7 +98,7 @@ const dealSlice = createSlice({
   initialState,
   reducers: {
     clearCurrentDeal(state) {
-      state.currentDeal = null; // Clear the current deal from the state
+      state.currentDeal = null; 
     },
   },
   extraReducers: (builder) => {

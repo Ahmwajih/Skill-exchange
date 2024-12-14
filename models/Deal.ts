@@ -6,8 +6,8 @@ interface IDeal extends Document {
   timeFrame: string;
   skillOffered: string;
   numberOfSessions: number;
-  selectedAvailabilities: string;
-  status: string;
+  selectedAvailabilities: string[];
+  status?: string; // Optional status field
 }
 
 const dealSchema: Schema<IDeal> = new mongoose.Schema(
@@ -35,13 +35,13 @@ const dealSchema: Schema<IDeal> = new mongoose.Schema(
       required: true,
     },
     selectedAvailabilities: {
-      type: String,
+      type: [String], 
       required: true,
     },
     status: {
       type: String,
-      required: true,
-      enum: ['Pending', 'Accepted', 'Rejected'],
+      enum: ['pending', 'accepted', 'declined'],
+      default: 'pending',
     },
   },
   {

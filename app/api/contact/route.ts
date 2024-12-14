@@ -45,15 +45,18 @@ export async function POST(req: NextRequest) {
 }
 
 const getLogoUrlFromDb = async () => {
-    try {
-        await db(); 
-        const result = await mongoose.connection.collection('settings').findOne({ key: 'logoUrl' });
-        return result ? result.value : null;
-    } catch (error) {
-        console.error('Error fetching logo URL:', error.message);
-        console.error(error.stack);
-        throw error;
+  try {
+    await db();
+    const result = await mongoose.connection.collection('settings').findOne({ key: 'logoUrl' });
+    if (!result) {
+      throw new Error('Logo URL not found in the database.');
     }
+    return result.value;
+  } catch (error) {
+    console.error('Error fetching logo URL:', error.message);
+    console.error(error.stack);
+    throw error;
+  }
 };
 
 const generateContactEmail = async (fullName: string, userMessage: string) => {

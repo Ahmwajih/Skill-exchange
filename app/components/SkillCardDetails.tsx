@@ -53,8 +53,8 @@ const SkillCardDetails: React.FC = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
-  console.log('current user', currentUser.id);
-  console.log('skill.user._id', skill?.user._id);
+  // console.log('current user', currentUser.id);
+  // console.log('skill.user._id', skill?.user._id);
 
   const router = useRouter();
 

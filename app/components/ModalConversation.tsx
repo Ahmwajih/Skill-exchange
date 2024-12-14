@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectedUserById } from "@/lib/features/dashboard/userSlice";
@@ -9,18 +10,35 @@ import "rsuite/dist/rsuite.min.css";
 import { toast } from "react-toastify";
 import socket from "@/Utils/socket";
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+type ModalConversationProps = {
+  providerId: string;
+  closeModal: () => void;
+};
 
-function ModalConversation({ providerId, closeModal }) {
+type Availability = {
+  date: string;
+  times: string[];
+};
+
+type Provider = {
+  name: string;
+  availability: Availability[];
+};
+
+type Seeker = {
+  id: string;
+};
+
+function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
   const [message, setMessage] = useState("");
   const [timeFrame, setTimeFrame] = useState("1 day");
   const [showDealFields, setShowDealFields] = useState(false);
   const [numberOfSessions, setNumberOfSessions] = useState(1);
   const [skillsOffered, setSkillsOffered] = useState("");
-  const [provider, setProvider] = useState(null);
-  const [seeker, setSeeker] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedAvailabilities, setSelectedAvailabilities] = useState([]);
+  const [provider, setProvider] = useState<Provider | null>(null);
+  const [seeker, setSeeker] = useState<Seeker | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedAvailabilities, setSelectedAvailabilities] = useState<string[]>([]);
 
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.auth.currentUser);
@@ -28,7 +46,7 @@ function ModalConversation({ providerId, closeModal }) {
   // Fetch provider data
   useEffect(() => {
     if (providerId) {
-      dispatch(selectedUserById(providerId)).then((response) => {
+      dispatch(selectedUserById(providerId)).then((response: any) => {
         if (response.payload) {
           setProvider(response.payload.data);
         } else {
@@ -40,8 +58,8 @@ function ModalConversation({ providerId, closeModal }) {
 
   // Fetch seeker data
   useEffect(() => {
-    if (user.id) {
-      dispatch(selectedUserById(user.id)).then((response) => {
+    if (user?.id) {
+      dispatch(selectedUserById(user.id)).then((response: any) => {
         if (response.payload) {
           setSeeker(response.payload.data);
         } else {
@@ -49,9 +67,8 @@ function ModalConversation({ providerId, closeModal }) {
         }
       });
     }
-  }, [dispatch, user.id]);
+  }, [dispatch, user?.id]);
 
-  // Handle sending a deal
   const handleSend = async () => {
     if (!message.trim()) {
       toast.error("Please enter a message.");
@@ -63,112 +80,26 @@ function ModalConversation({ providerId, closeModal }) {
       return;
     }
 
-    // Prepare deal data
     const dealData = {
-      providerId: providerId,
+      providerId,
       seekerId: user.id,
       timeFrame,
       skillOffered: skillsOffered,
       numberOfSessions,
       selectedAvailabilities,
       status: "pending",
+      message,
     };
 
     try {
-      // Dispatch the createDeal action
       await dispatch(createDeal(dealData));
-
-      // Success feedback
       toast.success("Deal sent and created successfully!");
-
-      // Prepare message content for socket
-      const dealDetails = showDealFields
-        ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
-        : "";
-
-      const selectedAvailability = selectedAvailabilities.length
-        ? `<br><strong>Selected Availability:</strong><br>${selectedAvailabilities.join(
-            "<br>"
-          )}`
-        : "";
-
-      const acceptDealLink = `${BASE_URL}/api/accept-deal/${providerId}?providerEmail=${provider.email}&providerName=${provider.name}&seekerEmail=${user.email}&seekerName=${user.name}&seekerId=${user.id}`;
-
-      const messageContent = `${message}${dealDetails}${selectedAvailability}<br><a href="${acceptDealLink}">Accept Deal</a>`;
-
-      // Emit message via socket with additional identifiers for starting a conversation
-      socket.emit("send_message", {
-        text: messageContent,
-        room: provider._id,
-        senderId: user.id,
-      });
-
-      // Reset message field
-      setMessage("");
-
-      // Prepare and send email content
-      const emailContent = `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;">
-          <div style="max-width: 600px; margin: auto; background-color: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <div style="text-align: center; padding: 20px; border-bottom: 1px solid #ddd;">
-              <a href="${BASE_URL}" style="text-decoration: none; color: #333;">
-                <img src="" alt="Skill Logo" style="max-width: 150px;">
-              </a>
-            </div>
-            <div style="padding: 20px;">
-              <h2 style="color: #333;">${seeker.name} has sent you a proposal:</h2>
-              <div style="text-align: center; margin-bottom: 20px;">
-                <img src="${seeker.photo}" alt="${seeker.name}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
-                <p style="margin-top: 10px;"><strong>${seeker.name}</strong><br>${seeker.country}</p>
-              </div>
-              <p><strong>New Proposal Received</strong></p>
-              <p>${message}</p>
-              ${dealDetails}
-              ${selectedAvailability}
-              <p style="text-align: center;">
-                <a href="${acceptDealLink}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Accept/Decline</a>
-              </p>
-            </div>
-            <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-top: 1px solid #ddd;">
-              <p style="margin-bottom: 5px;">Please add us to your address book to ensure you don’t miss any messages.</p>
-              <p style="margin-bottom: 0;">Best regards,<br>The Community Skill Exchange Team</p>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Send email notification
-      const response = await fetch("/api/sendmail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: provider.email,
-          subject: `Community Skill Exchange New Message from ${user.name}`,
-          html: emailContent,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success("Email sent successfully!");
-        resetFields();
-        closeModal();
-      } else {
-        toast.error("Failed to send email.");
-      }
-    } catch (error) {
+      resetFields();
+      closeModal();
+    } catch (error: any) {
       console.error("Error creating deal or sending message:", error);
       toast.error("An error occurred while sending the deal or message.");
     }
-  };
-
-  const handleCancel = () => {
-    setShowModal(false);
-    resetFields();
-    console.log("Cancel");
   };
 
   const resetFields = () => {
@@ -178,24 +109,17 @@ function ModalConversation({ providerId, closeModal }) {
     setSkillsOffered("");
     setNumberOfSessions(1);
     setSelectedDate(null);
-    setSelectedTime("");
-    closeModal();
+    setSelectedAvailabilities([]);
   };
 
-  const getTodoList = (date) => {
-    if (!date || !provider || !provider.availability) {
-      return [];
-    }
+  const getTodoList = (date: Date | null) => {
+    if (!date || !provider || !provider.availability) return [];
     const dateString = date.toISOString().split("T")[0];
-    const availability = provider.availability.find(
-      (avail) => avail.date === dateString
-    );
-    return availability
-      ? availability.times.map((time) => ({ time, title: "Available" }))
-      : [];
+    const availability = provider.availability.find((avail) => avail.date === dateString);
+    return availability ? availability.times.map((time) => ({ time, title: "Available" })) : [];
   };
 
-  const renderCell = (date) => {
+  const renderCell = (date: Date) => {
     const list = getTodoList(date);
     if (list.length) {
       return <Badge className="calendar-todo-item-badge" />;
@@ -203,12 +127,11 @@ function ModalConversation({ providerId, closeModal }) {
     return null;
   };
 
-  const TodoList = ({ date }) => {
+  const TodoList = ({ date }: { date: Date | null }) => {
     const list = getTodoList(date);
-    if (!list.length) {
-      return null;
-    }
-    const toggleAvailability = (date, time) => {
+    if (!list.length) return null;
+
+    const toggleAvailability = (date: Date, time: string) => {
       const dateString = date.toISOString().split("T")[0];
       const availabilityString = `${dateString} ${time}`;
       setSelectedAvailabilities((prev) =>
@@ -217,15 +140,16 @@ function ModalConversation({ providerId, closeModal }) {
           : [...prev, availabilityString]
       );
     };
+
     return (
       <List style={{ flex: 1 }} bordered>
         {list.map((item, index) => (
           <List.Item
             key={index}
-            onClick={() => toggleAvailability(date, item.time)}
+            onClick={() => toggleAvailability(date!, item.time)}
             style={{
               backgroundColor: selectedAvailabilities.includes(
-                `${date.toISOString().split("T")[0]} ${item.time}`
+                `${date!.toISOString().split("T")[0]} ${item.time}`
               )
                 ? "#e0f7fa"
                 : "transparent",
@@ -239,7 +163,7 @@ function ModalConversation({ providerId, closeModal }) {
     );
   };
 
-  const disabledDate = (date) => {
+  const disabledDate = (date: Date) => {
     const now = new Date();
     const threeMonthsLater = new Date();
     threeMonthsLater.setMonth(now.getMonth() + 3);
@@ -248,11 +172,9 @@ function ModalConversation({ providerId, closeModal }) {
 
   return (
     <div>
-      {/* Modal */}
       <dialog
         id="conversation-modal"
         open
-        onClose={handleCancel}
         className="modal fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center p-4 sm:p-6"
       >
         <div className="modal-box w-full max-w-5xl bg-white p-6 rounded-md shadow-lg">
@@ -260,16 +182,11 @@ function ModalConversation({ providerId, closeModal }) {
             Start a Conversation with {provider?.name}
           </h3>
           <p className="text-gray mb-6">
-            Please introduce yourself with a brief message and mention what you
-            are looking for and what you can offer.
+            Please introduce yourself with a brief message and mention what you are looking for and what you can offer.
           </p>
 
-          {/* Message Input */}
           <div className="mb-4">
-            <label
-              htmlFor="message"
-              className="block text-sm font-medium text-brown mb-2"
-            >
+            <label htmlFor="message" className="block text-sm font-medium text-brown mb-2">
               Your Message
             </label>
             <textarea
@@ -277,12 +194,11 @@ function ModalConversation({ providerId, closeModal }) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="w-full px-4 py-2 border bg-white rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g Hi, I'm a frontend developer looking to improve my skills. I can offer help with React and JavaScript. I'm interested in learning more about Node.js and backend development."
+              placeholder="e.g., Hi, I'm a frontend developer..."
               rows={4}
             />
           </div>
 
-          {/* Propose a Deal Dropdown */}
           <div className="mb-4">
             <button
               onClick={() => setShowDealFields(!showDealFields)}
@@ -292,15 +208,10 @@ function ModalConversation({ providerId, closeModal }) {
             </button>
           </div>
 
-          {/* Deal Fields */}
           {showDealFields && (
             <div className="deal-fields">
-              {/* Time Frame Dropdown */}
               <div className="mb-4">
-                <label
-                  htmlFor="timeFrame"
-                  className="block text-sm font-medium text-brown mb-2"
-                >
+                <label htmlFor="timeFrame" className="block text-sm font-medium text-brown mb-2">
                   Time Frame
                 </label>
                 <select
@@ -311,6 +222,7 @@ function ModalConversation({ providerId, closeModal }) {
                 >
                   <option value="1 day">1 day</option>
                   <option value="1 week">1 week</option>
+
                   <option value="2 weeks">2 weeks</option>
                   <option value="1 month">1 month</option>
                   <option value="2 months">2 months</option>

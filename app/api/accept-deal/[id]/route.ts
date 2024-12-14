@@ -8,10 +8,10 @@ const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 let io;
 
 const pusher = new Pusher({
-  appId: '1911591',
-  key: 'b85eae341f11d9507db7',
-  secret: '45f52952bde088d9afc1',
-  cluster: 'eu',
+  appId: process.env.PUSHER_APP_ID,
+  key: process.env.PUSHER_KEY,
+  secret: process.env.PUSHER_SECRET,
+  cluster: process.env.PUSHER_CLUSTER,
   useTLS: true,
 });
 

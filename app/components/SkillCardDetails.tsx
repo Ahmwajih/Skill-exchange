@@ -114,21 +114,6 @@ const SkillCardDetails: React.FC = () => {
     };
     console.log('Review:', review);
 
-    // dispatch(createReview(review))
-    //   .then((response) => {
-    //     console.log('Create review response:', response);
-    //     if (response.payload.success) {
-    //       setReviews([...reviews, response.payload.data]);
-    //       setNewReview("");
-    //       setRating(0);
-    //     } else {
-    //       console.error("Failed to create review:", response.payload.message); 
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error("Failed to create review:", error);
-    //     alert("An error occurred while creating the review.");
-    //   });
     const res = await fetch(`${baseUrl}api/reviews`, {
       method: "POST",
       headers: {
@@ -136,10 +121,19 @@ const SkillCardDetails: React.FC = () => {
       },
       body: JSON.stringify(review),
     });
-    const data = res.json();
+    const data = await res.json();
     console.log('Response from server:', data);
     if (res.status == 201) { 
-      setReviews([...reviews, data.data]);
+      const newReviewData = {
+        ...data.data,
+        user: {
+          name: currentUser.name,
+        },
+        reviewedBy: {
+          name: currentUser.name,
+        },
+      };
+      setReviews([...reviews, newReviewData]);
       setNewReview("");
       setRating(0);
       console.log("Review created successfully");
@@ -161,11 +155,19 @@ const SkillCardDetails: React.FC = () => {
       <div className="lg:w-2/3">
         {/* Header Image */}
         <div className="relative">
-          <img
-            src={skill.photo || avatar}
-            alt={skill.title}
-            className="w-full h-48 object-cover rounded-t-lg lg:rounded-lg"
-          />
+          {skill.photo ? (
+            <img
+              src={skill.photo}
+              alt={skill.title}
+              className="w-full h-48 object-cover rounded-t-lg lg:rounded-lg"
+            />
+          ) : (
+            <Image
+              src={avatar}
+              alt={skill.title}
+              className="w-full h-48 object-cover rounded-t-lg lg:rounded-lg"
+            />
+          )}
         </div>
         {/* Skill Information */}
         <div className="mt-4">
@@ -181,11 +183,19 @@ const SkillCardDetails: React.FC = () => {
             onClick={handleProviderClick}
             className="flex items-center gap-4"
           >
-            <img
-              src={skill.user.photo || "avatar"}
-              alt={skill.user.name || "User Avatar"}
-              className="w-12 h-12 cursor-pointer rounded-full"
-            />
+            {skill.user.photo ? (
+              <img
+                src={skill.user.photo}
+                alt={skill.user.name || "User Avatar"}
+                className="w-12 h-12 cursor-pointer rounded-full"
+              />
+            ) : (
+              <Image
+                src={avatar}
+                alt={skill.user.name || "User Avatar"}
+                className="w-12 h-12 cursor-pointer rounded-full"
+              />
+            )}
             <div>
               <p className="text-sm cursor-pointer font-medium text-gray">
                 {skill.user.name || "Anonymous"}
@@ -229,13 +239,15 @@ const SkillCardDetails: React.FC = () => {
               <div key={index} className="border-b py-2">
                 <p>
                   <strong className="text-brown">Reviewed by :</strong>{" "}
-                  {review.user ? review.reviewedBy.name : "Anonymous"} 
+                  {review && review.user && review.user.name ? review.user.name : "Anonymous"} 
                 </p>
                 <p className="text-yellow-500">
                   <strong className="text-brown">Rating:</strong>{" "}
-                  {"★".repeat(review.rating)} {"☆".repeat(5 - review.rating)}
+                  {review && review.rating ? "★".repeat(review.rating) + "☆".repeat(5 - review.rating) : "No rating"}
                 </p>
-                <p className="text-black">{review.comments}</p>
+                <p className="text-black">
+                  {review && review.comments ? review.comments : "No comments"}
+                </p>
               </div>
             ))}
 
@@ -283,11 +295,19 @@ const SkillCardDetails: React.FC = () => {
         {/* User Info */}
         <div className=" flex flex-col  mx-4 mt-6 gap-4">
           <div className=" flex flex-col  items-start ">
-            <img
-              src={skill.user.photo}
-              alt="App User"
-              className="w-12 h-12 rounded-full"
-            />
+            {skill.user.photo ? (
+              <img
+                src={skill.user.photo}
+                alt="App User"
+                className="w-12 h-12 rounded-full"
+              />
+            ) : (
+              <Image
+                src={avatar}
+                alt="App User"
+                className="w-12 h-12 rounded-full"
+              />
+            )}
             <div>
               <p className="text-sm pt-2 font-medium text-gray">
                 {" "}

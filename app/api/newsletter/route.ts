@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import Newsletter from '@/models/Newsletter';
@@ -26,8 +25,7 @@ export async function POST(req: NextRequest) {
     const existingSubscription = await Newsletter.findOne({ email });
     console.log('step 2:', existingSubscription);
     if (existingSubscription) {
-        // toast.error('Email is already subscribed.');
-        // console.log('Email is already subscribed.');
+
       return NextResponse.json(
         { success: false, error: 'Email is already subscribed.' },
         { status: 400 }      );
@@ -36,12 +34,9 @@ export async function POST(req: NextRequest) {
     const newSubscription = new Newsletter({ email });
     await newSubscription.save();
 
-    const emailTemplate = generateNewsletterEmail();
+    const logoUrl = await getLogoUrlFromDb();
+    const emailTemplate = generateNewsletterEmail(logoUrl);
     await sendMail(email, 'Thank You for Subscribing to Our Newsletter', emailTemplate);
-
-    // console.log('Thank you for subscribing to our newsletter. Please check your email for confirmation.');
-
-    // toast.success('Thank you for subscribing to our newsletter. Please check your email for confirmation.');
 
     return NextResponse.json(
       {
@@ -58,12 +53,24 @@ export async function POST(req: NextRequest) {
   }
 }
 
-const generateNewsletterEmail = () => {
+const getLogoUrlFromDb = async () => {
+    try {
+        await db(); 
+        const result = await mongoose.connection.collection('settings').findOne({ key: 'logoUrl' });
+        return result ? result.value : null;
+    } catch (error) {
+        console.error('Error fetching logo URL:', error.message);
+        console.error(error.stack);
+        throw error;
+    }
+};
+
+const generateNewsletterEmail = (logoUrl: string) => {
     return `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
         <div style="text-align: center; padding: 20px;">
           <a href="${BASE_URL}" style="text-decoration: none; color: #333;">
-            <img src={Logo} alt="Skill Logo" style="max-width: 150px; margin-bottom: 20px;">
+            <img src="${logoUrl}" alt="Skill Logo" style="max-width: 150px; margin-bottom: 20px;">
           </a>
         </div>
         <div style="padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
@@ -81,5 +88,4 @@ const generateNewsletterEmail = () => {
         </div>
       </div>
     `;
-  };
-  
+};

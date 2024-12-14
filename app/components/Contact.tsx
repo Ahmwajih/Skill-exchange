@@ -7,7 +7,6 @@ import { setFormData, submitContactForm } from '@/lib/features/contact/contactSl
 import Logo from "@/app/public/Logo.svg";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import Footer from "./Footer";
 
 
 export const CONTACT_EMAIL = "communityskilltrade@yandex.com";

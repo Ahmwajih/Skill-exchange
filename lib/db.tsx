@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import User from '@/models/User'; // Ensure the User model is imported
-import Skill from '@/models/Skill'; // Ensure the Skill model is imported
+import User from '@/models/User'; 
+import Skill from '@/models/Skill'; 
 
 const db = async () => {
   if (mongoose.connection.readyState >= 1) {

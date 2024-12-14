@@ -14,7 +14,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch } from "@/lib/store";
 import { authAll } from "@/lib/features/auth/authSlice";
 
-
 const url = process.env.baseUrl || "http://localhost:3000";
 
 export default function SignIn() {
@@ -51,9 +50,9 @@ export default function SignIn() {
       const token = await result.user.getIdToken();
       console.log("token", token);
       const photoURL = result.user.photoURL;
-      const password = result.user.uid
+      const password = result.user.uid;
       console.log("photoURL", photoURL);
-      //TODO: i will use dispatch for register 
+      //TODO: i will use dispatch for register
 
       const response = await fetch(`${url}/api/users`, {
         method: "POST",
@@ -73,25 +72,25 @@ export default function SignIn() {
       });
       if (!response.ok) {
         const payload = {
-              currentUser: displayName,
-              token,
-              email:email,
-              role: "provider",
-              provider: "firebase",
-              id: result.user.uid,
-            };
-            console.log("payload", payload);
-            dispatch(authAll(payload));
-            await dispatch(login({ email, password }, router));
-            console.log("User logged normally in successfully");
-    
-            if (typeof window !== "undefined") {
-              sessionStorage.setItem("name", displayName);
-              sessionStorage.setItem("token", token);
-              sessionStorage.setItem("email", email);
-              sessionStorage.setItem("role", null); 
-            }
-            router.push("/main");
+          currentUser: displayName,
+          token,
+          email: email,
+          role: "provider",
+          provider: "firebase",
+          id: result.user.uid,
+        };
+        console.log("payload", payload);
+        dispatch(authAll(payload));
+        await dispatch(login({ email, password }, router));
+        console.log("User logged normally in successfully");
+
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("name", displayName);
+          sessionStorage.setItem("token", token);
+          sessionStorage.setItem("email", email);
+          sessionStorage.setItem("role", null);
+        }
+        router.push("/main");
       } else {
         const data = await response.json();
         console.log("data", data);
@@ -105,18 +104,19 @@ export default function SignIn() {
         };
         console.log("payload", payload);
         dispatch(authAll(payload));
-    
+
         if (typeof window !== "undefined") {
-          sessionStorage.setItem("currentUser", JSON.stringify(payload.currentUser));
+          sessionStorage.setItem(
+            "currentUser",
+            JSON.stringify(payload.currentUser)
+          );
           sessionStorage.setItem("token", data.token);
           sessionStorage.setItem("email", data.data.email);
           sessionStorage.setItem("role", data.data.role);
           sessionStorage.setItem("provider", "firebase");
         }
-    
         router.push("/main");
       }
-
     } catch (error) {
       console.error(`Error signing in with provider:`, error);
       alert(error.message);
@@ -125,13 +125,13 @@ export default function SignIn() {
 
   return (
     <section className="flex flex-col items-center min-h-screen bg-white py-4 px-4 sm:px-8">
-      <Link href="/" >
-      <img
-        src="https://cdn.builder.io/api/v1/image/assets/TEMP/d53f44d0b4930bc2c267dce9c30b2f4116e32dc1b203ed76d08054d5180281f8?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
-        alt=""
-        className="object-contain mt-3 aspect-square w-[63px]"
-      />
-       </Link>
+      <Link href="/main">
+        <img
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/d53f44d0b4930bc2c267dce9c30b2f4116e32dc1b203ed76d08054d5180281f8?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
+          alt=""
+          className="object-contain mt-3 aspect-square w-[63px]"
+        />
+      </Link>
       <h2 className="mt-6 text-3xl font-bold leading-none text-center text-slate-800">
         Join our community
       </h2>

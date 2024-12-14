@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectedUserById } from "@/lib/features/dashboard/userSlice";
-import { createDeal} from "@/lib/features/deal/dealSlice"; 
+import { createDeal } from "@/lib/features/deal/dealSlice";
 import { RootState, AppDispatch } from "@/lib/store";
 import { Calendar, Badge, List } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
@@ -77,7 +77,7 @@ function ModalConversation({ providerId, closeModal }) {
     try {
       // Dispatch the createDeal action
       await dispatch(createDeal(dealData));
-      
+
       // Success feedback
       toast.success("Deal sent and created successfully!");
 
@@ -85,19 +85,24 @@ function ModalConversation({ providerId, closeModal }) {
       const dealDetails = showDealFields
         ? `<br><strong>Proposed Deal:</strong><br>Time Frame: ${timeFrame}<br>Skills Offered: ${skillsOffered}<br>Number of Sessions: ${numberOfSessions}`
         : "";
-      
+
       const selectedAvailability = selectedAvailabilities.length
-        ? `<br><strong>Selected Availability:</strong><br>${selectedAvailabilities.join("<br>")}`
+        ? `<br><strong>Selected Availability:</strong><br>${selectedAvailabilities.join(
+            "<br>"
+          )}`
         : "";
-      
+
       const acceptDealLink = `${BASE_URL}/api/accept-deal/${providerId}?providerEmail=${provider.email}&providerName=${provider.name}&seekerEmail=${user.email}&seekerName=${user.name}&seekerId=${user.id}`;
-      
+
       const messageContent = `${message}${dealDetails}${selectedAvailability}<br><a href="${acceptDealLink}">Accept Deal</a>`;
-        
+
       // Emit message via socket with additional identifiers for starting a conversation
-      socket.emit("send_message", { text: messageContent, room: provider._id, senderId: user.id });
-  
-  
+      socket.emit("send_message", {
+        text: messageContent,
+        room: provider._id,
+        senderId: user.id,
+      });
+
       // Reset message field
       setMessage("");
 
@@ -146,7 +151,7 @@ function ModalConversation({ providerId, closeModal }) {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         toast.success("Email sent successfully!");
         resetFields();
@@ -248,9 +253,9 @@ function ModalConversation({ providerId, closeModal }) {
         id="conversation-modal"
         open
         onClose={handleCancel}
-        className="modal fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center"
+        className="modal fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center p-4 sm:p-6"
       >
-        <div className="modal-box w-11/12 max-w-5xl bg-white p-6 rounded-md shadow-lg">
+        <div className="modal-box w-full max-w-5xl bg-white p-6 rounded-md shadow-lg">
           <h3 className="font-bold text-brown text-xl mb-4">
             Start a Conversation with {provider?.name}
           </h3>
@@ -352,21 +357,21 @@ function ModalConversation({ providerId, closeModal }) {
           )}
 
           {/* Calendar and Todo List */}
-          <div className="flex">
+          <div className="flex flex-col sm:flex-row">
             <Calendar
               compact
               renderCell={renderCell}
               onSelect={setSelectedDate}
-              style={{ width: 320 }}
+              style={{ width: "100%", maxWidth: 320 }}
               disabledDate={disabledDate}
             />
-            <div className="flex-1 ml-4">
+            <div className="flex-1 mt-4 sm:mt-0 sm:ml-4">
               <TodoList date={selectedDate} />
             </div>
           </div>
 
           {/* Modal Actions */}
-          <div className="modal-action flex justify-end gap-4">
+          <div className="modal-action flex justify-end gap-4 mt-4">
             <button
               onClick={closeModal}
               className="btn bg-gray text-white py-2 px-4 rounded-md hover:bg-gray-400"

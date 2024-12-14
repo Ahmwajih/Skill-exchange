@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useAuth } from "@/hooks/useAuth";
@@ -13,14 +12,7 @@ export default function Login() {
 
   return (
     <div>
-      {user ? (
-        <>
-          <p>Welcome, {user.displayName} ||  {user.email}</p>
-          <SignOut />
-        </>
-      ) : (
-        <SignIn />
-      )}
+      {!user && <SignIn />}
     </div>
   );
 }

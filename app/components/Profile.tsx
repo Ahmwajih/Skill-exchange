@@ -271,9 +271,9 @@ const ProfileManagement: React.FC = () => {
   };
 
   return (
-    <div className="container w-2/3 mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg w-full lg:w-2/3">
       {/* Profile Progress */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col lg:flex-row justify-between items-center mb-4">
         <div className="w-full">
           <p className="text-brown">Profile Strength</p>
           <div className="flex items-center">
@@ -310,12 +310,12 @@ const ProfileManagement: React.FC = () => {
       </div>
 
       {/* Profile Header */}
-      <div className="flex justify-between mb-3">
+      <div className="flex flex-col lg:flex-row justify-between mb-3">
         <div>
           <h2 className="text-xl lg:text-3xl font-bold text-brown mb-3">
             Welcome, {profile.name || "Guest"}!
           </h2>
-          <div className="flex items-start mt-16">
+          <div className="flex items-start mt-4 lg:mt-16">
             <button
               type="button"
               onClick={() => setShowSkillModal(true)}
@@ -325,13 +325,13 @@ const ProfileManagement: React.FC = () => {
             </button>
           </div>
         </div>
-        <div className="flex">
+        <div className="flex flex-col lg:flex-row items-center">
           <img
             src={profile.photo || avatar}
             alt="Profile Avatar"
             className="w-24 h-24 rounded-full"
           />
-          <div className="ml-4">
+          <div className="ml-0 lg:ml-4 mt-4 lg:mt-0">
             {editField === "name" ? (
               <input
                 type="text"
@@ -464,7 +464,7 @@ const ProfileManagement: React.FC = () => {
             {/* Availability */}
             <div className="mt-4 mb-4">
         <h3 className="text-lg text-brown mb-2">Availability:</h3>
-        <div className="flex items-center mb-4">
+        <div className="flex flex-col lg:flex-row items-center mb-4">
           <DatePicker
             selected={selectedDate}
             onChange={(date) => setSelectedDate(date)}
@@ -475,11 +475,11 @@ const ProfileManagement: React.FC = () => {
             type="time"
             value={selectedTime}
             onChange={(e) => setSelectedTime(e.target.value)}
-            className="w-full px-4 py-2 border text-black bg-white rounded-md focus:ring-blue focus:border-blue ml-4"
+            className="w-full px-4 py-2 border text-black bg-white rounded-md focus:ring-blue focus:border-blue mt-4 lg:mt-0 lg:ml-4"
           />
           <button
             onClick={handleAddAvailability}
-            className="bg-blue text-white px-4 py-2 rounded ml-4"
+            className="bg-blue text-white px-4 py-2 rounded mt-4 lg:mt-0 lg:ml-4"
           >
             Add
           </button>
@@ -553,16 +553,16 @@ const ProfileManagement: React.FC = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-between">
+      <div className="flex flex-col lg:flex-row justify-between">
         <button
           onClick={handleSave}
-          className={`bg-orange text-white px-4 py-2 rounded hover:underline`}
+          className={`bg-orange text-white px-4 py-2 rounded hover:underline mb-4 lg:mb-0`}
         >
           Save
         </button>
         <button
           onClick={() => setShowPasswordModal(true)}
-          className="bg-blue text-white px-4 py-2 rounded hover:underline"
+          className="bg-blue text-white px-4 py-2 rounded hover:underline mb-4 lg:mb-0"
         >
           Change Password
         </button>

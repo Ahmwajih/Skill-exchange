@@ -46,7 +46,6 @@ export default function SignIn() {
     try {
       const result = await signInWithPopup(auth, provider);
 
-
       const { displayName, email } = result.user;
       const token = await result.user.getIdToken();
       const photoURL = result.user.photoURL;
@@ -85,7 +84,7 @@ export default function SignIn() {
           sessionStorage.setItem("email", email);
           sessionStorage.setItem("role", null);
         }
-        router.push("/main");
+        router.push("/signin");
       } else {
         const data = await response.json();
         console.log("data", data);
@@ -110,7 +109,7 @@ export default function SignIn() {
           sessionStorage.setItem("role", data.data.role);
         }
 
-        router.push("/main");
+        router.push("/signin");
       }
     } catch (error) {
       console.error(`Error signing in with provider:`, error);
@@ -119,7 +118,7 @@ export default function SignIn() {
   };
   return (
     <section className="flex flex-col items-center min-h-screen bg-white py-4 px-4 sm:px-8">
-      <Link href="/" >
+      <Link href="/main" >
       <img
         src="https://cdn.builder.io/api/v1/image/assets/TEMP/d53f44d0b4930bc2c267dce9c30b2f4116e32dc1b203ed76d08054d5180281f8?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
         alt=""

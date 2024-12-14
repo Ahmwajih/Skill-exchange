@@ -1,6 +1,5 @@
 import React from "react";
 import { useRouter } from "next/navigation";
-// import Image from 'next/image';
 
 interface SkillCardProps {
   imageSrc: string;
@@ -20,10 +19,11 @@ const SkillCard: React.FC<SkillCardProps> = ({
   const handleClick = () => {
     router.push(`/skill_card_detail/${id}`);
   };
+
   return (
     <div
       onClick={handleClick}
-      className="flex flex-col shadow-lg  overflow-hidden transition-transform hover:scale-105 hover:shadow-xl w-full sm:w-72 "
+      className="flex flex-col shadow-lg overflow-hidden transition-transform hover:scale-105 hover:shadow-xl w-full"
     >
       <div className="relative w-full h-48 bg-gray">
         <img

@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/lib/features/auth/authSlice";
 import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch, RootState } from "@/lib/store";
-import { searchSkills, setSearchResults } from "@/lib/features/skills/skillsSlice";
+import { searchSkills, setSearchResults, fetchSkills } from "@/lib/features/skills/skillsSlice";
 
 const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSearchResults }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -20,8 +20,6 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   const searchResults = useSelector((state: RootState) => state.skills.searchResults);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
 
-
-  console.log('search rsults', searchResults);
   useEffect(() => {
     dispatch(setSearchResults(searchResults));
   }, [searchResults, dispatch]);
@@ -33,12 +31,10 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
     { label: "Messages", isActive: true, href: "/chat" },
   ];
 
-
   const handleLogout = async () => {
     await dispatch(logoutUser(router)); 
     router.push("/"); 
   };
-  
   
   const toggleSearch = () => {
     setIsSearchOpen((prev) => !prev);
@@ -53,9 +49,13 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
   };
 
   const handleSearch = (searchTerm: string) => {
-    console.log("Handling search for:", searchTerm)
-    dispatch(searchSkills({ searchSkill: searchTerm }, router));
+    if (searchTerm.trim()) {
+      dispatch(searchSkills({ searchSkill: searchTerm }, router));
+    } else {
+      dispatch(fetchSkills());
+    }
   };
+
   const handleAvatarClick = () => {
     router.push("/profile");
   };
@@ -192,7 +192,6 @@ const NavItem: React.FC<{ label: string; isActive: boolean; href: string }> = ({
       className={`block text-center font-poppins text-lg hover:opacity-80  py-2 ${
         isActive ? "font-bold text-orange-500" : "text-gray-700"
       }`}
-
       style={{ textDecoration:"none", cursor: "pointer", color:"#3c1e06" }}
     >
       {label}
@@ -202,24 +201,17 @@ const NavItem: React.FC<{ label: string; isActive: boolean; href: string }> = ({
 
 const SearchBar: React.FC<{ onSearch: (searchTerm: string) => void }> = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
 
-  // const handleSearch = async () => {
-  //   try {
-  //     await dispatch(searchSkills({ searchSkill: searchTerm }, router));
-  //   } catch (error) {
-  //     toast.error("Error performing search");
-  //   }
-  // };
   const handleSearch = () => {
-    if (searchTerm.trim()) { // Check if searchTerm is not empty
+    if (searchTerm.trim()) {
       onSearch(searchTerm);
-      console.log("Searching for:", searchTerm); // Log the search term
+      console.log("Searching for:", searchTerm);
     } else {
+      onSearch(""); // Reset search results
       console.log("No search term provided");
     }
   };
+
   return (
     <div className="flex items-center border border-gray bg-white rounded-md">
       <input

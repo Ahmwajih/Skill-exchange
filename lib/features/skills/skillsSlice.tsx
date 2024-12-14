@@ -30,15 +30,17 @@ interface SkillState {
   filteredSkills: Skill[];
   selectedSkill?: Skill;
   searchResults: Skill[];
+  selectedCountry: string;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: SkillState = {
   data: null,
-  filteredSkills: [], // Initialize to an empty array
+  filteredSkills: [],
   searchResults: [],
   selectedSkill: null,
+  selectedCountry: "All",
   loading: false,
   error: null,
 };
@@ -49,6 +51,7 @@ const skillSlice = createSlice({
   reducers: {
     getSkills: (state, action: PayloadAction<Skill[]>) => {
       state.data = action.payload;
+      state.searchResults = action.payload; // Reset search results when fetching skills
     },
     createSkill: (state, action: PayloadAction<Skill>) => {
       state.data.push(action.payload);
@@ -68,11 +71,12 @@ const skillSlice = createSlice({
       state.selectedSkill = action.payload;
     },
     filterSkillsByCountry: (state, action: PayloadAction<string>) => {
+      state.selectedCountry = action.payload;
       const country = action.payload;
       if (country === "All") {
-        state.filteredSkills = state.data;
+        state.filteredSkills = state.searchResults;
       } else {
-        state.filteredSkills = state.data.filter(skill => skill.user.country.toLowerCase() === country.toLowerCase());
+        state.filteredSkills = state.searchResults.filter(skill => skill.user.country.toLowerCase() === country.toLowerCase());
       }
     },
     setFilteredSkills: (state, action: PayloadAction<Skill[]>) => {
@@ -90,7 +94,7 @@ const skillSlice = createSlice({
       })
       .addCase(fetchSkillById.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedSkill = action.payload; // Ensure the skill data is set to selectedSkill
+        state.selectedSkill = action.payload;
       })
       .addCase(fetchSkillById.rejected, (state, action) => {
         state.loading = false;

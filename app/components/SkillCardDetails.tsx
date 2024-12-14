@@ -112,7 +112,6 @@ const SkillCardDetails: React.FC = () => {
       comments: newReview,
       reviewedBy: currentUser.id, 
     };
-    console.log('Review:', review);
 
     const res = await fetch(`${baseUrl}api/reviews`, {
       method: "POST",
@@ -122,7 +121,6 @@ const SkillCardDetails: React.FC = () => {
       body: JSON.stringify(review),
     });
     const data = await res.json();
-    console.log('Response from server:', data);
     if (res.status == 201) { 
       const newReviewData = {
         ...data.data,
@@ -132,11 +130,11 @@ const SkillCardDetails: React.FC = () => {
         reviewedBy: {
           name: currentUser.name,
         },
+        createdAt: new Date().toISOString(),
       };
       setReviews([...reviews, newReviewData]);
       setNewReview("");
       setRating(0);
-      console.log("Review created successfully");
     } else {
       console.error("Failed to create review");
     }
@@ -237,10 +235,15 @@ const SkillCardDetails: React.FC = () => {
             .slice(0, showAllReviews ? reviews.length : 5)
             .map((review, index) => (
               <div key={index} className="border-b py-2">
-                <p>
-                  <strong className="text-brown">Reviewed by :</strong>{" "}
-                  {review && review.user && review.user.name ? review.user.name : "Anonymous"} 
-                </p>
+                <div className="flex justify-between items-center">
+                  <p>
+                    <strong className="text-brown">Reviewed by :</strong>{" "}
+                    {review && review.user && review.user.name ? review.user.name : "Anonymous"} 
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    {review && review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}
+                  </p>
+                </div>
                 <p className="text-yellow-500">
                   <strong className="text-brown">Rating:</strong>{" "}
                   {review && review.rating ? "★".repeat(review.rating) + "☆".repeat(5 - review.rating) : "No rating"}

@@ -41,7 +41,6 @@ const ChatWindow = ({ dealId }) => {
 
   const handleSelectConversation = (conversation) => {
     setSelectedConversation(conversation);
-    // Fetch the updated conversation data
     dispatch(fetchConversations(user.id)).then((action) => {
       if (!action.error && Array.isArray(action.payload)) {
         const updatedConversation = action.payload.find(c => c._id === conversation._id);
@@ -53,13 +52,13 @@ const ChatWindow = ({ dealId }) => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       <ChatSidebar
         onSelectConversation={handleSelectConversation}
         conversations={conversations}
       />
 
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 overflow-hidden">
         {selectedConversation ? (
           <>
             <ChatMessages
@@ -75,7 +74,7 @@ const ChatWindow = ({ dealId }) => {
             )}
           </>
         ) : (
-          <div className="flex items-center justify-center flex-1 text-gray bg-white">
+          <div className="flex items-center justify-center flex-1 text-gray-500 bg-white">
             Select a conversation to start chatting
           </div>
         )}

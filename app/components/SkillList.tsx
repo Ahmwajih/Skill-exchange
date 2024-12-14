@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import SkillCard from "./SkillCard";
 import { setSelectedCategory } from "@/lib/features/skills/categorySlice";
@@ -17,7 +17,7 @@ const SkillsList: React.FC = () => {
     (state: RootState) => state.category.categories
   );
 
-  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     dispatch(fetchSkills());
@@ -25,7 +25,7 @@ const SkillsList: React.FC = () => {
 
   const filteredSkills = selectedCategory
     ? skills.filter((skill) => skill.category === selectedCategory)
-    : skills;
+    : skills || [];
 
   const skillsPerPage = 4;
   const totalPages = Math.ceil(filteredSkills.length / skillsPerPage);

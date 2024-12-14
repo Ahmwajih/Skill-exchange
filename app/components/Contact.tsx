@@ -7,6 +7,8 @@ import { setFormData, submitContactForm } from '@/lib/features/contact/contactSl
 import Logo from "@/app/public/Logo.svg";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import Footer from "./Footer";
+
 
 export const CONTACT_EMAIL = "communityskilltrade@yandex.com";
 export const LOCATIONS = "Canada, Germany";
@@ -39,11 +41,13 @@ const CombinedComponent = () => {
       {/* Header Section */}
       <header className="text-center mb-8">
         <div className="flex justify-center mb-4">
+          <Link href="/">
           <Image src={Logo} alt="Logo" width={150} height={150} />
+          </Link>
         </div>
       </header>
 
-      <div className="flex flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row py-6">
         <div className="md:w-1/2 flex justify-center mb-8 md:mb-0">
           <Image src="https://cdn.builder.io/api/v1/image/assets/b728ceb3dbd545adac55a3a07f0354a7/9248075a5c6bf3d9bfb9facd0eb7715a42d57ae51947ff5400166e350da2a6ed?apiKey=b728ceb3dbd545adac55a3a07f0354a7&" alt="Header" width={400} height={200} className="rounded-lg" />
         </div>
@@ -78,7 +82,7 @@ const CombinedComponent = () => {
           </section>
 
           {/* Contact Form */}
-          <section>
+          <section className="py-4">
             <h2 className="text-2xl font-bold text-brown text-center mb-4">Send Us a Message</h2>
             <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
               <div className="mb-4">
@@ -117,7 +121,7 @@ const CombinedComponent = () => {
                   required
                 />
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-center ">
                 <button
                   type="submit"
                   className="px-4 py-2 w-52 text-white bg-orange rounded-lg hover:bg-orange"

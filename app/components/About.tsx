@@ -24,16 +24,7 @@ const About: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full ">
-        <Image
-          src={headerimage}
-          alt="header image"
-          layout="responsive"
-          width={1375}
-          height={226}
-          className="w-full h-auto"
-        />
-      </div>
+     
       {/* <div className="flex flex-col md:flex-row items-center justify-center p-6 bg-white text-black">
         <div className="md:w-1/2 p-4">
           <Image src={about} alt="About Us" className="w-full h-auto rounded-lg shadow-md" />
@@ -105,6 +96,16 @@ const About: React.FC = () => {
           </div>
         </div>
       </section>
+      <div className="w-full ">
+        <Image
+          src={headerimage}
+          alt="header image"
+          layout="responsive"
+          width={1375}
+          height={226}
+          className="w-full h-auto"
+        />
+      </div>
       <Footer />
     </div>
   );

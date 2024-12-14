@@ -4,6 +4,8 @@ import React, {useState, useEffect} from 'react'
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
 import Contact from "@/app/components/Contact";
+import Footer from "@/app/components/Footer";
+
 function page() {
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +25,9 @@ function page() {
     );
   }
   return (
-    <div><Contact/></div>
+    <div className="bg-light-blue"><Contact/>
+    <Footer/>
+    </div>
   )
 }
 

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useDispatch } from 'react-redux';
 import { subscribeNewsletter } from '@/lib/features/newsletter/newsletterSlice';
+import { createNewsletter } from '@/lib/features/newsletter/newsletterSlice';
 import { toast } from 'react-toastify';
 
 interface FooterProps {
@@ -18,11 +19,30 @@ const Footer: React.FC<FooterProps> = () => {
     setEmail(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(subscribeNewsletter(email));
-    setEmail('');
-    toast.success('Subscribed successfully!');
+    // try {
+    //   console.log('Email:', email);
+    //   dispatch(subscribeNewsletter(email));
+    //   setEmail('');
+    // } catch (error) {
+    //   toast.error('Failed to subscribe. Please try again later.');
+    // }
+    const res = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (res.status === 201) {
+      toast.success(data.message);
+      setEmail('');
+    } else {
+      toast.error(data.error);
+    }
+
   };
 
   const quickLinks = [

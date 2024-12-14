@@ -36,8 +36,11 @@ interface Review {
   user: {
     name: string;
   };
-  reviewedBy: string; // Added field
+  reviewedBy: string;
 }
+
+const baseUrl = process.env.baseUrl || "http://localhost:3000/";
+
 
 const SkillCardDetails: React.FC = () => {
   const { id } = useParams();
@@ -49,7 +52,7 @@ const SkillCardDetails: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const currentUser = useSelector((state:RootState) => state.auth.currentUser);
+  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   console.log('current user', currentUser.id);
   console.log('skill.user._id', skill?.user._id);
 
@@ -57,12 +60,14 @@ const SkillCardDetails: React.FC = () => {
 
   useEffect(() => {
     if (id) {
+      console.log(`Fetching skill with ID: ${id}`);
       dispatch(fetchSkillById(id))
         .then((response) => {
-          if (response.payload.success) {
-            setSkill(response.payload.data);
+          console.log('Skill fetch response:', response);
+          if (response.payload) {
+            setSkill(response.payload);
           } else {
-            console.error("Failed to fetch skill:", response.payload.message);
+            console.error("Failed to fetch skill:", response.error.message);
           }
           setLoading(false);
         })
@@ -78,7 +83,7 @@ const SkillCardDetails: React.FC = () => {
     if (id) {
       dispatch(getReviewsBySkillId(id))
         .then((response) => {
-          console.log('response', response.payload);
+          console.log('Reviews fetch response:', response.payload);
           setReviews(response.payload);
         })
         .catch((error) => {
@@ -99,29 +104,48 @@ const SkillCardDetails: React.FC = () => {
     setShowModal(false);
     console.log('Cancel conversation'); 
   }
-  const handleReviewSubmit = () => {
+  const handleReviewSubmit = async () => {
     const review = {
       skillId: skill._id,
-      userId: currentUser.id,
+      userId: skill.user._id,
       rating,
-      comment: newReview,
+      comments: newReview,
       reviewedBy: currentUser.id, 
     };
+    console.log('Review:', review);
 
-    dispatch(createReview(review))
-      .then((response) => {
-        if (response.payload.success) {
-          setReviews([...reviews, response.payload.data]);
-          setNewReview("");
-          setRating(0);
-        } else {
-          console.error("Failed to create review:", response.payload.message); 
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to create review:", error);
-        alert("An error occurred while creating the review.");
-      });
+    // dispatch(createReview(review))
+    //   .then((response) => {
+    //     console.log('Create review response:', response);
+    //     if (response.payload.success) {
+    //       setReviews([...reviews, response.payload.data]);
+    //       setNewReview("");
+    //       setRating(0);
+    //     } else {
+    //       console.error("Failed to create review:", response.payload.message); 
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error("Failed to create review:", error);
+    //     alert("An error occurred while creating the review.");
+    //   });
+    const res = await fetch(`${baseUrl}api/reviews`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(review),
+    });
+    const data = res.json();
+    console.log('Response from server:', data);
+    if (res.status == 201) { 
+      setReviews([...reviews, data.data]);
+      setNewReview("");
+      setRating(0);
+      console.log("Review created successfully");
+    } else {
+      console.error("Failed to create review");
+    }
   };
   const handleProviderClick = () => {
     if (skill.user._id === currentUser.id) {
@@ -204,8 +228,8 @@ const SkillCardDetails: React.FC = () => {
             .map((review, index) => (
               <div key={index} className="border-b py-2">
                 <p>
-                  <strong className="text-brown">User:</strong>{" "}
-                  {review.user ? review.user.name : "Anonymous"} {/* Added null check */}
+                  <strong className="text-brown">Reviewed by :</strong>{" "}
+                  {review.user ? review.reviewedBy.name : "Anonymous"} 
                 </p>
                 <p className="text-yellow-500">
                   <strong className="text-brown">Rating:</strong>{" "}

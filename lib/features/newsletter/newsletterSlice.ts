@@ -1,17 +1,51 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const baseUrl = process.env.baseUrl || "http://localhost:3000/";
+
 export const subscribeNewsletter = createAsyncThunk(
   'newsletter/subscribe',
-  async (email: string, { rejectWithValue }) => {
+  async (email: string) => {
     try {
-      const response = await axios.post('/api/newsletter', { email });
-      return response.data;
+      // const response = await axios.post('/api/newsletter', { email });
+      console.log('from slice:', email);
+      const res = await fetch(`${baseUrl}api/newsletter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(email),
+      });
+      const data = await res.json();
+      console.log('Response from server:', data);
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      console.error('Error subscribing to newsletter:', error);
     }
   }
 );
+
+// export const addSkillToUser = createAsyncThunk(
+//   'skills/addSkillToUser',
+//   async (skillData: Partial<Skill>, { dispatch }) => {
+//     try {
+//       const res = await fetch(`${baseUrl}api/skills`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(skillData),
+//       });
+
+//       const data = await res.json();
+
+//       if (res.status === 201) {
+//         dispatch(createSkill(data.data));
+//         toast.success("Skill added successfully");
+//         console.log("Skill added successfully");
+//       } else {
+//         toast.error("Failed to add skill");
+//       }
+//     } catch (error) {
+//       toast.error("Error adding skill");
+//     }
+//   }
+// );
 
 const newsletterSlice = createSlice({
   name: 'newsletter',
@@ -20,7 +54,11 @@ const newsletterSlice = createSlice({
     status: 'idle',
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // createNewsletter: (state, action) => {
+    //   state.email = action.payload;
+    // },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(subscribeNewsletter.pending, (state) => {
@@ -28,7 +66,7 @@ const newsletterSlice = createSlice({
       })
       .addCase(subscribeNewsletter.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.email = action.payload.email;
+        state.email = action.payload;
       })
       .addCase(subscribeNewsletter.rejected, (state, action) => {
         state.status = 'failed';
@@ -36,5 +74,7 @@ const newsletterSlice = createSlice({
       });
   },
 });
+
+// export const { createNewsletter } = newsletterSlice.actions;
 
 export default newsletterSlice.reducer;

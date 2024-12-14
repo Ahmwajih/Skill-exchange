@@ -1,9 +1,11 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import Newsletter from '@/models/Newsletter';
 import db from '@/lib/db';
 import { sendMail } from "@/lib/mailer";
 import Logo from "@/app/public/Logo.svg";
+import { toast } from 'react-toastify';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -19,13 +21,16 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    console.log('step 1:', email);
 
     const existingSubscription = await Newsletter.findOne({ email });
+    console.log('step 2:', existingSubscription);
     if (existingSubscription) {
+        // toast.error('Email is already subscribed.');
+        // console.log('Email is already subscribed.');
       return NextResponse.json(
         { success: false, error: 'Email is already subscribed.' },
-        { status: 400 }
-      );
+        { status: 400 }      );
     }
 
     const newSubscription = new Newsletter({ email });
@@ -34,13 +39,16 @@ export async function POST(req: NextRequest) {
     const emailTemplate = generateNewsletterEmail();
     await sendMail(email, 'Thank You for Subscribing to Our Newsletter', emailTemplate);
 
+    // console.log('Thank you for subscribing to our newsletter. Please check your email for confirmation.');
+
+    // toast.success('Thank you for subscribing to our newsletter. Please check your email for confirmation.');
+
     return NextResponse.json(
       {
         success: true,
         message: 'Thank you for subscribing to our newsletter. Please check your email for confirmation.',
       },
-      { status: 201 }
-    );
+      { status: 201 }    );
   } catch (error) {
     console.error('Error handling newsletter subscription:', error);
     return NextResponse.json(

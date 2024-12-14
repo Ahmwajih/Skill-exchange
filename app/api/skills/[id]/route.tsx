@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   try {
-    const skill = await Skill.findById(id).populate('user', 'name email');
+    const skill = await Skill.findById(id).populate('user', 'name email photo bio country');
     if (!skill) {
       return NextResponse.json({ success: false, error: 'Skill not found' }, { status: 404 });
     }

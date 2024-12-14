@@ -76,10 +76,10 @@ function ModalConversation({ providerId, closeModal }) {
 
     try {
       // Dispatch the createDeal action
-      await dispatch(createDeal(dealData)).unwrap();
+      await dispatch(createDeal(dealData));
       
       // Success feedback
-      toast.success("Deal sent successfully!");
+      toast.success("Deal sent and created successfully!");
 
       // Prepare message content for socket
       const dealDetails = showDealFields
@@ -174,6 +174,7 @@ function ModalConversation({ providerId, closeModal }) {
     setNumberOfSessions(1);
     setSelectedDate(null);
     setSelectedTime("");
+    closeModal();
   };
 
   const getTodoList = (date) => {

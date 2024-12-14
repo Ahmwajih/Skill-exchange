@@ -36,7 +36,7 @@ interface SkillState {
 
 const initialState: SkillState = {
   data: null,
-  filteredSkills: [],
+  filteredSkills: [], // Initialize to an empty array
   searchResults: [],
   selectedSkill: null,
   loading: false,
@@ -90,7 +90,7 @@ const skillSlice = createSlice({
       })
       .addCase(fetchSkillById.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        state.selectedSkill = action.payload; // Ensure the skill data is set to selectedSkill
       })
       .addCase(fetchSkillById.rejected, (state, action) => {
         state.loading = false;

@@ -88,6 +88,7 @@ export const getReviewsBySkillId = createAsyncThunk(
 
 export const createReview = (reviewInfo: Review) => async (dispatch: AppDispatch) => {
     try {
+        console.log('Creating review with info:', reviewInfo);
         const res = await fetch(`${url}api/reviews`, {
             method: "POST",
             headers: {
@@ -97,12 +98,16 @@ export const createReview = (reviewInfo: Review) => async (dispatch: AppDispatch
         });
 
         const data = await res.json();
+        console.log('Response from server:', data);
 
-        if (res.status == 200) {
+        if (res.status == 201) { 
             dispatch(reviewSlice.actions.createReview(data.data));
             toast.success("Review created successfully");
+        } else {
+            toast.error("Failed to create review");
         }
     } catch (error) {
+        console.error("Error creating review:", error);
         toast.error("Failed to create review");
     }
 };

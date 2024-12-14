@@ -3,7 +3,6 @@ import db from '@/lib/db';
 import Review from '@/models/Review';
 import User from '@/models/User';
 import mongoose from 'mongoose';
-
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
 
@@ -14,11 +13,34 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 
   try {
-    const review = await Review.findById(id).populate('user', 'name email reviewedBy');
-    if (!review) {
+    const review = await Review.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(id) } },
+      {
+        $lookup: {
+          from: 'users', 
+          localField: 'user', 
+          foreignField: '_id', 
+          as: 'userDetails',
+        },
+      },
+      { $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          content: 1,
+          rating: 1,
+          'userDetails.name': 1,
+          'userDetails.email': 1,
+          'userDetails.reviewedBy': 1, 
+        },
+      },
+    ]);
+
+    if (!review || review.length === 0) {
       return NextResponse.json({ success: false, error: 'Review not found' }, { status: 404 });
     }
-    return NextResponse.json({ success: true, data: review });
+
+    return NextResponse.json({ success: true, data: review[0] });
   } catch (error) {
     console.error('Error fetching review:', error);
     return NextResponse.json({ success: false, error: 'Error fetching review' }, { status: 500 });

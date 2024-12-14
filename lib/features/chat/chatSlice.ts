@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import pusher from "@/Utils/socket"; // Import the Pusher client instance
 
 interface Message {
   text: string;
@@ -30,6 +31,11 @@ const chatSlice = createSlice({
 
     },
   },
+});
+
+// Listen for Pusher events
+pusher.subscribe('conversation-channel').bind('new-message', (data: { conversationId: string; message: Message }) => {
+  chatSlice.actions.addMessage(data);
 });
 
 export const { addMessage, acceptDeal } = chatSlice.actions;

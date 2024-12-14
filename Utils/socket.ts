@@ -1,8 +1,9 @@
-import { io } from "socket.io-client";
+import Pusher from 'pusher-js';
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
-const socket = io(BASE_URL, {
-    path: "/api/socket", // Ensure this matches your server's socket.io path
+const pusher = new Pusher('b85eae341f11d9507db7', {
+  cluster: 'eu',
+  authEndpoint: `${BASE_URL}/api/send-message`, 
 });
 
-export default socket;
+export default pusher;

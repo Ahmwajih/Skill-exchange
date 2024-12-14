@@ -1,76 +1,22 @@
-import { Server } from "socket.io";
+import Pusher from 'pusher';
 import { NextRequest, NextResponse } from 'next/server';
 import db from "@/lib/db";
 import Conversation from "@/models/Conversation";
 
-let io: Server | undefined;
+const pusher = new Pusher({
+  appId: '1911591',
+  key: 'b85eae341f11d9507db7',
+  secret: '45f52952bde088d9afc1',
+  cluster: 'eu',
+  useTLS: true,
+});
 
 export async function GET(request: NextRequest) {
   await db();
 
-  if (!io) {
-    io = new Server({
-      cors: {
-        origin: 'http://localhost:3000',
-      },
-      path: '/api/socket', 
-    });
+  pusher.trigger('my-channel', 'my-event', {
+    message: 'hello world'
+  });
 
-    io.on("connection", (socket) => {
-      console.log("A user connected:", socket.id);
-
-      socket.on("join_room", (room) => {
-        socket.join(room);
-        console.log(`User joined room: ${room}`);
-      });
-
-      socket.on("send_message", async (message) => {
-        const { text, room, senderId } = message;
-
-        console.log(`Message received in room ${room}:`, text);
-
-        try {
-          let conversation = await Conversation.findOne({ _id: room });
-      
-          if (!conversation) {
-            conversation = await Conversation.create({
-              providerId: senderId,
-              messages: [],
-            });
-          }
-      
-          const newMessage = { senderId, content: text, timestamp: new Date() };
-          conversation.messages.push(newMessage);
-          await conversation.save();
-      
-          io.to(room).emit("receive_message", newMessage);
-        } catch (error) {
-          console.error("Error saving message:", error);
-        }
-      });
-
-      socket.on("accept_deal", async ({ providerId, seekerId }) => {
-        console.log(`${providerId} has accepted the deal.`);
-        
-        const room = providerId;
-        socket.join(room);
-        
-        const newConversation = await Conversation.create({
-          providerId,
-          seekerId,
-          messages: [],
-        });
-
-        io.to(room).emit("deal_accepted", { providerId, seekerId });
-      });
-
-      socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
-      });
-    });
-
-    console.log("Socket.io server initialized");
-  }
-
-  return NextResponse.json({ message: 'Socket server initialized' });
+  return NextResponse.json({ message: 'Pusher server initialized' });
 }

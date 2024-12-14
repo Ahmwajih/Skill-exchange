@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from "@/lib/db"; // Ensure you have a database connection utility
 import Conversation from "@/models/Conversation"; // Import your Conversation model
 import { Server } from "socket.io";
+import Pusher from 'pusher';
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 let io;
+
+const pusher = new Pusher({
+  appId: '1911591',
+  key: 'b85eae341f11d9507db7',
+  secret: '45f52952bde088d9afc1',
+  cluster: 'eu',
+  useTLS: true,
+});
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
@@ -67,6 +76,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       },
       { new: true, upsert: true }
     );
+
+    pusher.trigger('conversation-channel', 'deal-accepted', { providerEmail, providerName, seekerEmail, seekerName });
 
     // Emit deal accepted event to both users
     io.to(providerEmail).emit("deal_accepted", { providerEmail, providerName, seekerEmail, seekerName });

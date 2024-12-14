@@ -78,6 +78,8 @@ export const createConversation = createAsyncThunk<Conversation, Conversation, {
       
       if (res.status === 201) {
         toast.success("Conversation created successfully");
+        // Trigger Pusher event
+        pusher.trigger('conversation-channel', 'new-conversation', data.data);
         return data.data;
       } else {
         toast.error(data.error || "Failed to create conversation");
@@ -86,6 +88,32 @@ export const createConversation = createAsyncThunk<Conversation, Conversation, {
     } catch (error) {
       toast.error("Error creating conversation");
       return rejectWithValue(error.message || "Error creating conversation");
+    }
+  }
+);
+
+// Send a message
+export const sendMessage = createAsyncThunk<Message, { conversationId: string; senderId: string; content: string }, { rejectValue: string }>(
+  "conversations/sendMessage",
+  async ({ conversationId, senderId, content }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${baseUrl}/api/send-message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId, senderId, content }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 201) {
+        return data.data;
+      } else {
+        toast.error(data.error || "Failed to send message");
+        return rejectWithValue(data.error || "Failed to send message");
+      }
+    } catch (error) {
+      toast.error("Error sending message");
+      return rejectWithValue(error.message || "Error sending message");
     }
   }
 );
@@ -119,6 +147,15 @@ const conversationSlice = createSlice({
       })
       .addCase(createConversation.rejected, (state, action: PayloadAction<string>) => {
         state.loading = false;
+        state.error = action.payload; // Handle errors
+      })
+      .addCase(sendMessage.fulfilled, (state, action: PayloadAction<Message>) => {
+        const conversation = state.data.find(conv => conv._id === action.meta.arg.conversationId);
+        if (conversation) {
+          conversation.messages.push(action.payload);
+        }
+      })
+      .addCase(sendMessage.rejected, (state, action: PayloadAction<string>) => {
         state.error = action.payload; // Handle errors
       });
   },

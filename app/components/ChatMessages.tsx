@@ -1,35 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addMessage } from '@/lib/features/chat/chatSlice';
+import Pusher from 'pusher-js';
 
-const ChatMessages = ({ conversation, socket, user }) => {
+const ChatMessages = ({ conversation, user }) => {
   const dispatch = useDispatch();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
 
-  // Sync messages when conversation changes
   useEffect(() => {
     if (conversation) {
       setMessages(conversation.messages || []);
     }
   }, [conversation]);
 
-  // Listen for incoming messages via socket
   useEffect(() => {
-    if (socket) {
-      socket.on('receive_message', (message) => {
-        dispatch(addMessage({ conversationId: conversation?._id, message }));
-        setMessages((prevMessages) => [...prevMessages, message]);
-      });
-    }
-  }, [socket, dispatch, conversation?._id]);
+    const pusher = new Pusher('b85eae341f11d9507db7', {
+      cluster: 'eu',
+    });
 
-  // Join the room when conversation changes
-  useEffect(() => {
-    if (socket && conversation?._id) {
-      socket.emit('join_room', conversation._id);
-    }
-  }, [socket, conversation?._id]);
+    const channel = pusher.subscribe(`conversation-${conversation?._id}`);
+    channel.bind('receive_message', (message) => {
+      dispatch(addMessage({ conversationId: conversation?._id, message }));
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, [conversation?._id, dispatch]);
 
   const handleSendMessage = () => {
     const message = {
@@ -37,7 +37,14 @@ const ChatMessages = ({ conversation, socket, user }) => {
       content: newMessage,
       timestamp: new Date(),
     };
-    socket.emit('send_message', { ...message, room: conversation?._id });
+    // Emit the message to your backend to trigger the Pusher event
+    fetch('/api/send-message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...message, conversationId: conversation?._id }),
+    });
     setMessages((prevMessages) => [...prevMessages, message]);
     setNewMessage('');
   };

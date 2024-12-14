@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectedUserById } from "@/lib/features/dashboard/userSlice";
 import { createDeal } from "@/lib/features/deal/dealSlice";
+import { sendMessage } from "@/lib/features/conversation/conversationSlice"; // Import the sendMessage thunk
 import { RootState, AppDispatch } from "@/lib/store";
 import { Calendar, Badge, List } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import { toast } from "react-toastify";
-import socket from "@/Utils/socket";
-
+import pusher from "@/Utils/socket";
 type ModalConversationProps = {
   providerId: string;
   closeModal: () => void;
@@ -69,6 +69,18 @@ function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
     }
   }, [dispatch, user?.id]);
 
+  useEffect(() => {
+    const channel = pusher.subscribe('conversation-channel');
+    channel.bind('new-message', (data: { conversationId: string; message: Message }) => {
+      // Handle new message
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, []);
+
   const handleSend = async () => {
     if (!message.trim()) {
       toast.error("Please enter a message.");
@@ -94,6 +106,27 @@ function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
     try {
       await dispatch(createDeal(dealData));
       toast.success("Deal sent and created successfully!");
+
+      // Fetch the conversation ID dynamically
+      let response = await fetch(`/api/conversation?providerId=${providerId}&seekerId=${user.id}`);
+      let data = await response.json();
+
+      let conversationId = data.data?._id;
+
+      // If conversation does not exist, create a new one
+      if (!conversationId) {
+        response = await fetch(`/api/conversation`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ providerId, seekerId: user.id, messages: [] }),
+        });
+        data = await response.json();
+        conversationId = data.data._id;
+      }
+
+      // Send the message
+      await dispatch(sendMessage({ conversationId, senderId: user.id, content: message }));
+
       resetFields();
       closeModal();
     } catch (error: any) {

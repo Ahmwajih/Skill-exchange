@@ -7,7 +7,7 @@ import { sendMail } from "@/lib/mailer";
 import mongoose from 'mongoose';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export async function GET(req: NextRequest) {
   await db();

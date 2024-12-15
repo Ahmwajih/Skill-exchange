@@ -33,8 +33,8 @@ const ChatSidebar = ({ onSelectConversation, conversations }) => {
   }, [conversations, fetchUserDetails, user.id]);
 
   useEffect(() => {
-    const pusher = new Pusher('b85eae341f11d9507db7', {
-      cluster: 'eu',
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
     });
 
     const channel = pusher.subscribe('presence-online-users');

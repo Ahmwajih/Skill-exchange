@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const baseUrl = process.env.baseUrl || "http://localhost:3000/";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const subscribeNewsletter = createAsyncThunk(
   'newsletter/subscribe',
@@ -9,7 +9,7 @@ export const subscribeNewsletter = createAsyncThunk(
     try {
       // const response = await axios.post('/api/newsletter', { email });
       console.log('from slice:', email);
-      const res = await fetch(`${baseUrl}api/newsletter`, {
+      const res = await fetch(`${baseUrl}/api/newsletter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(email),

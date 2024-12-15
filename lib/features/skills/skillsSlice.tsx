@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
 import Fuse from 'fuse.js';
 
-const baseUrl = process.env.baseUrl || "http://localhost:3000/";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 interface User {
   _id: string;
@@ -107,7 +107,7 @@ export const { getSkills, createSkill, updateSkill, deleteSkill, readSkill, filt
 
 export const fetchSkills = () => async (dispatch: AppDispatch) => {
   try {
-    const res = await fetch(`${baseUrl}api/skills`);
+    const res = await fetch(`${baseUrl}/api/skills`);
     const data = await res.json();
 
     if (res.status === 200) {
@@ -125,7 +125,7 @@ export const fetchSkillById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       console.log(`Fetching skill with ID: ${id}`);
-      const response = await fetch(`${baseUrl}api/skills/${id}`);
+      const response = await fetch(`${baseUrl}/api/skills/${id}`);
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Failed to fetch skill");
@@ -142,7 +142,7 @@ export const addSkillToUser = createAsyncThunk(
   'skills/addSkillToUser',
   async (skillData: Partial<Skill>, { dispatch }) => {
     try {
-      const res = await fetch(`${baseUrl}api/skills`, {
+      const res = await fetch(`${baseUrl}/api/skills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(skillData),

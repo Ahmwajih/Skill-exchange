@@ -5,7 +5,7 @@ import Deal from "@/models/Deal";
 import { sendMail } from "@/lib/mailer";
 import mongoose from "mongoose";
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export async function POST(req: NextRequest) {
   await db();

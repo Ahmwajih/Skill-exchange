@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from "@/lib/db"; // Ensure you have a database connection utility
-import Conversation from "@/models/Conversation"; // Import your Conversation model
+import db from "@/lib/db"; 
+import Conversation from "@/models/Conversation"; 
 import Pusher from 'pusher';
 
 const pusher = new Pusher({
@@ -13,16 +13,15 @@ const pusher = new Pusher({
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   await db();
-  const { id } = params; // Get deal ID from URL
+  const { id } = params; 
 
   const { searchParams } = new URL(req.url);
   const providerEmail = searchParams.get('providerEmail');
   const providerName = searchParams.get('providerName');
   const seekerEmail = searchParams.get('seekerEmail');
   const seekerName = searchParams.get('seekerName');
-  const seekerId = searchParams.get('seekerId'); // Get seekerId from query params
+  const seekerId = searchParams.get('seekerId');
 
-  // Validate required parameters
   if (!providerEmail || !providerName || !seekerEmail || !seekerName || !seekerId) {
     return NextResponse.json({ success: false, error: "Missing required parameters" }, { status: 400 });
   }
@@ -54,7 +53,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     pusher.trigger('conversation-channel', 'deal-accepted', { providerEmail, providerName, seekerEmail, seekerName });
 
-    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     return NextResponse.redirect(`${baseUrl}/chat?providerEmail=${providerEmail}&providerName=${providerName}&seekerEmail=${seekerEmail}&seekerName=${seekerName}&id=${id}`);
   } catch (error) {
     console.error("Error creating or updating conversation:", error);

@@ -11,7 +11,7 @@ import pusher from '@/Utils/socket';
 const ChatWindow = ({ dealId }) => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.currentUser);
-  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [selectedConversations, setSelectedConversations] = useState([]);
   const [selectedDealId, setSelectedDealId] = useState(dealId || null);
   const [conversations, setConversations] = useState([]);
 
@@ -52,16 +52,8 @@ const ChatWindow = ({ dealId }) => {
     };
   }, [user, dispatch]);
 
-  const handleSelectConversation = (conversation) => {
-    setSelectedConversation(conversation);
-    dispatch(fetchConversations(user.id)).then((action) => {
-      if (!action.error && Array.isArray(action.payload)) {
-        const updatedConversation = action.payload.find(c => c._id === conversation._id);
-        if (updatedConversation) {
-          setSelectedConversation(updatedConversation);
-        }
-      }
-    });
+  const handleSelectConversation = (conversations) => {
+    setSelectedConversations(conversations);
   };
 
   return (
@@ -72,15 +64,18 @@ const ChatWindow = ({ dealId }) => {
       />
 
       <div className="flex flex-col flex-1 overflow-hidden">
-        {selectedConversation ? (
+        {selectedConversations.length > 0 ? (
           <>
-            <ChatMessages
-              conversation={selectedConversation}
-              user={user}
-            />
+            {selectedConversations.map((conversation) => (
+              <ChatMessages
+                key={conversation._id}
+                conversation={conversation}
+                user={user}
+              />
+            ))}
             {selectedDealId && (
               <ChatDetails
-                conversation={selectedConversation}
+                conversation={selectedConversations[0]}
                 dealId={selectedDealId}
               />
             )}

@@ -24,14 +24,18 @@ const ChatDetails = ({ conversation, dealId }) => {
 
   const deal = deals.find((d) => d._id === dealId);
 
+  if (!conversation) {
+    return null;
+  }
+
   return (
     <div className="w-full p-4 bg-white border-t border-gray overflow-y-auto">
       <h2 className="mb-4 text-lg font-bold text-orange">Deal Details</h2>
       <p>
-        <strong className="text-brown">Provider:</strong> {conversation.providerId.name}
+        <strong className="text-brown">Provider:</strong> {conversation.providerId?.name || 'N/A'}
       </p>
       <p>
-        <strong className="text-brown">Seeker:</strong> {conversation.seekerId.name}
+        <strong className="text-brown">Seeker:</strong> {conversation.seekerId?.name || 'N/A'}
       </p>
     </div>
   );

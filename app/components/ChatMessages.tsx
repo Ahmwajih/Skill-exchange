@@ -83,6 +83,14 @@ const ChatMessages = ({ conversation, user }) => {
           >
             <p className="text-sm">{msg.content}</p>
             <p className="text-xs text-gray mt-1">{formatDate(msg.timestamp)}</p>
+            {/* {msg.senderId !== user.id && (
+              // <a
+              //   // href={`/dashboard/${conversation.providerId._id}`}
+              //   className="mt-2 inline-block px-4 py-2 text-sm text-white bg-blue rounded-lg hover:bg-blue"
+              // >
+              //   View Provider Dashboard
+              // </a>
+            )} */}
           </div>
         ))}
         <div ref={messagesEndRef} />

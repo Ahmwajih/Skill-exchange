@@ -246,7 +246,6 @@ export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: 
     });
 
     const data = await res.json();
-    console.log("Data:", data);
 
     if (!data.success) throw new Error("User profile fetch failed");
 

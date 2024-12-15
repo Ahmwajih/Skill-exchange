@@ -89,8 +89,6 @@ export async function POST(req: NextRequest) {
     const activationLink = `${BASE_URL}/api/auth/activate?token=${activationToken}`;
     const logoUrl = await getLogoUrlFromDb();
     await sendMail(email, 'Activate Your Account', generateActivationEmail(activationLink, logoUrl));   
-     console.log("Activation link:", activationLink);
-
     return NextResponse.json(
       {
         success: true,

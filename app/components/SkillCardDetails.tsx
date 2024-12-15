@@ -39,7 +39,7 @@ interface Review {
   reviewedBy: string;
 }
 
-const baseUrl = process.env.baseUrl || "http://localhost:3000/";
+const baseUrl = NEXT_PUBLIC_BASE_URL;
 
 
 const SkillCardDetails: React.FC = () => {
@@ -53,17 +53,14 @@ const SkillCardDetails: React.FC = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
-  // console.log('current user', currentUser.id);
-  // console.log('skill.user._id', skill?.user._id);
+ 
 
   const router = useRouter();
 
   useEffect(() => {
     if (id) {
-      console.log(`Fetching skill with ID: ${id}`);
       dispatch(fetchSkillById(id))
         .then((response) => {
-          console.log('Skill fetch response:', response);
           if (response.payload) {
             setSkill(response.payload);
           } else {
@@ -83,7 +80,6 @@ const SkillCardDetails: React.FC = () => {
     if (id) {
       dispatch(getReviewsBySkillId(id))
         .then((response) => {
-          console.log('Reviews fetch response:', response.payload);
           setReviews(response.payload);
         })
         .catch((error) => {
@@ -98,11 +94,9 @@ const SkillCardDetails: React.FC = () => {
   }
   const handleStartConversation = () => {
     setShowModal(true);
-    console.log('Start a conversation');
   };
   const handleCancelConversation = () => {
     setShowModal(false);
-    console.log('Cancel conversation'); 
   }
   const handleReviewSubmit = async () => {
     const review = {
@@ -113,7 +107,7 @@ const SkillCardDetails: React.FC = () => {
       reviewedBy: currentUser.id, 
     };
 
-    const res = await fetch(`${baseUrl}api/reviews`, {
+    const res = await fetch(`${baseUrl}/api/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

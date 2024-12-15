@@ -35,7 +35,6 @@ export default function SignIn() {
 
     try {
       await dispatch(register({ name, email, password }, router));
-      console.log("user registered successfully");
       router.push("/signin");
     } catch (error) {
       toast.error("register failed. Please try again.");
@@ -74,7 +73,6 @@ export default function SignIn() {
           provider: "firebase",
           id: result.user.uid,
         };
-        console.log("payload", payload);
         dispatch(authAll(payload));
         await dispatch(login({ email, password }, router));
 
@@ -87,7 +85,6 @@ export default function SignIn() {
         router.push("/signin");
       } else {
         const data = await response.json();
-        console.log("data", data);
         const payload = {
           currentUser: data.data,
           token: data.token,
@@ -96,7 +93,6 @@ export default function SignIn() {
           provider: "firebase",
           isAuthenticated: true,
         };
-        console.log("payload", payload);
         dispatch(authAll(payload));
 
         if (typeof window !== "undefined") {

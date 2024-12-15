@@ -57,7 +57,6 @@ const SkillProviderDetails: React.FC = () => {
         .then((response) => {
           if (response.success) {
             setProvider(response.data);
-            console.log("Get follower:", response.data.followers?.includes(currentUser.id));
             setFollowing(response.data.followers?.includes(currentUser.id) || false);
           } else {
             console.error("Failed to fetch provider:", response.error.message);

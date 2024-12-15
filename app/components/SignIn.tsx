@@ -32,7 +32,6 @@ export default function SignIn() {
 
     try {
       await dispatch(login({ email, password }, router));
-      console.log("User logged in successfully");
       router.push("/main");
     } catch (error) {
       console.error("Error logging in:", error);
@@ -43,15 +42,11 @@ export default function SignIn() {
   const handleProviderSignIn = async (provider) => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log("User logged in successfully:", result.user);
-      console.log("user id", result.user.uid);
 
       const { displayName, email } = result.user;
       const token = await result.user.getIdToken();
-      console.log("token", token);
       const photoURL = result.user.photoURL;
       const password = result.user.uid;
-      console.log("photoURL", photoURL);
       //TODO: i will use dispatch for register
 
       const response = await fetch(`${url}/api/users`, {
@@ -79,10 +74,8 @@ export default function SignIn() {
           provider: "firebase",
           id: result.user.uid,
         };
-        console.log("payload", payload);
         dispatch(authAll(payload));
         await dispatch(login({ email, password }, router));
-        console.log("User logged normally in successfully");
 
         if (typeof window !== "undefined") {
           sessionStorage.setItem("name", displayName);
@@ -93,7 +86,6 @@ export default function SignIn() {
         router.push("/main");
       } else {
         const data = await response.json();
-        console.log("data", data);
         const payload = {
           currentUser: data.data,
           token: data.token,
@@ -102,7 +94,6 @@ export default function SignIn() {
           provider: "firebase",
           isAuthenticated: true,
         };
-        console.log("payload", payload);
         dispatch(authAll(payload));
 
         if (typeof window !== "undefined") {

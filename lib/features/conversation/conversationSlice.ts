@@ -41,12 +41,9 @@ export const fetchConversations = createAsyncThunk<Conversation[], string, { rej
   "conversations/fetchConversations",
   async (userId, { rejectWithValue }) => {
     try {
-      console.log(`Fetching conversations for userId: ${userId}`);
       const res = await fetch(`${baseUrl}/api/conversation/${userId}`);
-      console.log("Response Status:", res.status);
 
       const data = await res.json();
-      console.log("Response Data:", data);
 
       if (res.status === 200) {
         return data.data;

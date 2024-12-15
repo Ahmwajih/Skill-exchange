@@ -67,7 +67,6 @@ export async function GET_LAST(req: NextRequest, { params }: { params: { userId:
   await db();
   const { userId } = params;
 
-  console.log("Fetching the most recent conversation for userId:", userId);
 
   try {
     const conversation = await Conversation.findOne({
@@ -78,7 +77,6 @@ export async function GET_LAST(req: NextRequest, { params }: { params: { userId:
       return NextResponse.json({ success: false, error: 'No conversations found' }, { status: 404 });
     }
 
-    console.log("Fetched the most recent conversation:", conversation);
 
     return NextResponse.json({ success: true, data: conversation }, { status: 200 });
   } catch (error) {

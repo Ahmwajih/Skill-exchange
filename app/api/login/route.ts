@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    console.log("Request body:", body); 
     const { email, password } = body;
 
     if (!email || !password) {
@@ -37,11 +36,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    console.log("User found:", user); 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Provided password:", password);
-    console.log("Stored hashed password:", user.password);
-    console.log("Password match:", isMatch);
     if (!isMatch) {
       console.error("Password mismatch");
       return NextResponse.json(

@@ -8,14 +8,12 @@ export const subscribeNewsletter = createAsyncThunk(
   async (email: string) => {
     try {
       // const response = await axios.post('/api/newsletter', { email });
-      console.log('from slice:', email);
       const res = await fetch(`${baseUrl}/api/newsletter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(email),
       });
       const data = await res.json();
-      console.log('Response from server:', data);
     } catch (error) {
       console.error('Error subscribing to newsletter:', error);
     }

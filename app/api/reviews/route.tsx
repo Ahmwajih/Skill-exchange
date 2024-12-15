@@ -37,7 +37,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const { rating, comments, userId, skillId, reviewedBy } = await req.json();
-    console.log('Received data:', { rating, comments, userId, skillId, reviewedBy });
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json({ success: false, error: 'Valid user ID is required' }, { status: 400 });
@@ -52,11 +51,9 @@ export async function POST(req: NextRequest) {
     });
 
     await newReview.save();
-    console.log('Saved new review:', newReview);
     await User.findByIdAndUpdate(userId, { $push: { reviews: newReview._id } });
 
     const populatedReview = await Review.findById(newReview._id).populate('user', 'name email').populate('reviewedBy', 'name email'); // Added populate for reviewedBy
-    console.log('Populated review:', populatedReview);
 
     return NextResponse.json({ success: true, data: populatedReview }, { status: 201 });
   } catch (error) {

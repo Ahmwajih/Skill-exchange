@@ -20,10 +20,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    console.log('step 1:', email);
 
     const existingSubscription = await Newsletter.findOne({ email });
-    console.log('step 2:', existingSubscription);
     if (existingSubscription) {
 
       return NextResponse.json(

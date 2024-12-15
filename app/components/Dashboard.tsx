@@ -27,7 +27,6 @@ const Dashboard = () => {
   const [following, setFollowing] = useState(false);
 
   const router = useRouter();
-  console.log(user.id);
   const handleClickCard = (id) => {
     router.push(`/skill_card_detail/${id}`);
   };
@@ -57,7 +56,6 @@ const Dashboard = () => {
       dispatch(selectedUserById(user.id))
         .unwrap()
         .then((response) => {
-          console.log(response.data.skills);
           setProfileData({
             name: response.data.name,
             email: response.data.email,

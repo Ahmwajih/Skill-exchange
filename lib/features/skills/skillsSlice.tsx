@@ -124,7 +124,6 @@ export const fetchSkillById = createAsyncThunk(
   "skills/fetchSkillById",
   async (id: string, { rejectWithValue }) => {
     try {
-      console.log(`Fetching skill with ID: ${id}`);
       const response = await fetch(`${baseUrl}/api/skills/${id}`);
       const data = await response.json();
       if (!response.ok) {
@@ -153,7 +152,6 @@ export const addSkillToUser = createAsyncThunk(
       if (res.status === 201) {
         dispatch(createSkill(data.data));
         toast.success("Skill added successfully");
-        console.log("Skill added successfully");
       } else {
         toast.error("Failed to add skill");
       }
@@ -169,14 +167,12 @@ export const searchSkills =
     try {
       const res = await fetch(`${baseUrl}/api/skills`);
       const data = await res.json();
-      console.log('data', data.data)
       if (searchSkill) {
         const fuse = new Fuse(data.data, {
           keys: ["title", "description", "category"],
           threshold: 0.3,
         });
         const results = fuse.search(searchSkill).map((result) => result.item);
-        console.log('results', results)
         dispatch(setSearchResults(results));
       } else {
         dispatch(setSearchResults(data.data));

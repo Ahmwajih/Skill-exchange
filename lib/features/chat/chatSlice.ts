@@ -25,11 +25,7 @@ const chatSlice = createSlice({
       }
       state.messages[conversationId].push(message);
     },
-    
-    acceptDeal(state, action: PayloadAction<{ providerEmail: string; providerName: string }>) {
-      // Handle the acceptDeal action
-
-    },
+    // Remove the unused acceptDeal reducer
   },
 });
 
@@ -38,6 +34,6 @@ pusher.subscribe('conversation-channel').bind('new-message', (data: { conversati
   chatSlice.actions.addMessage(data);
 });
 
-export const { addMessage, acceptDeal } = chatSlice.actions;
+export const { addMessage } = chatSlice.actions;
 
 export default chatSlice.reducer;

@@ -1,4 +1,3 @@
-import { Server } from "socket.io";
 import { NextRequest, NextResponse } from "next/server";
 import db from '@/lib/db';
 import Chat from '@/models/Chat';
@@ -14,9 +13,9 @@ export async function POST(req: NextRequest) {
     seekerId,
     providerId,
     dealDetails,
-    status: "pending",
-    messages: [],
-    attachments: [],
+    status: status || "pending",
+    messages: messages || [],
+    attachments: attachments || [],
   });
 
   await chat.save();

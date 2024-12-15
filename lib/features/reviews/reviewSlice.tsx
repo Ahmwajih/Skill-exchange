@@ -63,7 +63,7 @@ export const getReviews = () => async (dispatch: AppDispatch) => {
         if (res.status == 200) {
             dispatch(reviewSlice.actions.getReviews(data.data));
         }
-    } catch (error) {
+    } catch {
         toast.error("Failed to get reviews");
     }
 }; 
@@ -126,7 +126,7 @@ export const updateReview = (reviewInfo: Review) => async (dispatch: AppDispatch
             dispatch(reviewSlice.actions.updateReview(data.data));
             toast.success("Review updated successfully");
         }
-    } catch (error) {
+    } catch {
         toast.error("Failed to update review");
     }
 };
@@ -141,7 +141,7 @@ export const deleteReview = (reviewId: string) => async (dispatch: AppDispatch) 
             dispatch(reviewSlice.actions.deleteReview(reviewId));
             toast.success("Review deleted successfully");
         }
-    } catch (error) {
+    } catch {
         toast.error("Failed to delete review");
     }
 };

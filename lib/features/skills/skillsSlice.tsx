@@ -5,12 +5,13 @@ import Fuse from 'fuse.js';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  country: string;
-}
+// Remove the unused User interface
+// interface User {
+//   _id: string;
+//   name: string;
+//   email: string;
+//   country: string;
+// }
 
 interface Skill {
   _id: string;
@@ -115,7 +116,7 @@ export const fetchSkills = () => async (dispatch: AppDispatch) => {
     } else {
       toast.error("Failed to fetch skills");
     }
-  } catch (error) {
+  } catch {
     toast.error("Error fetching skills");
   }
 };
@@ -132,7 +133,7 @@ export const fetchSkillById = createAsyncThunk(
       return data.data;
     } catch (error) {
       console.error("Error fetching skill:", error);
-      return rejectWithValue(error.message);
+      return rejectWithValue((error as Error).message);
     }
   }
 );
@@ -155,7 +156,7 @@ export const addSkillToUser = createAsyncThunk(
       } else {
         toast.error("Failed to add skill");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error adding skill");
     }
   }
@@ -178,7 +179,7 @@ export const searchSkills =
         dispatch(setSearchResults(data.data));
       }
       router.push("/main"); 
-    } catch (error) {
+    } catch {
       toast.error("Error fetching filtered skills");
     }
   };

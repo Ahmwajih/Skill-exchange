@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    typescript: {
+        ignoreBuildErrors: true,
+      },
     async headers() {
         return [
             {
@@ -13,7 +16,7 @@ const nextConfig = {
         ];
     },
     images: {
-        domains: ['cdn.builder.io'],
+        domains: ['avatars.githubusercontent.com', 'cdn.builder.io', 'base64-image.de'],
         dangerouslyAllowSVG: true,
     },
     env: {

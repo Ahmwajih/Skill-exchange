@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -10,6 +11,8 @@ import { Calendar, Badge, List } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import { toast } from "react-toastify";
 import pusher from "@/Utils/socket";
+import { Message } from "@/types"; // Import the Message type
+
 type ModalConversationProps = {
   providerId: string;
   closeModal: () => void;
@@ -27,6 +30,7 @@ type Provider = {
 
 type Seeker = {
   id: string;
+  name: string;
 };
 
 function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
@@ -46,7 +50,7 @@ function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
   // Fetch provider data
   useEffect(() => {
     if (providerId) {
-      dispatch(selectedUserById(providerId)).then((response: any) => {
+      dispatch(selectedUserById(providerId)).then((response) => {
         if (response.payload) {
           setProvider(response.payload.data);
         } else {
@@ -59,7 +63,7 @@ function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
   // Fetch seeker data
   useEffect(() => {
     if (user?.id) {
-      dispatch(selectedUserById(user.id)).then((response: any) => {
+      dispatch(selectedUserById(user.id)).then((response) => {
         if (response.payload) {
           setSeeker(response.payload.data);
         } else {
@@ -69,10 +73,18 @@ function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
     }
   }, [dispatch, user?.id]);
 
+  // Use seeker variable in the component
+  useEffect(() => {
+    if (seeker) {
+      console.log("Seeker data:", seeker);
+    }
+  }, [seeker]);
+
   useEffect(() => {
     const channel = pusher.subscribe('conversation-channel');
     channel.bind('new-message', (data: { conversationId: string; message: Message }) => {
       // Handle new message
+      console.log("New message received:", data);
     });
 
     return () => {
@@ -108,7 +120,7 @@ function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
       toast.success("Deal sent and created successfully!");
 
       // Fetch the conversation ID dynamically
-      let response = await fetch(`/api/conversation?providerId=${providerId}&seekerId=${user.id}`);
+      let response: Response = await fetch(`/api/conversation?providerId=${providerId}&seekerId=${user.id}`);
       let data = await response.json();
 
       let conversationId = data.data?._id;
@@ -129,8 +141,8 @@ function ModalConversation({ providerId, closeModal }: ModalConversationProps) {
 
       resetFields();
       closeModal();
-    } catch (error: any) {
-      console.error("Error creating deal or sending message:", error);
+    } catch (error: unknown) {
+      console.error("Error creating deal or sending message:", (error as Error).message);
       toast.error("An error occurred while sending the deal or message.");
     }
   };

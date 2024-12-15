@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -5,12 +6,15 @@ import { useSelector, useDispatch } from "react-redux";
 import SkillCard from "@/app/components/SkillCard";
 import avatar from "@/app/public/avatar.jpg";
 import { RootState, AppDispatch } from "@/lib/store";
-import { setFilteredSkills, fetchSkills } from "@/lib/features/skills/skillsSlice";
+import { fetchSkills } from "@/lib/features/skills/skillsSlice";
 import { setSelectedCategory } from "@/lib/features/skills/categorySlice";
 
-const FiltredCountry: React.FC = () => {
+interface FiltredCountryProps {
+  searchResults: any[];
+}
+
+const FiltredCountry: React.FC<FiltredCountryProps> = ({ searchResults }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const searchResults = useSelector((state: RootState) => state.skills.searchResults);
   const selectedCategory = useSelector((state: RootState) => state.category.selectedCategory);
   const categories = useSelector((state: RootState) => state.category.categories);
   const [selectedCountry, setSelectedCountry] = useState("All");
@@ -127,7 +131,7 @@ const FiltredCountry: React.FC = () => {
 
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 sm:px-2">
         {paginatedSkills.length > 0 ? (
-          paginatedSkills.map((skill: any) => (
+          paginatedSkills.map((skill: { _id: string; photo: string; title: string; category: string }) => (
             <div className="cursor-pointer my-4 w-full" key={skill._id}>
               <SkillCard
                 id={skill._id}

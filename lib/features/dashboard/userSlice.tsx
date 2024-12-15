@@ -177,7 +177,7 @@ export const followUser = createAsyncThunk(
         body: JSON.stringify({ userId, currentUserId, action }),
       });
 
-      const data = await res.json();
+      const data: { message?: string; error?: string } = await res.json();
 
       if (res.status === 200) {
         toast.success(data.message || 'Followed user successfully!');
@@ -186,15 +186,13 @@ export const followUser = createAsyncThunk(
         toast.error(data.error || 'Failed to follow user');
         return rejectWithValue(data);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error following user:', error);
       toast.error('Error following user');
-      return rejectWithValue(error.message || 'Unknown error');
+      return rejectWithValue((error as Error).message || 'Unknown error');
     }
   }
 );
-
-
 
 export const deleteUser = createAsyncThunk(
   'user/deleteUser',
@@ -203,18 +201,19 @@ export const deleteUser = createAsyncThunk(
       const res = await fetch(`${baseUrl}/api/users/${id}`, { method: 'DELETE' });
 
       if (!res.ok) {
-        const error = await res.json();
+        const error: { error?: string } = await res.json();
         toast.error(error.error || 'Failed to delete user');
         return rejectWithValue(error);
       }
 
       toast.success('User deleted successfully');
       return await res.json(); // Return deleted user data if needed
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting user:', error);
       toast.error('Error deleting user');
-      return rejectWithValue(error.message || 'Unknown error');
+      return rejectWithValue((error as Error).message || 'Unknown error');
     }
   }
 );
+
 export default userSlice.reducer;

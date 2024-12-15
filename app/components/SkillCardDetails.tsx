@@ -4,8 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSkillById } from "@/lib/features/skills/skillsSlice";
 import {
-  getReviewsBySkillId,
-  createReview,
+  getReviewsBySkillId
 } from "@/lib/features/reviews/reviewSlice";
 import { RootState } from "@/lib/store";
 import avatar from "@/app/public/avatar.jpg";
@@ -39,14 +38,13 @@ interface Review {
   reviewedBy: string;
 }
 
-const baseUrl = NEXT_PUBLIC_BASE_URL;
+const baseUrl = process.env.NEXT_PUBLIC_BASE_UR;
 
 
 const SkillCardDetails: React.FC = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [skill, setSkill] = useState<Skill | null>(null);
-  const [loading, setLoading] = useState(true);
   const [newReview, setNewReview] = useState("");
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -66,12 +64,10 @@ const SkillCardDetails: React.FC = () => {
           } else {
             console.error("Failed to fetch skill:", response.error.message);
           }
-          setLoading(false);
         })
         .catch((error) => {
           console.error("Failed to fetch skill:", error);
           alert("An error occurred while fetching skill details.");
-          setLoading(false);
         });
     }
   }, [dispatch, id]);
@@ -148,16 +144,20 @@ const SkillCardDetails: React.FC = () => {
         {/* Header Image */}
         <div className="relative">
           {skill.photo ? (
-            <img
+            <Image
               src={skill.photo}
               alt={skill.title}
               className="w-full h-48 object-cover rounded-t-lg lg:rounded-lg"
+              width={640}
+              height={192}
             />
           ) : (
             <Image
               src={avatar}
               alt={skill.title}
               className="w-full h-48 object-cover rounded-t-lg lg:rounded-lg"
+              width={640}
+              height={192}
             />
           )}
         </div>
@@ -176,16 +176,20 @@ const SkillCardDetails: React.FC = () => {
             className="flex items-center gap-4"
           >
             {skill.user.photo ? (
-              <img
+              <Image
                 src={skill.user.photo}
                 alt={skill.user.name || "User Avatar"}
                 className="w-12 h-12 cursor-pointer rounded-full"
+                width={48}
+                height={48}
               />
             ) : (
               <Image
                 src={avatar}
                 alt={skill.user.name || "User Avatar"}
                 className="w-12 h-12 cursor-pointer rounded-full"
+                width={48}
+                height={48}
               />
             )}
             <div>
@@ -293,16 +297,20 @@ const SkillCardDetails: React.FC = () => {
         <div className=" flex flex-col  mx-4 mt-6 gap-4">
           <div className=" flex flex-col  items-start ">
             {skill.user.photo ? (
-              <img
+              <Image
                 src={skill.user.photo}
                 alt="App User"
                 className="w-12 h-12 rounded-full"
+                width={48}
+                height={48}
               />
             ) : (
               <Image
                 src={avatar}
                 alt="App User"
                 className="w-12 h-12 rounded-full"
+                width={48}
+                height={48}
               />
             )}
             <div>

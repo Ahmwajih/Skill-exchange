@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Contact from "@/app/components/Contact";
 import Footer from "@/app/components/Footer";
 
-function page() {
+function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,4 +31,4 @@ function page() {
   )
 }
 
-export default page
+export default Page

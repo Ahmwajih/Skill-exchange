@@ -2,7 +2,7 @@
 import React from "react";
 import "react-toastify/dist/ReactToastify.css";
 
-function pages() {
+function Page() {
   return (
     <div>
 <h1>hello from home page</h1>
@@ -10,4 +10,4 @@ function pages() {
   );
 }
 
-export default pages;
+export default Page;

@@ -84,6 +84,49 @@ const authSlice = createSlice({
 export const { authAll, logout, setUser, clearUser } = authSlice.actions;
 export default authSlice.reducer;
 
+interface LoginResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    photo: string;
+    country: string;
+    skills: string[];
+    provider: string;
+    createdAt: string;
+    isActive: boolean;
+    isAdmin: boolean;
+    updatedAt: string;
+    languages: string[];
+  };
+  token: string;
+}
+
+interface RegisterResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  token: string;
+}
+
+interface UserProfileResponse {
+  success: boolean;
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
 export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
   try {
     const res = await fetch(`${url}/api/login`, {
@@ -92,7 +135,7 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
       body: JSON.stringify(userInfo),
     });
 
-    const data = await res.json();
+    const data: LoginResponse = await res.json();
     if (!res.ok || !data.success) throw new Error(data.message || "Login failed");
 
     const payload = {
@@ -102,13 +145,13 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
         email: data.data.email,
         role: data.data.role,
         photo: data.data.photo,
-        country : data.data.country,
+        country: data.data.country,
         skills: data.data.skills,
-        provider : data.data.provider,
+        provider: data.data.provider,
         MemberSince: data.data.createdAt,
         isActive: data.data.isActive,
         isAdmin: data.data.isAdmin,
-        update : data.data.updatedAt,
+        update: data.data.updatedAt,
         languages: data.data.languages,
       },
       token: data.token,
@@ -129,9 +172,9 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
 
     router.push("/main");
     toast.success("Logged in successfully!");
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Login error:", error);
-    toast.error(error.message || "Login failed. Please try again.");
+    toast.error((error as Error).message || "Login failed. Please try again.");
   }
 };
 
@@ -143,7 +186,7 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
       body: JSON.stringify({ ...userInfo, provider: userInfo.provider || "email" }), // Ensure provider is set
     });
 
-    const data = await res.json();
+    const data: RegisterResponse = await res.json();
     if (!res.ok || !data.success) throw new Error(data.message || "Registration failed");
 
     const payload = {
@@ -172,9 +215,9 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
 
     router.push("/main");
     toast.success("Registered successfully!");
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Registration error:", error);
-    toast.error(error.message || "Registration failed. Please try again.");
+    toast.error((error as Error).message || "Registration failed. Please try again.");
   }
 };
 
@@ -204,13 +247,13 @@ export const logoutUser = (router: ReturnType<typeof useRouter>) => async (dispa
     } else {
       throw new Error("Failed to log out.");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Logout error:", error);
-    toast.error(error.message || "An error occurred. Please try again.");
+    toast.error((error as Error).message || "An error occurred. Please try again.");
   }
 };
 
-export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInfo) => async (dispatch: AppDispatch) => {
+export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInfo) => async () => {
   try {
     const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
 
@@ -227,15 +270,16 @@ export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInf
       body: JSON.stringify(passwordChangeInfo),
     });
 
-    const data = await res.json();
+    const data: { success: boolean; message?: string } = await res.json();
     if (!res.ok || !data.success) throw new Error(data.message || "Password change failed");
 
     toast.success("Password changed successfully!");
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Password change error:", error);
-    toast.error(error.message || "Failed to change password. Please try again.");
+    toast.error((error as Error).message || "Failed to change password. Please try again.");
   }
 };
+
 export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: AppDispatch) => {
   try {
     const res = await fetch(`${url}/api/users/${userInfo.id}`, {
@@ -245,7 +289,7 @@ export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: 
       },
     });
 
-    const data = await res.json();
+    const data: UserProfileResponse = await res.json();
 
     if (!data.success) throw new Error("User profile fetch failed");
 
@@ -268,7 +312,7 @@ export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: 
       sessionStorage.setItem("email", data.data.email);
       sessionStorage.setItem("role", data.data.role);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching user profile:", error);
     toast.error("An error occurred while fetching the profile. Please try again.");
   }

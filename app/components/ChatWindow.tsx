@@ -76,7 +76,6 @@ const ChatWindow = ({ dealId }) => {
             {selectedDealId && (
               <ChatDetails
                 conversation={selectedConversations[0]}
-                dealId={selectedDealId}
               />
             )}
           </>

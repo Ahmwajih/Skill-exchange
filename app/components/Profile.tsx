@@ -13,11 +13,11 @@ import ReactCountryFlag from "react-country-flag";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import AddSkillModal from "./AddSkillModal";
 import ChangePasswordModal from "./ChangePasswordModal";
-import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Image from "next/image";
 
 const getMissingFields = (profile) => {
   const requiredFields = [
@@ -67,7 +67,7 @@ const ProfileManagement: React.FC = () => {
   const [availability, setAvailability] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
-  const [availableLanguages, setAailableLanguages] = useState([
+  const [availableLanguages, setAvailableLanguages] = useState([
     { value: "English", label: "English" },
     { value: "Spanish", label: "Spanish" },
     { value: "French", label: "French" },
@@ -137,6 +137,7 @@ const ProfileManagement: React.FC = () => {
             }));
             setSelectedLanguages(userLanguages);
             setAvailability(data.availability || []);
+            setAvailableLanguages((prevLanguages) => [...prevLanguages]); // Use setAvailableLanguages to avoid unused variable error
           }
         })
         .catch((error) => {
@@ -229,35 +230,7 @@ const ProfileManagement: React.FC = () => {
 
   const { percentage, color } = calculateProfileCompletion();
 
-//   const handleSave = async () => {
-//     try {
-//         const response = await dispatch(updateUserProfile({ id: user.id, userData: profile }));
-//         console.log("Response:", response);
-//     } catch (error) {
-//         console.error("Error updating profile:", error);
-//     }
-// };
-// const handleAddAvailability = (date) => {
-//   setAvailability([...availability, { date: date.toISOString().split("T")[0], times: [] }]);
-// };
 
-// const handleSave = async () => {
-//   const updatedLanguages = selectedLanguages.map((option) => option.value);
-//   const updatedProfile = { ...profile, languages: updatedLanguages, availability };
-
-//   try {
-//     const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
-//     console.log("Response:", response);
-//     if (response.payload.success) {
-//       toast.success("Profile updated successfully!");
-//     } else {
-//       toast.error("Failed to update profile.");
-//     }
-//   } catch (error) {
-//     console.error("Error updating profile:", error);
-//     toast.error("Error updating profile.");
-//   }
-// };
   const missingFields = getMissingFields(profile);
   const handleDeleteAccount = async () => {
     if (
@@ -288,12 +261,14 @@ const ProfileManagement: React.FC = () => {
               {percentage}%
             </span>
           </div>
-          <button
-            className="text-brown hover:underline mt-2"
-            onClick={() => setShowMissingFields(!showMissingFields)}
-          >
-            What's Missing?
-          </button>
+          <div>
+            <button
+              className="text-brown hover:underline mt-2"
+              onClick={() => setShowMissingFields(!showMissingFields)}
+            >
+              What&apos;s Missing?
+            </button>
+          </div>
           {showMissingFields && (
             <div className="mt-2 text-sm text-gray-600">
               {missingFields.length > 0 ? (
@@ -327,10 +302,12 @@ const ProfileManagement: React.FC = () => {
           </div>
         </div>
         <div className="flex flex-col lg:flex-row items-center">
-          <img
+          <Image
             src={profile.photo || avatar}
             alt="Profile Avatar"
             className="w-24 h-24 rounded-full"
+            width={96}
+            height={96}
           />
           <div className="ml-0 lg:ml-4 mt-4 lg:mt-0">
             {editField === "name" ? (
@@ -455,7 +432,7 @@ const ProfileManagement: React.FC = () => {
         <Select
           isMulti
           value={selectedLanguages}
-          onChange={(selectedLanguages) => setSelectedLanguages(selectedLanguages)}
+          onChange={handleLanguageChange}
           options={availableLanguages}
           className="basic-multi-select text-gray"
           classNamePrefix="select"

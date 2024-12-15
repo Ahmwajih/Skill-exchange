@@ -7,7 +7,7 @@ import Protect from "@/app/components/Protect";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 
-function page() {
+function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,8 +15,12 @@ function page() {
       setLoading(false); 
     }, 2000); 
 
-    return () => clearTimeout(timer); // Cleanup timer on unmount
+    return () => clearTimeout(timer); 
   }, []);
+
+  const handleSearchResults = () => {
+    // Handle search results if needed
+  };
 
   if (loading) {
     return (
@@ -27,11 +31,11 @@ function page() {
   }
   return (
     <Protect>
-      <Navbar />
-      <ChatWindow />
-      <Footer />
+      <Navbar onSearchResults={handleSearchResults} />
+      <ChatWindow dealId={null} /> {/* Pass the required dealId prop */}
+      <Footer companyName="Community Skill Trade" year={new Date().getFullYear()} /> {/* Pass the required props */}
     </Protect>
   )
 }
 
-export default page;
+export default Page;

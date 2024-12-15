@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import SignIn from "./SignIn";
-import SignOut from "./SignOut";
+// import SignOut from "./SignOut";
 
 export default function Login() {
   const { user, loading, error } = useAuth();

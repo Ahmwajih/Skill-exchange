@@ -8,7 +8,7 @@ import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 
 
-function page() {
+function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,4 +37,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

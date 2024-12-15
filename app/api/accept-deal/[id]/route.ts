@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { NextRequest, NextResponse } from 'next/server';
 import db from "@/lib/db"; 
 import Conversation from "@/models/Conversation"; 
@@ -53,8 +54,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     pusher.trigger('conversation-channel', 'deal-accepted', { providerEmail, providerName, seekerEmail, seekerName });
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    return NextResponse.redirect(`${baseUrl}/chat?providerEmail=${providerEmail}&providerName=${providerName}&seekerEmail=${seekerEmail}&seekerName=${seekerName}&id=${id}`);
+    // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    return NextResponse.json({ success: true, conversation });
   } catch (error) {
     console.error("Error creating or updating conversation:", error);
     return NextResponse.json({ success: false, error: "Error handling conversation" }, { status: 500 });

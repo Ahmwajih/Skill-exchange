@@ -4,7 +4,9 @@ import React, {useState, useEffect} from 'react'
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
 import About from "@/app/components/About";
-function page() {
+
+
+function Page() {
 
   const [loading, setLoading] = useState(true);
 
@@ -28,4 +30,4 @@ function page() {
   )
 }
 
-export default page
+export default Page

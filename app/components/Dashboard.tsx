@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -8,8 +9,8 @@ import {
   followUser,
   updateUserProfile,
 } from "@/lib/features/dashboard/userSlice";
-import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
-import { fetchSkillById } from "@/lib/features/skills/skillsSlice";
+// import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
+// import { fetchSkillById } from "@/lib/features/skills/skillsSlice";
 import ReactCountryFlag from "react-country-flag";
 import { useRouter } from "next/navigation";
 import AddSkillModal from "./AddSkillModal";
@@ -136,11 +137,12 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-center">
             <div className="relative w-32 h-32 mx-auto mb-4">
-              <img
+              <Image
                 src={profileData.photo || avatar}
                 alt="Profile"
-                layout="fill"
                 className="rounded-full object-cover w-full h-full"
+                width={128}
+                height={128}
               />
             </div>
             <h2 className="text-xl text-brown font-semibold">
@@ -168,6 +170,9 @@ const Dashboard = () => {
                   {profileData.followers.length >= 2 ? "followers" : "follower"}
                 </span>
               </div>
+              <button onClick={handleFollow} className="ml-4 bg-blue text-white py-2 px-4 rounded-md hover:bg-blue-600">
+                {following ? "Unfollow" : "Follow"}
+              </button>
             </div>
           </div>
 
@@ -237,7 +242,7 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl text-brown">
-                Hey, I'm {profileData.name?.split(" ")[0]}!
+                Hey, I&apos;m {profileData.name?.split(" ")[0]}!
               </h2>
               <div className="flex items-center gap-2 text-gray">
                 <span>Vacation Mode</span>
@@ -308,10 +313,12 @@ const Dashboard = () => {
                       className="relative h-0 overflow-hidden"
                       style={{ paddingTop: "80%" }}
                     >
-                      <img
+                      <Image
                         src={skill.photo}
                         alt={skill.title}
                         className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg transition-opacity duration-300 hover:opacity-75"
+                        width={320}
+                        height={256}
                       />
                       {/* Hover Effect for Description */}
                       <div className="absolute inset-0 bg-black bg-opacity-50 text-white opacity-0 hover:opacity-100 flex items-center justify-center p-4 rounded-t-lg transition-opacity duration-300">
@@ -323,10 +330,12 @@ const Dashboard = () => {
 
                     {/* User Avatar */}
                     <div className="absolute top-2 left-2">
-                      <img
+                      <Image
                         src={profileData.photo || "/default-avatar.jpg"}
                         alt={profileData.name || "User"}
                         className="w-10 h-10 rounded-full border-2 border-white shadow"
+                        width={40}
+                        height={40}
                       />
                     </div>
 

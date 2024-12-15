@@ -20,10 +20,12 @@ const Faq: React.FC<FAQItemProps> = ({ question, answer }) => {
         <div className="max-md:max-w-full">{question}</div>
         
       
-        <img
+        <Image
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/b8c9dcd100b527918a5c8b042fd2ca2e78e8000347118126fb6bbe5896b7b5ed?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
           alt=""
           className={`object-contain shrink-0 my-auto h-auto w-6 aspect-square max-md:hidden transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`} 
+          width={24}
+          height={24}
         />
       </div>
       
@@ -64,10 +66,11 @@ const FAQSection: React.FC = () => {
   return (
     <section className="flex flex-col self-stretch w-full bg-white max-md:max-w-full">
       <div className="flex overflow-hidden relative flex-col justify-center items-center px-20 py-20 w-full min-h-[1132px] max-md:px-5 max-md:max-w-full">
-        <img
+        <Image
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/8d1b858c231d9ee5a91227d372091f23be7aa75a96207b2b3f8946e3bd325246?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
           alt="FAQ background"
           className="object-cover absolute inset-0 size-full"
+          layout="fill"
         />
         <div className="flex relative flex-col justify-center max-w-full sm:mx-3 w-[897px]">
           <button className="bg-orange text-white overflow-hidden gap-0.5 self-stretch px-2 py-0.5 ml-11 text-xs font-medium text-center whitespace-nowrap  min-h-[22px] rounded-[36px] shadow-[0px_1px_2px_rgba(105,81,255,0.05)] w-[75px]">

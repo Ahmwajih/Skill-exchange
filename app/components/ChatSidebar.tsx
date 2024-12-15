@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Pusher from 'pusher-js';
 import { RootState } from '@/lib/store';
 import { selectedUserById } from '@/lib/features/dashboard/userSlice';
+import Image from 'next/image';
 
 const ChatSidebar = ({ onSelectConversation, conversations }) => {
   const dispatch = useDispatch();
@@ -77,7 +78,7 @@ const ChatSidebar = ({ onSelectConversation, conversations }) => {
         {Object.entries(groupedConversations).map(([userId, { userName, userPhoto, conversations }]) => (
           <li key={userId} className="p-2 rounded-lg hover:bg-orange shadow-sm bg-white">
             <div className="flex items-center mb-2 cursor-pointer" onClick={() => onSelectConversation(conversations)}>
-              {userPhoto && <img src={userPhoto} alt={userName} className="h-8 w-8 rounded-full mr-2" />}
+              {userPhoto && <Image src={userPhoto || 'no image'} alt={userName} className="h-8 w-8 rounded-full mr-2" width={32} height={32} />}
               <span className={`h-2 w-2 rounded-full mr-2 ${isUserOnline(userId) ? 'bg-green' : 'bg-gray'}`}></span>
               {userName}
             </div>

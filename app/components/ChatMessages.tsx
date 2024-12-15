@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { addMessage } from '@/lib/features/chat/chatSlice';
 import { selectedUserById } from '@/lib/features/dashboard/userSlice';
-import { RootState } from '@/lib/store';
 import pusher from '@/Utils/socket';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
+import Image from 'next/image';
 
 const ChatMessages = ({ conversation, user }) => {
   const dispatch = useDispatch();
@@ -71,7 +71,7 @@ const ChatMessages = ({ conversation, user }) => {
     setNewMessage('');
 
     try {
-      await fetch('/api/socket', {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/socket`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,14 @@ const ChatMessages = ({ conversation, user }) => {
     <div className="flex flex-col flex-1 bg-white overflow-hidden">
       {provider && (
         <div className="flex items-center p-4 bg-white border border-y-2 cursor-pointer" onClick={() => router.push(`/skill_provider_details/${provider._id}`)}>
-          <img src={provider.photo} alt={provider.name} className="h-8 w-8 rounded-full mr-2" />
+          <Image 
+            src={provider.photo || '/default-image.png'} 
+            alt={provider.name || 'provider'} 
+            className="h-8 w-8 rounded-full mr-2" 
+            unoptimized 
+            width={32} 
+            height={32} 
+          />
           <span className="font-semibold">{provider.name}</span>
         </div>
       )}
@@ -111,14 +118,28 @@ const ChatMessages = ({ conversation, user }) => {
         {messages.map((msg, index) => (
           <div key={index} className={`flex items-start mb-3 ${msg.senderId === user.id ? 'justify-end' : ''}`}>
             {msg.senderId !== user.id && (
-              <img src={users[msg.senderId]?.photo} alt={users[msg.senderId]?.name} className="h-8 w-8 rounded-full mr-2" />
+              <Image 
+                src={users[msg.senderId]?.photo || '/default-image.png'} 
+                alt={users[msg.senderId]?.name || 'provider'} 
+                className="h-8 w-8 rounded-full mr-2" 
+                unoptimized 
+                width={32} 
+                height={32} 
+              />
             )}
             <div className={`p-2 max-w-xs md:max-w-md lg:max-w-lg rounded-lg ${msg.senderId === user.id ? 'bg-blue text-white' : 'bg-light-blue text-black'}`}>
               <p className="text-sm">{msg.content}</p>
               <p className="text-xs text-gray mt-1">{formatDate(msg.timestamp)}</p>
             </div>
             {msg.senderId === user.id && (
-              <img src={users[msg.senderId]?.photo} alt={users[msg.senderId]?.name} className="h-8 w-8 rounded-full ml-2" />
+              <Image 
+                src={users[msg.senderId]?.photo || '/default-image.png'} 
+                alt={users[msg.senderId]?.name || 'provider'} 
+                className="h-8 w-8 rounded-full ml-2" 
+                unoptimized 
+                width={32} 
+                height={32} 
+              />
             )}
           </div>
         ))}

@@ -4,7 +4,7 @@ import React, {useState, useEffect} from 'react'
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
 import SignIn from "@/app/components/SignIn";
-function page() {
+function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,4 +29,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

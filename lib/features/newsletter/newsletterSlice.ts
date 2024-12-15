@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -14,6 +13,7 @@ export const subscribeNewsletter = createAsyncThunk(
         body: JSON.stringify(email),
       });
       const data = await res.json();
+      return data;
     } catch (error) {
       console.error('Error subscribing to newsletter:', error);
     }

@@ -1,5 +1,6 @@
+/* eslint-disable */
 "use client";
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react';
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "@/app/components/Navbar";
 import Protect from "@/app/components/Protect";
@@ -7,24 +8,16 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import loading2 from "@/app/public/loading2.gif";
 import Image from 'next/image';
-
-import {
-  searchSkills,
-  setSearchResults,
-} from "@/lib/features/skills/skillsSlice";
-
-import FiltredCountry from "@/app/components/FiltredCountry";
 import Footer from "@/app/components/Footer";
+import FiltredCountry from "@/app/components/FiltredCountry";
 
-function Pages() {
-  const searchResults = useSelector(
-    (state: RootState) => state.skills.searchResults
-  );
-
+function Page() {
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   const handleSearchResults = (results: any[]) => {
     setSearchResults(results);
   };
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,11 +38,11 @@ function Pages() {
 
   return (
     <Protect>
-      <Navbar />
+      <Navbar onSearchResults={handleSearchResults} />
       <FiltredCountry searchResults={searchResults} />
-      <Footer />
+      <Footer companyName="Community Skill Trade" year={new Date().getFullYear()} />
     </Protect>
   );
 }
 
-export default Pages;
+export default Page;

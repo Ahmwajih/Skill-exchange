@@ -1,17 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import db from "@/lib/db";
-import User from "@/models/User";
+// import db from "@/lib/db";
+// import User from "@/models/User";
 import { useState } from "react";
 import Link from "next/link";
-import { NextRequest, NextResponse } from "next/server";
+import Image from "next/image";
+// import { NextRequest, NextResponse } from "next/server";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { login } from "@/lib/features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
-import { AppDispatch } from "@/lib/store";
+// import { AppDispatch } from "@/lib/store";
 import { authAll } from "@/lib/features/auth/authSlice";
 
 const url = process.env.baseUrl || "http://localhost:3000";
@@ -117,10 +118,12 @@ export default function SignIn() {
   return (
     <section className="flex flex-col items-center min-h-screen bg-white py-4 px-4 sm:px-8">
       <Link href="/main">
-        <img
+        <Image
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/d53f44d0b4930bc2c267dce9c30b2f4116e32dc1b203ed76d08054d5180281f8?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
           alt=""
           className="object-contain mt-3 aspect-square w-[63px]"
+          width={63}
+          height={63}
         />
       </Link>
       <h2 className="mt-6 text-3xl font-bold leading-none text-center text-slate-800">
@@ -184,10 +187,12 @@ export default function SignIn() {
           className="flex gap-2 justify-center items-center px-5 py-3 mt-4 text-base font-medium bg-white rounded-md border border-gray-100 shadow-sm w-full"
           onClick={() => handleProviderSignIn(googleProvider)}
         >
-          <img
+          <Image
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/58367ad1684e90ebb46e6dd71e7e80b32aae98a0e06ff83bd5b63b2393586283?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
             alt="Google logo"
             className="object-contain shrink-0 self-stretch my-auto w-6 aspect-square"
+            width={24}
+            height={24}
           />
           <span>Sign in with Google</span>
         </button>
@@ -196,16 +201,18 @@ export default function SignIn() {
           className="flex gap-2 justify-center items-center px-5 py-2.5 mt-4 text-base font-medium bg-white rounded-md border border-gray-100 shadow-sm w-full"
           onClick={() => handleProviderSignIn(githubProvider)}
         >
-          <img
+          <Image
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/8173a5b673a4c6a8ab511addf3a1048b5d1d836e91ca4b2ae36cb42a81bc96c6?placeholderIfAbsent=true&apiKey=b728ceb3dbd545adac55a3a07f0354a7"
             alt="GitHub logo"
             className="object-contain shrink-0 self-stretch my-auto aspect-[1.04] w-[27px]"
+            width={27}
+            height={27}
           />
           <span>Sign in with Github</span>
         </button>
       </form>
       <p className="mt-4 text-xs font-medium leading-5 text-center text-blue-400">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <a href="/signup" className="text-blue-400">
           Sign up
         </a>

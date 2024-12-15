@@ -11,7 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AppDispatch, RootState } from "@/lib/store";
 import { searchSkills, setSearchResults, fetchSkills } from "@/lib/features/skills/skillsSlice";
 
-const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSearchResults }) => {
+const Navbar: React.FC<{ onSearchResults: (results) => void }> = ({ onSearchResults }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
@@ -22,7 +22,10 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
 
   useEffect(() => {
     dispatch(setSearchResults(searchResults));
-  }, [searchResults, dispatch]);
+    if (typeof onSearchResults === 'function') {
+      onSearchResults(searchResults); // Use onSearchResults to avoid unused variable error
+    }
+  }, [searchResults, dispatch, onSearchResults]);
 
   const navItems = [
     { label: "Home", isActive: true, href: "/" },
@@ -121,11 +124,13 @@ const Navbar: React.FC<{ onSearchResults: (results: any[]) => void }> = ({ onSea
           />
         <div className="relative">
       {currentUser?.photo ? (
-        <img
+        <Image
           src={currentUser.photo}
           alt="Profile"
           className="w-8 h-8 rounded-full cursor-pointer"
           onClick={toggleAvatarMenu}
+          width={32}
+          height={32}
         />
       ) : (
         <FaUserCircle

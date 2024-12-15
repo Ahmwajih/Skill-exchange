@@ -1,9 +1,6 @@
 // lib/firebase.ts
-import { initializeApp, getApp, getApps } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
-import dotenv from 'dotenv';
-
-dotenv.config({ path: '.env' });
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,

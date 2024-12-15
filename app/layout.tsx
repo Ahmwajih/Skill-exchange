@@ -2,7 +2,7 @@
 import './globals.css'; 
 import { SessionProvider } from "next-auth/react";
 import StoreProvider from '@/app/StoreProvider'; 
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 

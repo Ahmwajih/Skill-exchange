@@ -1,9 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { useDispatch } from 'react-redux';
-import { subscribeNewsletter } from '@/lib/features/newsletter/newsletterSlice';
-import { createNewsletter } from '@/lib/features/newsletter/newsletterSlice';
 import { toast } from 'react-toastify';
 
 interface FooterProps {
@@ -13,7 +10,6 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = () => {
   const [email, setEmail] = useState("");
-  const dispatch = useDispatch();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -21,13 +17,7 @@ const Footer: React.FC<FooterProps> = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // try {
-    //   console.log('Email:', email);
-    //   dispatch(subscribeNewsletter(email));
-    //   setEmail('');
-    // } catch (error) {
-    //   toast.error('Failed to subscribe. Please try again later.');
-    // }
+
     const res = await fetch('/api/newsletter', {
       method: 'POST',
       headers: {

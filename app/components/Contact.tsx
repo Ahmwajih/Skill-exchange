@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+'use client';
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useDispatch, useSelector } from 'react-redux';

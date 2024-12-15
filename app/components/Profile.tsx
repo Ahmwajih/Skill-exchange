@@ -109,6 +109,7 @@ const ProfileManagement: React.FC = () => {
     { value: "Galician", label: "Galician" },
     { value: "Welsh", label: "Welsh" },
   ]);
+  const [isVacationMode, setIsVacationMode] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -128,6 +129,7 @@ const ProfileManagement: React.FC = () => {
               languages: data.languages || [],
               availability: data.availability || [],
             });
+            setIsVacationMode(data.isVacationMode || false); // Set vacation mode status
 
             const userLanguages = data.languages.map((language) => ({
               value: language,
@@ -158,7 +160,7 @@ const ProfileManagement: React.FC = () => {
 
   const handleSave = async () => {
     const updatedLanguages = selectedLanguages.map((option) => option.value);
-    const updatedProfile = { ...profile, languages: updatedLanguages, availability };
+    const updatedProfile = { ...profile, languages: updatedLanguages, availability, isVacationMode };
 
     try {
       const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
@@ -464,38 +466,44 @@ const ProfileManagement: React.FC = () => {
             {/* Availability */}
             <div className="mt-4 mb-4">
         <h3 className="text-lg text-brown mb-2">Availability:</h3>
-        <div className="flex flex-col lg:flex-row items-center mb-4">
-          <DatePicker
-            selected={selectedDate}
-            onChange={(date) => setSelectedDate(date)}
-            placeholderText="Select a date"
-            className="w-full px-4 py-2 border bg-white rounded-md focus:ring-blue focus:border-blue"
-          />
-          <input
-            type="time"
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            className="w-full px-4 py-2 border text-black bg-white rounded-md focus:ring-blue focus:border-blue mt-4 lg:mt-0 lg:ml-4"
-          />
-          <button
-            onClick={handleAddAvailability}
-            className="bg-blue text-white px-4 py-2 rounded mt-4 lg:mt-0 lg:ml-4"
-          >
-            Add
-          </button>
-        </div>
-        <ul className="mt-2">
-          {availability.map((avail, index) => (
-            <li key={index} className="mb-2">
-              <strong>{avail.date}</strong>
-              <ul>
-                {avail.times.map((time, idx) => (
-                  <li key={idx}>{time}</li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
+        {isVacationMode ? (
+          <p className="text-red-500">Availability is blocked due to vacation mode.</p>
+        ) : (
+          <>
+            <div className="flex flex-col lg:flex-row items-center mb-4">
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                placeholderText="Select a date"
+                className="w-full px-4 py-2 border bg-white rounded-md focus:ring-blue focus:border-blue"
+              />
+              <input
+                type="time"
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+                className="w-full px-4 py-2 border text-black bg-white rounded-md focus:ring-blue focus:border-blue mt-4 lg:mt-0 lg:ml-4"
+              />
+              <button
+                onClick={handleAddAvailability}
+                className="bg-blue text-white px-4 py-2 rounded mt-4 lg:mt-0 lg:ml-4"
+              >
+                Add
+              </button>
+            </div>
+            <ul className="mt-2">
+              {availability.map((avail, index) => (
+                <li key={index} className="mb-2">
+                  <strong>{avail.date}</strong>
+                  <ul>
+                    {avail.times.map((time, idx) => (
+                      <li key={idx}>{time}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
 
       {/* Skills Section */}

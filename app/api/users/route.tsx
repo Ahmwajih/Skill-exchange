@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, password, country, photo, provider, role, skills, skillsLookingFor, bio, languages, Github, LinkedIn, availability } = body;
+    const { name, email, password, country, photo, provider, role, skills, skillsLookingFor, bio, languages, Github, LinkedIn, availability, isVacationMode } = body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
       Github,
       LinkedIn,
       availability,
+      isVacationMode, // Add vacation mode status
     });
     const savedUser = await newUser.save();
 

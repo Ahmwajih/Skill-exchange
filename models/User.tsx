@@ -107,6 +107,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       ref: "User",
       default: [],
     },
+    isVacationMode: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

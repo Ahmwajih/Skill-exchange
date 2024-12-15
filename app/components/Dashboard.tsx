@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "@/lib/store";
 import {
   selectedUserById,
   followUser,
+  updateUserProfile,
 } from "@/lib/features/dashboard/userSlice";
 import { addSkillToUser } from "@/lib/features/skills/skillsSlice";
 import { fetchSkillById } from "@/lib/features/skills/skillsSlice";
@@ -44,6 +45,7 @@ const Dashboard = () => {
     skillsLookingFor: [],
     bio: "",
     languages: [],
+    isVacationMode: false, // Add vacation mode status
   });
 
   const handleAddSkill = () => {
@@ -69,7 +71,9 @@ const Dashboard = () => {
             skills: response.data.skills || [],
             skillsLookingFor: response.data.skillsLookingFor || [],
             bio: response.data.bio || "No Bio",
+            isVacationMode: response.data.isVacationMode || false, // Set vacation mode status
           });
+          setIsVacationMode(response.data.isVacationMode || false); // Set vacation mode status
         });
     }
   }, [dispatch, user]);
@@ -91,6 +95,20 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Error during follow action:", error);
+    }
+  };
+
+  const handleVacationModeToggle = async () => {
+    const updatedProfile = { ...profileData, isVacationMode: !isVacationMode };
+    try {
+      const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
+      if (response.payload.success) {
+        setIsVacationMode(!isVacationMode);
+      } else {
+        console.error("Failed to update vacation mode.");
+      }
+    } catch (error) {
+      console.error("Error updating vacation mode:", error);
     }
   };
 
@@ -226,7 +244,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-2 text-gray">
                 <span>Vacation Mode</span>
                 <button
-                  onClick={() => setIsVacationMode(!isVacationMode)}
+                  onClick={handleVacationModeToggle}
                   className={`w-12 h-6 rounded-full transition-colors ${
                     isVacationMode ? "bg-blue" : "bg-gray"
                   }`}

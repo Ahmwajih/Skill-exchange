@@ -6,7 +6,7 @@ import { fetchConversations } from '@/lib/features/conversation/conversationSlic
 import ChatSidebar from './ChatSidebar';
 import ChatMessages from './ChatMessages';
 import ChatDetails from './ChatDetails';
-import socket from '@/Utils/socket';
+import pusher from '@/Utils/socket';
 
 const ChatWindow = ({ dealId }) => {
   const dispatch = useDispatch();
@@ -35,9 +35,22 @@ const ChatWindow = ({ dealId }) => {
   }, [user, dealId, dispatch]);
 
   useEffect(() => {
-    socket.connect();
-    return () => socket.disconnect();
-  }, []);
+    const channel = pusher.subscribe('conversation-channel');
+    channel.bind('deal-accepted', () => {
+      if (user) {
+        dispatch(fetchConversations(user.id)).then((action) => {
+          if (!action.error && Array.isArray(action.payload)) {
+            setConversations(action.payload);
+          }
+        });
+      }
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, [user, dispatch]);
 
   const handleSelectConversation = (conversation) => {
     setSelectedConversation(conversation);
@@ -63,7 +76,6 @@ const ChatWindow = ({ dealId }) => {
           <>
             <ChatMessages
               conversation={selectedConversation}
-              socket={socket}
               user={user}
             />
             {selectedDealId && (

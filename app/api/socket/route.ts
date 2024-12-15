@@ -11,12 +11,35 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   await db();
 
-  pusher.trigger('my-channel', 'my-event', {
-    message: 'hello world'
-  });
+  const { conversationId, senderId, content } = await request.json();
 
-  return NextResponse.json({ message: 'Pusher server initialized' });
+  if (!conversationId || !senderId || !content) {
+    return NextResponse.json({ success: false, error: "Missing required parameters" }, { status: 400 });
+  }
+
+  try {
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return NextResponse.json({ success: false, error: "Conversation not found" }, { status: 404 });
+    }
+
+    const message = {
+      senderId,
+      content,
+      timestamp: new Date(),
+    };
+
+    conversation.messages.push(message);
+    await conversation.save();
+
+    pusher.trigger(`conversation-${conversationId}`, 'receive_message', message);
+
+    return NextResponse.json({ success: true, message });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    return NextResponse.json({ success: false, error: "Error sending message" }, { status: 500 });
+  }
 }

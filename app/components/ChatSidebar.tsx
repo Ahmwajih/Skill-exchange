@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Pusher from 'pusher-js';
 import { RootState } from '@/lib/store';
@@ -12,24 +12,25 @@ const ChatSidebar = ({ onSelectConversation, conversations }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [users, setUsers] = useState({});
 
-  useEffect(() => {
-    const fetchUserDetails = async (userId) => {
+  const fetchUserDetails = useCallback(async (userId) => {
+    if (!users[userId]) {
       const action = await dispatch(selectedUserById(userId));
       if (!action.error) {
         setUsers((prevUsers) => ({ ...prevUsers, [userId]: action.payload }));
       }
+    }
+  }, [dispatch, users]);
+
+  useEffect(() => {
+    const initializeUsers = async () => {
+      for (const conversation of conversations) {
+        const userId = conversation.providerId._id === user.id ? conversation.seekerId._id : conversation.providerId._id;
+        await fetchUserDetails(userId);
+      }
     };
 
-    conversations.forEach((conversation) => {
-      const userId = conversation.providerId._id === user.id ? conversation.seekerId._id : conversation.providerId._id;
-
-      if (!users[userId]) {
-        fetchUserDetails(userId).then(() => {
-          console.log('Fetched user details for userId:', userId);
-        });
-      }
-    });
-  }, [conversations, dispatch, user.id, users]);
+    initializeUsers();
+  }, [conversations, fetchUserDetails, user.id]);
 
   useEffect(() => {
     const pusher = new Pusher('b85eae341f11d9507db7', {

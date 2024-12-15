@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { addMessage } from '@/lib/features/chat/chatSlice';
 import { selectedUserById } from '@/lib/features/dashboard/userSlice';
-import Pusher from 'pusher-js';
+import { RootState } from '@/lib/store';
+import pusher from '@/Utils/socket';
+import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 
 const ChatMessages = ({ conversation, user }) => {
@@ -10,25 +12,38 @@ const ChatMessages = ({ conversation, user }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [provider, setProvider] = useState(null);
+  const [users, setUsers] = useState({});
   const messagesEndRef = useRef(null);
+  const router = useRouter();
 
-  useEffect(() => {
-    if (conversation) {
-      setMessages(conversation.messages || []);
-      const providerId = conversation.providerId._id;
-      dispatch(selectedUserById(providerId)).then((action) => {
-        if (!action.error) {
-          setProvider(action.payload.data);
-        }
-      });
+  const fetchUserDetails = useCallback(async (userId) => {
+    if (!users[userId]) {
+      const action = await dispatch(selectedUserById(userId));
+      if (!action.error) {
+        setUsers((prevUsers) => ({ ...prevUsers, [userId]: action.payload.data }));
+      }
     }
-  }, [conversation, dispatch]);
+  }, [dispatch, users]);
 
   useEffect(() => {
-    const pusher = new Pusher('b85eae341f11d9507db7', {
-      cluster: 'eu',
-    });
+    const initializeConversation = async () => {
+      if (conversation) {
+        setMessages(conversation.messages || []);
+        const providerId = conversation.providerId._id === user.id ? conversation.seekerId._id : conversation.providerId._id;
+        await fetchUserDetails(providerId);
+        setProvider(users[providerId]);
 
+        for (const msg of conversation.messages) {
+          const userId = msg.senderId;
+          await fetchUserDetails(userId);
+        }
+      }
+    };
+
+    initializeConversation();
+  }, [conversation, fetchUserDetails, user.id, users]);
+
+  useEffect(() => {
     const channel = pusher.subscribe(`conversation-${conversation?._id}`);
     channel.bind('receive_message', (message) => {
       dispatch(addMessage({ conversationId: conversation?._id, message }));
@@ -45,22 +60,27 @@ const ChatMessages = ({ conversation, user }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (newMessage.trim() === '') return;
     const message = {
       senderId: user.id,
       content: newMessage,
       timestamp: new Date(),
     };
-    fetch('/api/send-message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...message, conversationId: conversation?._id }),
-    });
     setMessages((prevMessages) => [...prevMessages, message]);
     setNewMessage('');
+
+    try {
+      await fetch('/api/socket', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...message, conversationId: conversation?._id }),
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -82,21 +102,24 @@ const ChatMessages = ({ conversation, user }) => {
   return (
     <div className="flex flex-col flex-1 bg-white overflow-hidden">
       {provider && (
-        <div className="flex items-center p-4 bg-white border border-y-2 cursor-pointer" onClick={() => window.location.href = `/dashboard/${provider._id}`}>
+        <div className="flex items-center p-4 bg-white border border-y-2 cursor-pointer" onClick={() => router.push(`/skill_provider_details/${provider._id}`)}>
           <img src={provider.photo} alt={provider.name} className="h-8 w-8 rounded-full mr-2" />
           <span className="font-semibold">{provider.name}</span>
         </div>
       )}
       <div className="flex-1 p-4 overflow-y-auto">
         {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`mb-3 p-2 max-w-xs md:max-w-md lg:max-w-lg rounded-lg ${
-              msg.senderId === user.id ? 'bg-blue text-white ml-auto' : 'bg-light-blue text-black mr-auto'
-            }`}
-          >
-            <p className="text-sm">{msg.content}</p>
-            <p className="text-xs text-gray mt-1">{formatDate(msg.timestamp)}</p>
+          <div key={index} className={`flex items-start mb-3 ${msg.senderId === user.id ? 'justify-end' : ''}`}>
+            {msg.senderId !== user.id && (
+              <img src={users[msg.senderId]?.photo} alt={users[msg.senderId]?.name} className="h-8 w-8 rounded-full mr-2" />
+            )}
+            <div className={`p-2 max-w-xs md:max-w-md lg:max-w-lg rounded-lg ${msg.senderId === user.id ? 'bg-blue text-white' : 'bg-light-blue text-black'}`}>
+              <p className="text-sm">{msg.content}</p>
+              <p className="text-xs text-gray mt-1">{formatDate(msg.timestamp)}</p>
+            </div>
+            {msg.senderId === user.id && (
+              <img src={users[msg.senderId]?.photo} alt={users[msg.senderId]?.name} className="h-8 w-8 rounded-full ml-2" />
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} />

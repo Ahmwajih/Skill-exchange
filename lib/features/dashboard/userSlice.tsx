@@ -24,12 +24,14 @@ interface UserState {
   users: User[];
   filteredUsers: User[];
   currentUser?: User | null;
+  userCache: { [key: string]: User }; // Add a cache for user details
 }
 
 const initialState: UserState = {
   users: [],
   filteredUsers: [],
   currentUser: null,
+  userCache: {}, // Initialize the cache
 };
 
 const userSlice = createSlice({
@@ -60,10 +62,13 @@ const userSlice = createSlice({
     clearCurrentUser: (state) => {
       state.currentUser = null; 
     },
+    setUserCache: (state, action: PayloadAction<{ id: string, user: User }>) => {
+      state.userCache[action.payload.id] = action.payload.user;
+    },
   },
 });
 
-export const { setUsers, filterUsersByCountry, searchUsersByName, setCurrentUser, clearCurrentUser } = userSlice.actions;
+export const { setUsers, filterUsersByCountry, searchUsersByName, setCurrentUser, clearCurrentUser, setUserCache } = userSlice.actions;
 
 export const fetchUsers = () => async (dispatch: AppDispatch) => {
   try {
@@ -83,12 +88,20 @@ export const fetchUsers = () => async (dispatch: AppDispatch) => {
 
 export const selectedUserById = createAsyncThunk(
   'users/selectedUserById',
-  async (id: string, { dispatch }) => {
+  async (id: string, { dispatch, getState }) => {
+    const state = getState() as RootState;
+    const cachedUser = state.users.userCache[id];
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
     try {
       const res = await fetch(`${baseUrl}api/users/${id}`);
       const data = await res.json();
 
       if (res.status === 200) {
+        dispatch(setUserCache({ id, user: data }));
         return data;
       } else {
         toast.error('Failed to fetch user');

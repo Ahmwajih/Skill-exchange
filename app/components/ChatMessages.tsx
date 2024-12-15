@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { addMessage } from '@/lib/features/chat/chatSlice';
+import { selectedUserById } from '@/lib/features/dashboard/userSlice';
 import Pusher from 'pusher-js';
 import dayjs from 'dayjs';
 
@@ -8,13 +9,20 @@ const ChatMessages = ({ conversation, user }) => {
   const dispatch = useDispatch();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [provider, setProvider] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (conversation) {
       setMessages(conversation.messages || []);
+      const providerId = conversation.providerId._id;
+      dispatch(selectedUserById(providerId)).then((action) => {
+        if (!action.error) {
+          setProvider(action.payload.data);
+        }
+      });
     }
-  }, [conversation]);
+  }, [conversation, dispatch]);
 
   useEffect(() => {
     const pusher = new Pusher('b85eae341f11d9507db7', {
@@ -73,6 +81,12 @@ const ChatMessages = ({ conversation, user }) => {
 
   return (
     <div className="flex flex-col flex-1 bg-white overflow-hidden">
+      {provider && (
+        <div className="flex items-center p-4 bg-white border border-y-2 cursor-pointer" onClick={() => window.location.href = `/dashboard/${provider._id}`}>
+          <img src={provider.photo} alt={provider.name} className="h-8 w-8 rounded-full mr-2" />
+          <span className="font-semibold">{provider.name}</span>
+        </div>
+      )}
       <div className="flex-1 p-4 overflow-y-auto">
         {messages.map((msg, index) => (
           <div
@@ -83,14 +97,6 @@ const ChatMessages = ({ conversation, user }) => {
           >
             <p className="text-sm">{msg.content}</p>
             <p className="text-xs text-gray mt-1">{formatDate(msg.timestamp)}</p>
-            {/* {msg.senderId !== user.id && (
-              // <a
-              //   // href={`/dashboard/${conversation.providerId._id}`}
-              //   className="mt-2 inline-block px-4 py-2 text-sm text-white bg-blue rounded-lg hover:bg-blue"
-              // >
-              //   View Provider Dashboard
-              // </a>
-            )} */}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -107,7 +113,7 @@ const ChatMessages = ({ conversation, user }) => {
         />
         <button
           onClick={handleSendMessage}
-          className="px-4 py-2 text-white bg-blue rounded-lg hover:bg-blue"
+          className="px-4 py-2 text-white bg-blue rounded-lg hover:bg-blue hover:transition-colors duration-300"
         >
           Send
         </button>

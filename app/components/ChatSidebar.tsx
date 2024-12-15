@@ -72,9 +72,9 @@ const ChatSidebar = ({ onSelectConversation, conversations }) => {
   return (
     <div className="w-full md:w-1/4 bg-white p-4 border-r border-gray text-black">
       <h2 className="text-lg font-semibold mb-4">Conversations</h2>
-      <ul className="space-y-2 text-black">
+      <ul className="space-y-2 text-black ">
         {Object.entries(groupedConversations).map(([userId, { userName, userPhoto, conversations }]) => (
-          <li key={userId} className="p-2 rounded-lg shadow-sm bg-white">
+          <li key={userId} className="p-2 rounded-lg hover:bg-orange shadow-sm bg-white">
             <div className="flex items-center mb-2 cursor-pointer" onClick={() => onSelectConversation(conversations)}>
               {userPhoto && <img src={userPhoto} alt={userName} className="h-8 w-8 rounded-full mr-2" />}
               <span className={`h-2 w-2 rounded-full mr-2 ${isUserOnline(userId) ? 'bg-green' : 'bg-gray'}`}></span>

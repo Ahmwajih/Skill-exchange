@@ -31,7 +31,7 @@ const Navbar: React.FC<{ onSearchResults: (results) => void }> = ({ onSearchResu
     { label: "Home", isActive: true, href: "/" },
     { label: "Main", isActive: true, href: "/main" },
     { label: "Dashboard", isActive: true, href: "/user_dashboard" },
-    { label: "Messages", isActive: true, href: "/chat" },
+    { label: "Messages", isActive: true, href: "/messanger" },
   ];
 
   const handleLogout = async () => {

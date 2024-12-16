@@ -72,7 +72,7 @@ export const { setUsers, filterUsersByCountry, searchUsersByName, setCurrentUser
 
 export const fetchUsers = () => async (dispatch: AppDispatch) => {
   try {
-    const res = await fetch(`${baseUrl}/api/users`);
+    const res = await fetch(`/api/users`);
     const data = await res.json();
 
     if (data.success) {
@@ -97,7 +97,7 @@ export const selectedUserById = createAsyncThunk(
     }
 
     try {
-      const res = await fetch(`${baseUrl}/api/users/${id}`);
+      const res = await fetch(`/api/users/${id}`);
       const data = await res.json();
 
       if (res.status === 200) {
@@ -118,7 +118,7 @@ export const updateUserProfile = createAsyncThunk(
   'users/updateUserProfile',
   async ({ id, userData }: { id: string; userData: User }, { dispatch }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/users/${id}`, { 
+      const res = await fetch(`/api/users/${id}`, { 
         method: "PUT", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -143,7 +143,7 @@ export const createUserProfile = createAsyncThunk(
   'users/createUserProfile',
   async ({ id, userData }: { id: string; userData: User }, { dispatch }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/users/${id}`, { 
+      const res = await fetch(`/api/users/${id}`, { 
         method: "PUT", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -171,7 +171,7 @@ export const followUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await fetch(`${baseUrl}/api/users/follow`, {
+      const res = await fetch(`/api/users/follow`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, currentUserId, action }),
@@ -198,7 +198,7 @@ export const deleteUser = createAsyncThunk(
   'user/deleteUser',
   async (id: string, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/users/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
 
       if (!res.ok) {
         const error: { error?: string } = await res.json();

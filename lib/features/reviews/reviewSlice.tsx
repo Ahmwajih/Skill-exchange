@@ -3,7 +3,6 @@ import { AppDispatch } from "@/lib/store";
 import { toast } from "react-toastify";
 
 
-const url = process.env.NEXT_PUBLIC_BASE_URL;
 
 // const token = sessionStorage.getItem("token") || null;
 
@@ -57,7 +56,7 @@ const reviewSlice = createSlice({
 
 export const getReviews = () => async (dispatch: AppDispatch) => {
     try {
-        const res = await fetch(`${url}/api/reviews`);
+        const res = await fetch(`/api/reviews`);
         const data = await res.json();
 
         if (res.status == 200) {
@@ -73,7 +72,7 @@ export const getReviewsBySkillId = createAsyncThunk(
     'reviews/getReviewsBySkillId',
     async (skillId: string, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${url}/api/reviews?skillId=${skillId}`);
+            const response = await fetch(`/api/reviews?skillId=${skillId}`);
             const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to fetch reviews');
@@ -88,7 +87,7 @@ export const getReviewsBySkillId = createAsyncThunk(
 
 export const createReview = (reviewInfo: Review) => async (dispatch: AppDispatch) => {
     try {
-        const res = await fetch(`${url}/api/reviews`, {
+        const res = await fetch(`/api/reviews`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -112,7 +111,7 @@ export const createReview = (reviewInfo: Review) => async (dispatch: AppDispatch
 
 export const updateReview = (reviewInfo: Review) => async (dispatch: AppDispatch) => {
     try {
-        const res = await fetch(`${url}/api/reviews/${reviewInfo._id}`, {
+        const res = await fetch(`/api/reviews/${reviewInfo._id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -133,7 +132,7 @@ export const updateReview = (reviewInfo: Review) => async (dispatch: AppDispatch
 
 export const deleteReview = (reviewId: string) => async (dispatch: AppDispatch) => {
     try {
-        const res = await fetch(`${url}api/reviews/${reviewId}`, {
+        const res = await fetch(`/api/reviews/${reviewId}`, {
             method: "DELETE",
         });
 

@@ -49,7 +49,7 @@ export default function SignIn() {
       const { displayName, email } = result.user;
       const token = await result.user.getIdToken();
       const photoURL = result.user.photoURL;
-      const response = await fetch(`${url}/api/users`, {
+      const response = await fetch(`/api/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

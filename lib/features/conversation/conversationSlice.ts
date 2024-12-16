@@ -41,7 +41,7 @@ export const fetchConversations = createAsyncThunk<Conversation[], string, { rej
   "conversations/fetchConversations",
   async (userId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/conversation/${userId}`);
+      const res = await fetch(`/api/conversation/${userId}`);
 
       const data = await res.json();
 
@@ -65,7 +65,7 @@ export const createConversation = createAsyncThunk<Conversation, Conversation, {
   "conversations/createConversation",
   async (conversationData, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/conversation`, {
+      const res = await fetch(`/api/conversation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(conversationData),
@@ -94,7 +94,7 @@ export const sendMessage = createAsyncThunk<Message, { conversationId: string; s
   "conversations/sendMessage",
   async ({ conversationId, senderId, content }, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/send-message`, {
+      const res = await fetch(`/api/send-message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversationId, senderId, content }),

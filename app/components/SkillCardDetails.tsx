@@ -103,7 +103,7 @@ const SkillCardDetails: React.FC = () => {
       reviewedBy: currentUser.id, 
     };
 
-    const res = await fetch(`${baseUrl}/api/reviews`, {
+    const res = await fetch(`/api/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

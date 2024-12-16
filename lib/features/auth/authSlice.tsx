@@ -129,7 +129,7 @@ interface UserProfileResponse {
 
 export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
   try {
-    const res = await fetch(`${url}/api/login`, {
+    const res = await fetch(`/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userInfo),
@@ -180,7 +180,7 @@ export const login = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) 
 
 export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter>) => async (dispatch: AppDispatch) => {
   try {
-    const res = await fetch(`${url}/api/users`, {
+    const res = await fetch(`/api/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...userInfo, provider: userInfo.provider || "email" }), // Ensure provider is set
@@ -232,7 +232,7 @@ export const logoutUser = (router: ReturnType<typeof useRouter>) => async (dispa
     // Sign out from Firebase
     await firebaseAuth.signOut();
 
-    const res = await fetch(`${url}/api/logout`, {
+    const res = await fetch(`/api/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -261,7 +261,7 @@ export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInf
       throw new Error("No token found");
     }
 
-    const res = await fetch(`${url}/api/users/change-password/${id}`, {
+    const res = await fetch(`/api/users/change-password/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -282,7 +282,7 @@ export const changePassword = (id: string, passwordChangeInfo: PasswordChangeInf
 
 export const fetchUserProfile = (userInfo: UserProfileInfo) => async (dispatch: AppDispatch) => {
   try {
-    const res = await fetch(`${url}/api/users/${userInfo.id}`, {
+    const res = await fetch(`/api/users/${userInfo.id}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${typeof window !== "undefined" ? sessionStorage.getItem("token") : ""}`,

@@ -1,4 +1,3 @@
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -12,7 +11,7 @@ export const submitContactForm = createAsyncThunk(
   'contact/submitContactForm',
   async (formData: ContactFormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/contact', formData);
+      const response = await axios.post('./api/contact', formData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

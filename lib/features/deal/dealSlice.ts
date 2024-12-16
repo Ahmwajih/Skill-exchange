@@ -32,7 +32,7 @@ export const fetchDeals = createAsyncThunk<Deal[], string, { rejectValue: string
   "deals/fetchDeals",
   async (userId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/deal/${userId}`);
+      const res = await fetch(`/api/deal/${userId}`);
       const data = await res.json();
       if (res.status === 200) {
         return data.data;
@@ -52,7 +52,7 @@ export const fetchDealById = createAsyncThunk<Deal, string, { rejectValue: strin
   "deals/fetchDealById",
   async (dealId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/deal/${dealId}`);
+      const res = await fetch(`/api/deal/${dealId}`);
       const data = await res.json();
       if (res.status === 200) {
         return data.data;
@@ -72,7 +72,7 @@ export const createDeal = createAsyncThunk<Deal, Partial<Deal>, { rejectValue: s
   "deals/createDeal",
   async (dealData, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${baseUrl}/api/deal`, {
+      const res = await fetch(`/api/deal`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dealData),

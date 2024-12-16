@@ -6,8 +6,7 @@ export const subscribeNewsletter = createAsyncThunk(
   'newsletter/subscribe',
   async (email: string) => {
     try {
-      // const response = await axios.post('/api/newsletter', { email });
-      const res = await fetch(`${baseUrl}/api/newsletter`, {
+      const res = await fetch(`/api/newsletter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(email),

@@ -72,7 +72,7 @@ const ChatMessages = ({ conversation, user }) => {
     setNewMessage('');
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/socket`, {
+      await fetch(`/api/socket`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

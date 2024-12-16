@@ -50,7 +50,7 @@ export default function SignIn() {
       const password = result.user.uid;
       //TODO: i will use dispatch for register
 
-      const response = await fetch(`${url}/api/users`, {
+      const response = await fetch(`/api/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

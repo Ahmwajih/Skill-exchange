@@ -6,12 +6,9 @@ import ChatWindow from "@/app/components/ChatWindow";
 import Protect from "@/app/components/Protect";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { useRouter } from 'next/router';
 
 function Page() {
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const { dealId } = router.query; // Get dealId from the query parameters
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,7 +32,7 @@ function Page() {
   return (
     <Protect>
       <Navbar onSearchResults={handleSearchResults} />
-      <ChatWindow dealId={dealId} /> {/* Pass the required dealId prop */}
+      <ChatWindow dealId={undefined} /> {/* Pass the required dealId prop */}
       <Footer companyName="Community Skill Trade" year={new Date().getFullYear()} /> {/* Pass the required props */}
     </Protect>
   )

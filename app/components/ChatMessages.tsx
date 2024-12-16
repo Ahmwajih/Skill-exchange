@@ -14,6 +14,7 @@ const ChatMessages = ({ conversation, user }) => {
   const [provider, setProvider] = useState(null);
   const [users, setUsers] = useState({});
   const messagesEndRef = useRef(null);
+  
   const router = useRouter();
 
   const fetchUserDetails = useCallback(async (userId) => {

@@ -27,6 +27,10 @@ const nextConfig = {
         FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
         FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
         MONGODB_URI: process.env.MONGODB_URI,
+        JWT_SECRET: process.env.JWT_SECRET,
+        NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+        MY_EMAIL2: process.env.MY_EMAIL2,
+        PASSWORD: process.env.PASSWORD,
     },
 };
 

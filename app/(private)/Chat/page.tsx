@@ -7,6 +7,8 @@ import Protect from "@/app/components/Protect";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 
+export const dynamic = 'force-dynamic'; // force dynamic
+
 function Page() {
   const [loading, setLoading] = useState(true);
 

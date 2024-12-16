@@ -38,7 +38,6 @@ interface Review {
   reviewedBy: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_UR;
 
 
 const SkillCardDetails: React.FC = () => {

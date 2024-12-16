@@ -2,7 +2,6 @@ import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { AppDispatch } from "@/lib/store";
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 interface User {
   _id: string;

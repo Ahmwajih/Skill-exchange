@@ -15,7 +15,6 @@ import "react-toastify/dist/ReactToastify.css";
 // import { AppDispatch } from "@/lib/store";
 import { authAll } from "@/lib/features/auth/authSlice";
 
-const url = process.env.baseUrl || "http://localhost:3000";
 
 export default function SignIn() {
   const router = useRouter();

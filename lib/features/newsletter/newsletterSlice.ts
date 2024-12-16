@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const subscribeNewsletter = createAsyncThunk(
   'newsletter/subscribe',

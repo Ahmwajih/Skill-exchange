@@ -4,7 +4,6 @@ import { AppDispatch } from "@/lib/store";
 import { auth as firebaseAuth } from "@/lib/firebase";
 import { useRouter } from "next/router";
 
-const url = process.env.NEXT_PUBLIC_BASE_URL;
 
 interface UserInfo {
   id: string;

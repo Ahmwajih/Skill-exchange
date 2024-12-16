@@ -34,7 +34,7 @@ function Page() {
   return (
     <Protect>
       <Navbar onSearchResults={handleSearchResults} />
-      <ChatWindow dealId={undefined} /> {/* Pass the required dealId prop */}
+      <ChatWindow /> {/* Removed dealId prop */}
       <Footer companyName="Community Skill Trade" year={new Date().getFullYear()} /> {/* Pass the required props */}
     </Protect>
   )

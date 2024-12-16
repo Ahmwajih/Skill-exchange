@@ -8,20 +8,18 @@ import ChatMessages from './ChatMessages';
 import ChatDetails from './ChatDetails';
 import pusher from '@/Utils/socket';
 
-const ChatWindow = ({ dealId }) => {
+const ChatWindow = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.currentUser);
   const [selectedConversations, setSelectedConversations] = useState([]);
-  const [selectedDealId, setSelectedDealId] = useState(dealId || null);
+  const [selectedDealId, setSelectedDealId] = useState(null);
   const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
     if (user) {
       dispatch(fetchDeals(user.id)).then((action) => {
         if (!action.error && Array.isArray(action.payload)) {
-          const deal = dealId
-            ? action.payload.find((deal) => deal._id === dealId)
-            : action.payload[0];
+          const deal = action.payload[0];
           if (deal) setSelectedDealId(deal._id);
         }
       });
@@ -32,7 +30,7 @@ const ChatWindow = ({ dealId }) => {
         }
       });
     }
-  }, [user, dealId, dispatch]);
+  }, [user, dispatch]);
 
   useEffect(() => {
     const channel = pusher.subscribe('conversation-channel');

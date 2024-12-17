@@ -38,8 +38,6 @@ interface Review {
   reviewedBy: string;
 }
 
-
-
 const SkillCardDetails: React.FC = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -50,8 +48,6 @@ const SkillCardDetails: React.FC = () => {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
- 
-
   const router = useRouter();
 
   useEffect(() => {
@@ -87,12 +83,15 @@ const SkillCardDetails: React.FC = () => {
   if (!skill) {
     return <p className="text-center">Skill not found.</p>;
   }
+
   const handleStartConversation = () => {
     setShowModal(true);
   };
+
   const handleCancelConversation = () => {
     setShowModal(false);
-  }
+  };
+
   const handleReviewSubmit = async () => {
     const review = {
       skillId: skill._id,
@@ -132,6 +131,7 @@ const SkillCardDetails: React.FC = () => {
       console.error("Error submitting review:", error);
     }
   };
+
   const handleProviderClick = () => {
     if (skill.user._id === currentUser.id) {
       router.push("/user_dashboard");

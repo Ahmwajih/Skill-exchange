@@ -102,30 +102,34 @@ const SkillCardDetails: React.FC = () => {
       reviewedBy: currentUser.id, 
     };
 
-    const res = await fetch(`/api/reviews`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(review),
-    });
-    const data = await res.json();
-    if (res.status == 201) { 
-      const newReviewData = {
-        ...data.data,
-        user: {
-          name: currentUser.name,
+    try {
+      const res = await fetch(`/api/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        reviewedBy: {
-          name: currentUser.name,
-        },
-        createdAt: new Date().toISOString(),
-      };
-      setReviews([...reviews, newReviewData]);
-      setNewReview("");
-      setRating(0);
-    } else {
-      console.error("Failed to create review");
+        body: JSON.stringify(review),
+      });
+      const data = await res.json();
+      if (res.status == 201) { 
+        const newReviewData = {
+          ...data.data,
+          user: {
+            name: currentUser.name,
+          },
+          reviewedBy: {
+            name: currentUser.name,
+          },
+          createdAt: new Date().toISOString(),
+        };
+        setReviews([...reviews, newReviewData]);
+        setNewReview("");
+        setRating(0);
+      } else {
+        console.error("Failed to create review");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
     }
   };
   const handleProviderClick = () => {

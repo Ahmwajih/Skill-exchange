@@ -188,6 +188,10 @@ export const register = (userInfo: UserInfo, router: ReturnType<typeof useRouter
     const data: RegisterResponse = await res.json();
     if (!res.ok || !data.success) throw new Error(data.message || "Registration failed");
 
+    if (!data.data || !data.data.email || !data.data.id) {
+      throw new Error("Incomplete user data received from the server");
+    }
+
     const payload = {
       currentUser: {
         id: data.data.id,

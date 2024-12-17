@@ -50,6 +50,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { name, email, password, country, photo, provider, role, skills, skillsLookingFor, bio, languages, Github, LinkedIn, availability, isVacationMode } = body;
 
+    if (!email || !name || !password) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(

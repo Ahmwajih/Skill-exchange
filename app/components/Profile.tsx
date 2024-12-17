@@ -167,6 +167,7 @@ const ProfileManagement: React.FC = () => {
       const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
       if (response.payload && response.payload.success) {
         toast.success("Profile updated successfully!");
+        router.push("/main"); // Redirect to the main page
       } else {
         toast.error(response.payload.error || "Failed to update profile.");
       }

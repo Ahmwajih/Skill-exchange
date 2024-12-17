@@ -54,9 +54,15 @@ const skillSlice = createSlice({
       state.searchResults = action.payload; // Reset search results when fetching skills
     },
     createSkill: (state, action: PayloadAction<Skill>) => {
+      if (!state.data) {
+        state.data = []; // Initialize state.data if it is null
+      }
       state.data.push(action.payload);
     },
     updateSkill: (state, action: PayloadAction<Skill>) => {
+      if (!state.data) {
+        state.data = []; // Initialize state.data if it is null
+      }
       const index = state.data.findIndex(
         (skill) => skill._id === action.payload._id
       );
@@ -65,6 +71,9 @@ const skillSlice = createSlice({
       }
     },
     deleteSkill: (state, action: PayloadAction<string>) => {
+      if (!state.data) {
+        state.data = []; // Initialize state.data if it is null
+      }
       state.data = state.data.filter((skill) => skill._id !== action.payload);
     },
     readSkill: (state, action: PayloadAction<Skill>) => {
@@ -141,6 +150,7 @@ export const addSkillToUser = createAsyncThunk(
   'skills/addSkillToUser',
   async (skillData: Partial<Skill>, { dispatch }) => {
     try {
+      console.log("Sending skill data:", skillData); // Add logging
       const res = await fetch(`/api/skills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,15 +158,19 @@ export const addSkillToUser = createAsyncThunk(
       });
 
       const data = await res.json();
+      console.log("Response status:", res.status); // Add logging
+      console.log("Response data:", data); // Add logging
 
-      if (res.status === 201) {
+      if (res.ok) { // Use res.ok to check for successful response
         dispatch(createSkill(data.data));
-        toast.success("Skill added successfully");
+        return { success: true, data: data.data };
       } else {
-        toast.error("Failed to add skill");
+        console.error("Failed to add skill:", data.error || "Unknown error"); // Add logging
+        return { success: false, error: data.error || "Failed to add skill" };
       }
-    } catch {
-      toast.error("Error adding skill");
+    } catch (error) {
+      console.error("Error adding skill:", error);
+      return { success: false, error: "Error adding skill" };
     }
   }
 );

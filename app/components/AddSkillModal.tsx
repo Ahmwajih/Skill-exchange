@@ -47,10 +47,18 @@ const AddSkillModal: React.FC<AddSkillModalProps> = ({ onClose, userId }) => {
     e.preventDefault();
 
     try {
-      await dispatch(addSkillToUser({ title, description, category, photo, userId }));
-      toast.success("Skill added successfully!");
-      onClose();
-    } catch {
+      console.log("Submitting skill data:", { title, description, category, photo, userId }); // Add logging
+      const response = await dispatch(addSkillToUser({ title, description, category, photo, userId }));
+      console.log("Response payload:", response.payload); // Add logging
+      if (response.payload && response.payload.success) {
+        toast.success("Skill added successfully!");
+        onClose();
+      } else {
+        console.error("Failed to add skill:", response.payload.error || "Unknown error"); // Add logging
+        toast.error(response.payload.error || "Failed to add skill.");
+      }
+    } catch (error) {
+      console.error("Error in handleSubmit:", error); // Add logging
       toast.error("Failed to add skill.");
     }
   };

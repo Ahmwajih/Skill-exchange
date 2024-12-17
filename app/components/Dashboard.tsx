@@ -77,25 +77,25 @@ const Dashboard = () => {
     }
   }, [dispatch, user]);
 
-  const handleFollow = async () => {
-    const action = following ? "unfollow" : "follow";
-    try {
-      const res = await dispatch(
-        followUser({
-          userId: user.id,
-          currentUserId: "674dfb05a84536e50c1b8f8e",
-          action,
-        })
-      );
-      if (res.success) {
-        setFollowing(!following);
-      } else {
-        console.error("Follow action failed:", res);
-      }
-    } catch (error) {
-      console.error("Error during follow action:", error);
-    }
-  };
+  // const handleFollow = async () => {
+  //   const action = following ? "unfollow" : "follow";
+  //   try {
+  //     const res = await dispatch(
+  //       followUser({
+  //         userId: user.id,
+  //         currentUserId: "674dfb05a84536e50c1b8f8e",
+  //         action,
+  //       })
+  //     );
+  //     if (res.success) {
+  //       setFollowing(!following);
+  //     } else {
+  //       console.error("Follow action failed:", res);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error during follow action:", error);
+  //   }
+  // };
 
   const handleVacationModeToggle = async () => {
     const updatedProfile = { ...profileData, isVacationMode: !isVacationMode };
@@ -170,9 +170,9 @@ const Dashboard = () => {
                   {profileData.followers.length >= 2 ? "followers" : "follower"}
                 </span>
               </div>
-              <button onClick={handleFollow} className="ml-4 bg-blue text-white py-2 px-4 rounded-md hover:bg-blue-600">
+              {/* <button onClick={handleFollow} className="ml-4 bg-blue text-white py-2 px-4 rounded-md hover:bg-blue-600">
                 {following ? "Unfollow" : "Follow"}
-              </button>
+              </button> */}
             </div>
           </div>
 

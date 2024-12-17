@@ -165,10 +165,10 @@ const ProfileManagement: React.FC = () => {
 
     try {
       const response = await dispatch(updateUserProfile({ id: user.id, userData: updatedProfile }));
-      if (response.payload.success) {
+      if (response.payload && response.payload.success) {
         toast.success("Profile updated successfully!");
       } else {
-        toast.error("Failed to update profile.");
+        toast.error(response.payload.error || "Failed to update profile.");
       }
     } catch (error) {
       console.error("Error updating profile:", error);

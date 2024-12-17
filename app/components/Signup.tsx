@@ -65,53 +65,41 @@ export default function SignIn() {
           photo: photoURL,
         }),
       });
-      if (!response.ok) {
-        const payload = {
-          currentUser: displayName,
-          token,
-          email: email,
-          role: "provider",
-          provider: "firebase",
-          id: result.user.uid,
-        };
-        dispatch(authAll(payload));
-        await dispatch(login({ email, password }, router));
 
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem("name", displayName);
-          sessionStorage.setItem("token", token);
-          sessionStorage.setItem("email", email);
-          sessionStorage.setItem("role", null);
-        }
-        router.push("/signin");
-      } else {
-        const data = await response.json();
-        const payload = {
-          currentUser: data.data,
-          token: data.token,
-          email: data.data.email,
-          role: data.data.role,
-          provider: "firebase",
-          isAuthenticated: true,
-        };
-        dispatch(authAll(payload));
-
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem(
-            "currentUser",
-            JSON.stringify(payload.currentUser)
-          );
-          sessionStorage.setItem("token", data.token);
-          sessionStorage.setItem("email", data.data.email);
-          sessionStorage.setItem("role", data.data.role);
-        }
-
-        router.push("/signin");
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Registration failed");
       }
+
+      if (!data.data || !data.data.email || !data.data.id) {
+        throw new Error("Incomplete user data received from the server");
+      }
+
+      const payload = {
+        currentUser: data.data,
+        token: data.token,
+        email: data.data.email,
+        role: data.data.role,
+        provider: "firebase",
+        isAuthenticated: true,
+      };
+
+      dispatch(authAll(payload));
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("currentUser", JSON.stringify(payload.currentUser));
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("email", data.data.email);
+        sessionStorage.setItem("role", data.data.role);
+      }
+
+      router.push("/signin");
     } catch (error) {
       console.error(`Error signing in with provider:`, error);
+      toast.error((error as Error).message || "Registration failed. Please try again.");
     }
   };
+
   return (
     <section className="flex flex-col items-center min-h-screen bg-white py-4 px-4 sm:px-8">
       <Link href="/main">

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       { $project: { password: 0 } }, // Exclude password
     ]);
 
-const totalUsers = await User.countDocuments();
+    const totalUsers = await User.countDocuments();
     return NextResponse.json({
       success: true,
       data: users,

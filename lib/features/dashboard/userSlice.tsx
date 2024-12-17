@@ -127,13 +127,13 @@ export const updateUserProfile = createAsyncThunk(
 
       if (res.status === 200) {
         dispatch(setCurrentUser(data.data)); 
-        toast.success("Profile updated successfully!");
+        return { success: true, data: data.data };
       } else {
-        toast.error(data.error || "Failed to update profile");
+        return { success: false, error: data.error || "Failed to update profile" };
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Error updating profile");
+      return { success: false, error: "Error updating profile" };
     }
   }
 );

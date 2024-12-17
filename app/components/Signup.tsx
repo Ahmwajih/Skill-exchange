@@ -110,7 +110,6 @@ export default function SignIn() {
       }
     } catch (error) {
       console.error(`Error signing in with provider:`, error);
-      alert(error.message);
     }
   };
   return (
